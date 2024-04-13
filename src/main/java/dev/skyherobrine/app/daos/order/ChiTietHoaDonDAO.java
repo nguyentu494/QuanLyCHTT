@@ -25,11 +25,14 @@ public class ChiTietHoaDonDAO implements IDAO<ChiTietHoaDon> {
     }
     @Override
     public boolean them(ChiTietHoaDon chiTietHoaDon) throws Exception {
+        EntityTransaction et = em.getTransaction();
         try {
+            et.begin();
             em.persist(chiTietHoaDon);
+            et.commit();
             return true;
         } catch (Exception e) {
-            em.getTransaction().rollback();
+            et.rollback();
             return false;
         }
     }
@@ -76,17 +79,7 @@ public class ChiTietHoaDonDAO implements IDAO<ChiTietHoaDon> {
             isNeedAnd.set(true);
         });
 
-        List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        while(resultSet.next()) {
-            ChiTietHoaDon chiTietHoaDon = new ChiTietHoaDon();
-//                    (new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get(),
-//                            new ChiTietPhienBanSanPhamDAO().timKiem(resultSet.getString("MaPhienBanSP")).get(),
-//                            resultSet.getInt("SoLuongMua"));
-
-            chiTietHoaDons.add(chiTietHoaDon);
-        }
+        List<ChiTietHoaDon> chiTietHoaDons = em.createNativeQuery(query.get(), ChiTietHoaDon.class).getResultList();
         return chiTietHoaDons;
     }
 

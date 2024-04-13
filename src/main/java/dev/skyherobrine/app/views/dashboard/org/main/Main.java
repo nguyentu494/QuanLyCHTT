@@ -5,6 +5,8 @@
 package dev.skyherobrine.app.views.dashboard.org.main;
 
 
+import dev.skyherobrine.app.controllers.dashboardui.mainDashboard.LapHoaDonController;
+import dev.skyherobrine.app.entities.person.NhaCungCap;
 import dev.skyherobrine.app.views.dashboard.component.*;
 import dev.skyherobrine.app.views.dashboard.libDashBoard.scroll.win11.ScrollPaneWin11;
 import dev.skyherobrine.app.views.dashboard.org.menu.Menu;
@@ -37,6 +39,13 @@ public class Main extends javax.swing.JFrame {
 //        process = 20;
         QuanLyNhapHang nh = new QuanLyNhapHang();
 //        process = 100;
+        LapHoaDon lapHoaDon = new LapHoaDon();
+        QuanLyHoaDon quanLyHoaDon = new QuanLyHoaDon();
+        QuanLyPhieuTraHangChoKhachHang quanLyPhieuTraHangChoKhachHang = new QuanLyPhieuTraHangChoKhachHang();
+        LapHoaDonController lapHoaDonController = new LapHoaDonController(lapHoaDon);
+        FrmNhaCungCap ncc = new FrmNhaCungCap();
+        FrmKhachHang kh = new FrmKhachHang();
+        FrmNhanVien nv = new FrmNhanVien();
         pnBody.add(t);
         menuDashBoard.setEvent(new MenuEvent() {
             @Override
@@ -50,28 +59,35 @@ public class Main extends javax.swing.JFrame {
 
                     if (index == 0) {//trang chủ
                         showForm(t);
+//                        lapHoaDonController.checkCamera();
 //                        System.out.println("Form : " + index + " " + subIndex);
                     } else if(index ==1){// thông tin cá nhân
                         showForm(new FormTHongTinCaNhan());
+//                        lapHoaDonController.checkCamera();
 //                        System.out.println("Form : " + index + " " + subIndex);
                     } else if (index==2 && subIndex==1) {//Lập hoá đơn
-                        showForm(new LapHoaDon());
+                        showForm(lapHoaDon);
+//                        lapHoaDonController.setCamera();
 //                        System.out.println("Form : " + index + " " + subIndex);
                     } else if (index==2 && subIndex==2) {//Quản lý hoá đơn
-                        showForm(new QuanLyHoaDon());
+                        showForm(quanLyHoaDon);
+//                        lapHoaDonController.checkCamera();
 //                        System.out.println("Form : " + index + " " + subIndex);
                     } else if(index == 3) {//Thuế
                         showForm(new FormThue());
                         System.out.println("Form: " + index + " " + subIndex);
                     } else if (index==4 && subIndex==1) {// quản lý sản phẩm
                         showForm(sp);
+//                        lapHoaDonController.checkCamera();
+//                        lapHoaDonController.offCamera();
                         System.out.println("Form : " + index + " " + subIndex);
                     }else if (index==4 && subIndex==2) {//Quản lý Nhập hàng
                         showForm(nh);
+//                        lapHoaDonController.checkCamera();
                         System.out.println("Form : " + index + " " + subIndex);
                     }
                     else  if (index==4 && subIndex==3) {//quản lý trả hàng của khách hàng
-                        showForm(new QuanLyPhieuTraHangChoKhachHang());
+                        showForm(quanLyPhieuTraHangChoKhachHang);
                         System.out.println("Form : " + index + " " + subIndex);
                     }
                     else if (index==4 && subIndex==5) {// xoá
@@ -82,13 +98,13 @@ public class Main extends javax.swing.JFrame {
                         showForm(new DefaultForm("Form : " + index + " " + subIndex));
                         System.out.println("Form : " + index + " " + subIndex);
                     } else if (index==5 ) {//nhà cung cấp
-                        showForm(new FrmNhaCungCap());
+                        showForm(ncc);
                         System.out.println("Form : " + index + " " + subIndex);
                     }else if (index==6 ) {//khách hàng
-                        showForm(new FrmKhachHang());
+                        showForm(kh);
                         System.out.println("Form : " + index + " " + subIndex);
                     }else if (index==7) {//nhân viên
-                        showForm(new FrmNhanVien());
+                        showForm(nv);
                         System.out.println("Form : " + index + " " + subIndex);
                     }else if (index==8 && subIndex ==1 ) {// báo cáo cửa hàng về doanh thu
                         showForm(new FormBaoCaoDoanhThuCuaHang());

@@ -30,11 +30,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class ChiTietHoaDonId implements Serializable {
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_hd", nullable = false)
     private HoaDon hoaDon;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_phien_ban_sp", nullable = false)
     private ChiTietPhienBanSanPham phienBanSanPham;
 }

@@ -29,7 +29,7 @@ public class NhanVien {
     @Id
     @Column(name = "ma_nv", nullable = false)
     private String maNV;
-    @Column(name = "ho_ten", nullable = false)
+    @Column(name = "ho_ten", nullable = false, columnDefinition = "nvarchar(255)")
     private String hoTen;
     @Column(name = "so_dien_thoai", nullable = false)
     private String soDienThoai;
@@ -39,7 +39,7 @@ public class NhanVien {
     private LocalDate ngaySinh;
     @Column(name = "email", nullable = false)
     private String email;
-    @Column(name = "dia_chi", nullable = false)
+    @Column(name = "dia_chi", nullable = false, columnDefinition = "nvarchar(255)")
     private String diaChi;
     @Enumerated(value = EnumType.STRING)
     @Column(name = "chuc_vu", nullable = false)

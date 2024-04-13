@@ -3,6 +3,7 @@ package dev.skyherobrine.app.entities.order;
 import dev.skyherobrine.app.entities.person.KhachHang;
 import dev.skyherobrine.app.entities.person.NhanVien;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
@@ -14,9 +15,13 @@ import java.util.List;
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
+@Getter
 @Entity
 @NamedQueries({
-
+        @NamedQuery(name = "HD.findAll", query = "SELECT hd FROM HoaDon hd"),
+        @NamedQuery(name = "HD.findByID", query = "SELECT hd FROM HoaDon hd WHERE hd.maHD = :id"),
+})
+@NamedNativeQueries({
 })
 public class HoaDon {
     @Id
@@ -24,17 +29,17 @@ public class HoaDon {
     private String maHD;
     @Column(name = "ngay_lap", nullable = false)
     private LocalDateTime ngayLap;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "ma_nv", nullable = false)
     private NhanVien nhanVienLap;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "ma_kh", nullable = false)
     private KhachHang khachHang;
     @Column(name = "so_tien_kh_tra", nullable = false)
     private BigDecimal soTienKHTra;
     @Column(name = "ghi_chu")
     private String ghiChu;
-    @OneToMany(mappedBy = "chiTietHoaDonId.hoaDon", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chiTietHoaDonId.hoaDon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<ChiTietHoaDon> chiTietHoaDons;
 
@@ -51,56 +56,28 @@ public class HoaDon {
 
     }
 
-    public String getMaHD() {
-        return maHD;
-    }
-
     public void setMaHD(String maHD) {
         this.maHD = maHD;
-    }
-
-    public LocalDateTime getNgayLap() {
-        return ngayLap;
     }
 
     public void setNgayLap(LocalDateTime ngayLap) {
         this.ngayLap = ngayLap;
     }
 
-    public NhanVien getNhanVienLap() {
-        return nhanVienLap;
-    }
-
     public void setNhanVienLap(NhanVien nhanVienLap) {
         this.nhanVienLap = nhanVienLap;
-    }
-
-    public KhachHang getKhachHang() {
-        return khachHang;
     }
 
     public void setKhachHang(KhachHang khachHang) {
         this.khachHang = khachHang;
     }
 
-    public BigDecimal getSoTienKHTra() {
-        return soTienKHTra;
-    }
-
     public void setSoTienKHTra(BigDecimal soTienKHTra) {
         this.soTienKHTra = soTienKHTra;
     }
 
-    public String getGhiChu() {
-        return ghiChu;
-    }
-
     public void setGhiChu(String ghiChu) {
         this.ghiChu = ghiChu;
-    }
-
-    public List<ChiTietHoaDon> getChiTietHoaDons() {
-        return chiTietHoaDons;
     }
 
     public void setChiTietHoaDons(List<ChiTietHoaDon> chiTietHoaDons) {

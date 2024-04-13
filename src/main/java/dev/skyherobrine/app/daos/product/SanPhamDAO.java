@@ -8,6 +8,7 @@ import dev.skyherobrine.app.entities.product.SanPham;
 import dev.skyherobrine.app.entities.product.ThuongHieu;
 import dev.skyherobrine.app.enums.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
 import java.sql.Date;
@@ -90,58 +91,24 @@ public class SanPhamDAO implements IDAO<SanPham> {
 
     @Override
     public List<SanPham> timKiem(Map<String, Object> conditions) throws Exception {
-//        AtomicReference<String> query = new AtomicReference<>
-//                ("select * from SanPham sp where ");
-//        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
-//
-//        conditions.forEach((column, value) -> {
-//            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("sp." + column + " = N'" + value + "'"));
-//            isNeedAnd.set(true);
-//        });
-//
-//        List<SanPham> sanPhams = new ArrayList<>();
-//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
-//        ResultSet resultSet = preparedStatement.executeQuery();
-//        while(resultSet.next()) {
-//            SanPham sanPham = new SanPham(resultSet.getString("MaSP"),
-//                    resultSet.getString("TenSP"),
-//                    new LoaiSanPhamDAO().timKiem(resultSet.getString("MaLoai")).get(),
-//                    PhongCachMac.layGiaTri(resultSet.getString("PhongCachMac")),
-//                    DoTuoi.layGiaTri(resultSet.getString("DoTuoi")),
-//                    resultSet.getString("XuatXu"),
-//                    new ThuongHieuDAO().timKiem(resultSet.getString("MaTH")).get(),
-//                    resultSet.getFloat("PhanTramLoi"),
-//                    resultSet.getDate("NgaySanXuat").toLocalDate(),
-//                    new ThueDAO().timKiem(resultSet.getString("MaThue")).get(),
-//                    TinhTrangSanPham.layGiaTri(resultSet.getString("TinhTrang")));
-//            sanPhams.add(sanPham);
-//        }
-//        return sanPhams;
-        return null;
+        AtomicReference<String> query = new AtomicReference<>
+                ("select sp from SanPham sp where ");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("sp." + column + " = N'" + value + "'"));
+            isNeedAnd.set(true);
+        });
+
+
+        List<SanPham> sanPhams = new ArrayList<>();
+        return sanPhams;
     }
 
     @Override
     public Optional<SanPham> timKiem(String id) throws Exception {
-//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-//                ("select * from SanPham where MaSP = ?");
-//        preparedStatement.setString(1, id);
-//        ResultSet resultSet = preparedStatement.executeQuery();
-//        if(resultSet.next()) {
-//            SanPham sanPham = new SanPham(resultSet.getString("MaSP"),
-//                    resultSet.getString("TenSP"),
-//                    new LoaiSanPhamDAO().timKiem(resultSet.getString("MaLoai")).get(),
-//                    PhongCachMac.layGiaTri(resultSet.getString("PhongCachMac")),
-//                    DoTuoi.layGiaTri(resultSet.getString("DoTuoi")),
-//                    resultSet.getString("XuatXu"),
-//                    new ThuongHieuDAO().timKiem(resultSet.getString("MaTH")).get(),
-//                    resultSet.getFloat("PhanTramLoi"),
-//                    resultSet.getDate("NgaySanXuat").toLocalDate(),
-//                    new ThueDAO().timKiem(resultSet.getString("MaThue")).get(),
-//                    TinhTrangSanPham.layGiaTri(resultSet.getString("TinhTrang")));
-//
-//            return Optional.of(sanPham);
-//        }
-        return Optional.empty();
+            SanPham sp = em.createNamedQuery("SanPham.findByID", SanPham.class).setParameter("maSP", id).getSingleResult();
+            return Optional.of(sp);
     }
 
     @Override

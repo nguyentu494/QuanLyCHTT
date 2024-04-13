@@ -37,6 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -57,16 +59,16 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
     private static SanPhamDAO sanPhamDAO;
     private static ConnectDB connectDB;
     private static ChiTietPhieuNhapHangDAO chiTietPhieuNhapHangDAO;
+    private static List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
     public HoaDonController(QuanLyHoaDon hoaDonUI) {
         try {
             this.hoaDonUI = hoaDonUI;
             hoaDonDAO = new HoaDonDAO();
-            this.connectDB = new ConnectDB();
             chiTietHoaDonDAO = new ChiTietHoaDonDAO();
             sanPhamDAO = new SanPhamDAO();
             chiTietPhieuNhapHangDAO = new ChiTietPhieuNhapHangDAO();
             loadDsHoaDon();
-            loadCbMucTien();
+//            loadCbMucTien();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -78,15 +80,16 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
                 DefaultTableModel tmHoaDon= (DefaultTableModel) hoaDonUI.getTbDanhSachHoaDon().getModel();
                 tmHoaDon.setRowCount(0);
                 Map<String, Object> conditions = new HashMap<>();
-                conditions.put("NgayLap >= DATEADD(DAY, -7, GETDATE()) AND MaHD", "%%");
+                conditions.put("ngay_lap >= DATEADD(DAY, -7, GETDATE()) AND ma_hd", "%%");
                 try {
                     dsHoaDon = hoaDonDAO.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 double tongTien = 0;
+                int i = 0;
                 for(HoaDon hd : dsHoaDon){
-                    String row[] = {hd.getMaHD(), hd.getNgayLap()+"", hd.getNhanVienLap().getHoTen(), hd.getKhachHang().getHoTen()};
+                    String row[] = {(++i)+"",hd.getMaHD(), hd.getNgayLap()+"", hd.getNhanVienLap().getHoTen()};
                     tmHoaDon.addRow(row);
                 }
             }
@@ -99,101 +102,62 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
         hoaDonUI.getCbTkCaLamViec().addItem("5 - 10 triệu");
         hoaDonUI.getCbTkCaLamViec().addItem("hơn 10 triệu");
     }
-    public double tinhTongTien(String maHD){
+    public static double tinhTongTien(String maHD){
         try {
             Map<String, Object> conditions = new HashMap<>();
-            conditions.put("MaHD", maHD);
-
-            List<ChiTietHoaDon> chiTietHoaDons = chiTietHoaDonDAO.timKiem(conditions);
+            conditions.put("ma_hd", maHD);
+            HoaDon hd = dsHoaDon.stream().filter(hd1 -> hd1.getMaHD().equals(maHD)).findFirst().get();
+            LocalDateTime ngayLap = hd.getNgayLap();
+            Map<String, Object> conditionsSP = new HashMap<>();
+            conditionsSP.put("ngay_lap", ngayLap);
+            chiTietHoaDons = chiTietHoaDonDAO.timKiem(conditions);
             double tongTien = 0;
             for(ChiTietHoaDon chiTietHoaDon : chiTietHoaDons){
-                Map<String, Object> conditionsSP = new HashMap<>();
                 Optional<SanPham> sanPham = Optional.of(new SanPham());
-//                conditionsSP.put("MaSP", chiTietHoaDon.getChiTietPhienBanSanPham().getSanPham().getMaSP());
-//                Optional<SanPham> sanPham = sanPhamDAO.timKiem(chiTietHoaDon.getChiTietPhienBanSanPham().getSanPham().getMaSP());
-//                sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditionsSP));
+                String maSp = chiTietHoaDon.getChiTietHoaDonId().getPhienBanSanPham().getSanPham().getMaSP();
+                conditionsSP.put("ma_sp", maSp);
+                sanPham = sanPhamDAO.timKiem(maSp);
+                sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiemHaiBang(conditionsSP));
                 tongTien += chiTietHoaDon.getSoLuongMua() * sanPham.get().giaBan();
             }
-            return tongTien;
+            return Math.round(tongTien);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
     }
     public static void xemHoaDon(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int row = hoaDonUI.getTbDanhSachHoaDon().getSelectedRow();
-                DefaultTableModel tmHoaDon = (DefaultTableModel) hoaDonUI.getTbDanhSachHoaDon().getModel();
-                String maHD = hoaDonUI.getTbDanhSachHoaDon().getValueAt(row, 0).toString();
-                hoaDonUI.getPnHoaDon().removeAll();
-                hoaDonUI.getPnHoaDon().repaint();
-                hoaDonUI.getPnHoaDon().revalidate();
-                Map<String, Object> data= new HashMap<>();
-                data.put("maHD", maHD);
-                Map<String, Object> conditions= new HashMap<>();
-                conditions.put("MaHD", maHD);
-                List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
-                BigDecimal tienKhachDua = null;
-                DecimalFormat format = new DecimalFormat("0.00");
-                try {
-                    chiTietHoaDons = chiTietHoaDonDAO.timKiem(conditions);
-                    tienKhachDua = hoaDonDAO.timKiem(maHD).get().getSoTienKHTra();
-                    for(ChiTietHoaDon cthd : chiTietHoaDons){
-                        Map<String, Object> conditionsSP = new HashMap<>();
-                        Optional<SanPham> sanPham = Optional.of(new SanPham());
-
-//                        conditionsSP.put("MaSP", cthd.getChiTietPhienBanSanPham().getSanPham().getMaSP());
-//                        Optional<SanPham> sanPham = sanPhamDAO.timKiem(cthd.getChiTietPhienBanSanPham().getSanPham().getMaSP());
-                        sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditionsSP));
-                        data.put("ThanhTien", format.format(cthd.getSoLuongMua() * sanPham.get().giaBan()));
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-
-                data.put("TongTien", tmHoaDon.getValueAt(row, 3).toString());
-                data.put("tienKhachDua", tienKhachDua);
-                data.put("tienThua",tienKhachDua.doubleValue());
-
-                try {
-                    JasperDesign jasperDesign = JRXmlLoader.load(new File("src/main/resources/HoaDon/hoadon.jrxml"));
-                    JasperReport jreport = JasperCompileManager.compileReport(jasperDesign);
-                    JasperPrint jprint = JasperFillManager.fillReport(jreport, data, connectDB.getConnection());
-                    JRViewer v = new JRViewer(jprint);
-                    hoaDonUI.getPnHoaDon().setLayout(new BorderLayout());
-                    hoaDonUI.getPnHoaDon().add(v);
-                }catch (Exception ex){
-                    throw new RuntimeException(ex);
-                }
-            }
-        }).start();
+        int row = hoaDonUI.getTbDanhSachHoaDon().getSelectedRow();
+        DefaultTableModel tmHoaDon = (DefaultTableModel) hoaDonUI.getTbDanhSachHoaDon().getModel();
+        String maHD = tmHoaDon.getValueAt(row, 1).toString();
+        hoaDonUI.getTxtHoaDon().setText(maHD);
+        hoaDonUI.getTxtNgayLap().setText(tmHoaDon.getValueAt(row, 2).toString());
+        hoaDonUI.getTxtTenNhanVien().setText(tmHoaDon.getValueAt(row, 3).toString());
+        hoaDonUI.getTxtKhachHang().setText(dsHoaDon.stream().filter(hd -> hd.getMaHD().equals(maHD)).findFirst().get().getKhachHang().getHoTen());
+        hoaDonUI.getTxtKhachHang1().setText(dsHoaDon.stream().filter(hd -> hd.getMaHD().equals(maHD)).findFirst().get().getSoTienKHTra().toString()  );
+        hoaDonUI.getTxtKhachHang2().setText(tinhTongTien(maHD)+"");
     }
     public static void inHoaDon(){
             int result = JOptionPane.showConfirmDialog(null, "Bạn có muốn in hóa đơn này không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if(result == JOptionPane.YES_OPTION){
                 int row = hoaDonUI.getTbDanhSachHoaDon().getSelectedRow();
                 DefaultTableModel tmHoaDon = (DefaultTableModel) hoaDonUI.getTbDanhSachHoaDon().getModel();
-                String maHD = hoaDonUI.getTbDanhSachHoaDon().getValueAt(row, 0).toString();
-                hoaDonUI.getPnHoaDon().removeAll();
-                hoaDonUI.getPnHoaDon().repaint();
-                hoaDonUI.getPnHoaDon().revalidate();
+                String maHD = hoaDonUI.getTxtHoaDon().getText();
                 Map<String, Object> data= new HashMap<>();
-                data.put("maHD", maHD);
-                Map<String, Object> conditions= new HashMap<>();
-                conditions.put("MaHD", maHD);
-                List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
-                BigDecimal tienKhachDua = null;
+                data.put("ma_hd", maHD);
+                Double tienKhachDua = null;
+                Map<String, Object> conditionsSP = new HashMap<>();
+                HoaDon hd = dsHoaDon.stream().filter(hd1 -> hd1.getMaHD().equals(maHD)).findFirst().get();
+                LocalDateTime ngayLap = hd.getNgayLap();
+                conditionsSP.put("NgayLap", ngayLap);
                 try {
-                    chiTietHoaDons = chiTietHoaDonDAO.timKiem(conditions);
-                    tienKhachDua = hoaDonDAO.timKiem(maHD).get().getSoTienKHTra();
+                    tienKhachDua = Double.parseDouble(hoaDonUI.getTxtKhachHang1().getText());
                     for(ChiTietHoaDon cthd : chiTietHoaDons){
-                        Map<String, Object> conditionsSP = new HashMap<>();
-                        Optional<SanPham> sanPham = Optional.of(new SanPham());
 
-//                        conditionsSP.put("MaSP", cthd.getChiTietPhienBanSanPham().getSanPham().getMaSP());
-//                        Optional<SanPham> sanPham = sanPhamDAO.timKiem(cthd.getChiTietPhienBanSanPham().getSanPham().getMaSP());
+                        Optional<SanPham> sanPham = Optional.of(new SanPham());
+                        String maSp = cthd.getChiTietHoaDonId().getPhienBanSanPham().getSanPham().getMaSP();
+                        conditionsSP.put("MaSP", maSp);
+                        sanPham = sanPhamDAO.timKiem(maSp);
                         sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditionsSP));
                         data.put("ThanhTien", cthd.getSoLuongMua() * sanPham.get().giaBan());
                     }
@@ -201,16 +165,16 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
                     throw new RuntimeException(ex);
                 }
 
-                data.put("TongTien", tmHoaDon.getValueAt(row, 4).toString());
+                data.put("TongTien", hoaDonUI.getTxtKhachHang2().getText());
                 data.put("tienKhachDua", tienKhachDua);
-                data.put("tienThua", abs(Double.parseDouble(tmHoaDon.getValueAt(row, 4).toString()) - tienKhachDua.doubleValue()));
+                data.put("tienThua", abs(Double.parseDouble(hoaDonUI.getTxtKhachHang2().getText()) - tienKhachDua.doubleValue()));
 
                 try {
                     JasperDesign jasperDesign = JRXmlLoader.load(new File("src/main/resources/HoaDon/hoadon.jrxml"));
                     JasperReport jreport = JasperCompileManager.compileReport(jasperDesign);
-                    JasperPrint jprint = JasperFillManager.fillReport(jreport, data, connectDB.getConnection());
+                    Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT1;encrypt=false;trustServerCertificate=true", "sa", "123");
+                    JasperPrint jprint = JasperFillManager.fillReport(jreport, data, con);
                     JasperViewer.viewReport(jprint, false);
-                    JasperExportManager.exportReportToPdfFile(jprint, "src/main/resources/HoaDon/DanhSachHoaDonInLai/"+ maHD +".pdf");
                 }catch (Exception ex){
                     throw new RuntimeException(ex);
                 }
@@ -332,8 +296,8 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getSource().toString().equalsIgnoreCase(hoaDonUI.getjDateChooserNgayLapHoaDon().toString())){
-            Date selectedDate = hoaDonUI.getjDateChooserNgayLapHoaDon().getDate();
+        if(evt.getSource().toString().equalsIgnoreCase(hoaDonUI.getJDateChooserNgayLapHoaDon().toString())){
+            Date selectedDate = hoaDonUI.getJDateChooserNgayLapHoaDon().getDate();
             LocalDate localDate = dateToLocalDate(selectedDate);
             if (selectedDate != null) {
                 String nlap = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

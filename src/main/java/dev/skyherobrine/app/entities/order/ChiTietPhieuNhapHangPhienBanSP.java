@@ -18,7 +18,7 @@ import lombok.*;
 public class ChiTietPhieuNhapHangPhienBanSP {
     @EmbeddedId
     private ChiTietPhieuNhapHangPhienBanSPId chiTietPhieuNhapHangPhienBanSPId;
-    @Column(name = "so_luong_nhap", nullable = false)
+    @Column(name = "so_luong", nullable = false)
     private int soLuongNhap;
 
 }

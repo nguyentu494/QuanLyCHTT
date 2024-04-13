@@ -14,7 +14,8 @@ import lombok.Getter;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "CTPNH.findAll", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh"),
-        @NamedQuery(name = "CTPNH.findByID", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.id = :id")
+        @NamedQuery(name = "CTPNH.findByID", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.id = :id"),
+        @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP")
 })
 public class ChiTietPhieuNhapHang {
     @Id

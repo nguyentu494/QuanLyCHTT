@@ -21,7 +21,7 @@ public class KhachHang {
     @Id
     @Column(name = "ma_kh", nullable = false)
     private String maKH;
-    @Column(name = "ho_ten", nullable = false)
+    @Column(name = "ho_ten", nullable = false, columnDefinition = "nvarchar(255)")
     private String hoTen;
     @Column(name = "so_dien_thoai", nullable = false)
     private String soDienThoai;

@@ -17,9 +17,9 @@ public class NhaCungCap {
     @Id
     @Column(name = "ma_ncc", nullable = false)
     private String maNCC;
-    @Column(name = "ten_ncc", nullable = false)
+    @Column(name = "ten_ncc", nullable = false, columnDefinition = "nvarchar(255)")
     private String tenNCC;
-    @Column(name = "dia_chi_ncc", nullable = false)
+    @Column(name = "dia_chi_ncc", nullable = false, columnDefinition = "nvarchar(255)")
     private String diaChiNCC;
     @Column(name = "email", nullable = false)
     private String email;

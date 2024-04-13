@@ -79,27 +79,25 @@ public class ChiTietPhieuNhapHangDAO implements IDAO<ChiTietPhieuNhapHang> {
 
     @Override
     public List<ChiTietPhieuNhapHang> timKiem(Map<String, Object> conditions) throws Exception {
-//        AtomicReference<String> query = new AtomicReference<>
-//                ("select * from ChiTietPhieuNhap ctpn where ");
-//        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
-//        conditions.forEach((column, value) -> {
-//            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("ctpn." + column + " like '" + value +"'"));
-//            isNeedAnd.set(true);
-//        });
+        AtomicReference<String> query = new AtomicReference<>
+                ("select * from ChiTietPhieuNhapHang ctpnh where ");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("ctpnh." + column + " like '" + value +"'"));
+            isNeedAnd.set(true);
+        });
 
         List<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs = new ArrayList<>();
-//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
-//        ResultSet resultSet = preparedStatement.executeQuery();
-//        while (resultSet.next()) {
-//            ChiTietPhieuNhapHang chiTietPhieuNhapHang = new ChiTietPhieuNhapHang(
-//                    resultSet.getString("MaChiTietPhieuNhap"),
-//                    new PhieuNhapHangDAO().timKiem(resultSet.getString("MaPhieuNhap")).get(),
-//                    new SanPhamDAO().timKiem(resultSet.getString("MaSP")).get(),
-//                    resultSet.getDouble("GiaNhap"));
-//
-//            chiTietPhieuNhapHangs.add(chiTietPhieuNhapHang);
-//        }
-        return chiTietPhieuNhapHangs;
+        try{
+            chiTietPhieuNhapHangs = em.createNativeQuery(query.get(), ChiTietPhieuNhapHang.class).getResultList();
+            return chiTietPhieuNhapHangs;
+        }catch (Exception e) {
+            return chiTietPhieuNhapHangs;
+        }
+    }
+
+    public List<ChiTietPhieuNhapHang> timKiemHaiBang(Map<String, Object> conditions) throws Exception {
+        return em.createNamedQuery("CTPNH.findByDayAndMaSP", ChiTietPhieuNhapHang.class).setParameter("ngayNhap", conditions.get("ngay_lap")).setParameter("maSP", conditions.get("ma_sp")).getResultList();
     }
 
     @Override

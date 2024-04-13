@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -27,11 +28,12 @@ public class HoaDonDAO implements IDAO<HoaDon> {
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
-            em.persist(hoaDon);
+            em.merge(hoaDon);
             et.commit();
             return true;
-        }catch (Exception e) {
-            em.getTransaction().rollback();
+        }catch (Exception e){
+            e.printStackTrace();
+            et.rollback();
             return false;
         }
     }
@@ -53,21 +55,30 @@ public class HoaDonDAO implements IDAO<HoaDon> {
 
     @Override
     public List<HoaDon> timKiem() throws Exception {
-        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery
-                ("select * from HoaDon ORDER BY NgayLap ASC");
-        List<HoaDon> hoaDons = new ArrayList<>();
-        while (resultSet.next()) {
-            HoaDon hoaDon = new HoaDon(
-                    resultSet.getString("MaHD"),
-                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienDAO().timKiem(resultSet.getString("MaNV")).get(),
-                    new KhachHangDAO().timKiem(resultSet.getString("MaKH")).get(),
-                    resultSet.getBigDecimal("SoTienKHTra"),
-                    resultSet.getString("GhiChu")
-            );
-            hoaDons.add(hoaDon);
+//        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery
+//                ("select * from HoaDon ORDER BY NgayLap ASC");
+//        List<HoaDon> hoaDons = new ArrayList<>();
+//        while (resultSet.next()) {
+//            HoaDon hoaDon = new HoaDon(
+//                    resultSet.getString("MaHD"),
+//                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
+//                    new NhanVienDAO().timKiem(resultSet.getString("MaNV")).get(),
+//                    new KhachHangDAO().timKiem(resultSet.getString("MaKH")).get(),
+//                    resultSet.getBigDecimal("SoTienKHTra"),
+//                    resultSet.getString("GhiChu")
+//            );
+//            hoaDons.add(hoaDon);
+//        }
+//        return hoaDons;
+        EntityTransaction et = em.getTransaction();
+        try{
+            et.begin();
+//            em.createNamedQuery()
+            et.commit();
+        }catch (Exception e){
+
         }
-        return hoaDons;
+        return null;
     }
 
     @Override
@@ -77,26 +88,12 @@ public class HoaDonDAO implements IDAO<HoaDon> {
         AtomicBoolean isNeedAnd = new AtomicBoolean(false);
 
         conditions.forEach((column, value) -> {
-            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("hd." + column + " LIKE '" + value + "'") +"ORDER BY NgayLap ASC");
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("hd." + column + " LIKE '" + value + "'") +"ORDER BY ngay_lap ASC");
             isNeedAnd.set(true);
         });
-        System.out.println(query.get());
-        List<HoaDon> hoaDons = new ArrayList<>();
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-            HoaDon hoaDon = new HoaDon(
-                    resultSet.getString("MaHD"),
-                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienDAO().timKiem(resultSet.getString("MaNV")).get(),
-                    new KhachHangDAO().timKiem(resultSet.getString("MaKH")).get(),
-                    resultSet.getBigDecimal("SoTienKHTra"),
-                    resultSet.getString("GhiChu")
-            );
-            hoaDons.add(hoaDon);
 
-        }
-        return hoaDons;
+
+        return em.createNativeQuery(query.get(), HoaDon.class).getResultList();
     }
 
     @Override

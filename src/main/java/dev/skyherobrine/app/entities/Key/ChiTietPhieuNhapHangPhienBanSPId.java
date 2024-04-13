@@ -31,9 +31,9 @@ import java.io.Serializable;
 @ToString
 public class ChiTietPhieuNhapHangPhienBanSPId implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_chi_tiet_phieu_nhap_hang", nullable = false)
+    @JoinColumn(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private ChiTietPhieuNhapHang chiTietPhieuNhapHang;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ma_chi_tiet_phien_ban_sp", nullable = false)
+    @JoinColumn(name = "ma_phien_ban_sp", nullable = false)
     private ChiTietPhienBanSanPham chiTietPhienBanSanPham;
 }

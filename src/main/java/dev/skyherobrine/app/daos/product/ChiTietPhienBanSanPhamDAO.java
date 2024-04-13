@@ -113,10 +113,19 @@ public class ChiTietPhienBanSanPhamDAO implements IDAO<ChiTietPhienBanSanPham> {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from PhienBanSanPham where MaPhienBanSP = ?");
         preparedStatement.setString(1, id);
+
         ResultSet resultSet = preparedStatement.executeQuery();
+        System.out.println(id);
         if(resultSet.next()) {
-            return Optional.of(new ChiTietPhienBanSanPham(resultSet.getString("MaPhienBanSP"), new SanPhamDAO().timKiem(resultSet.getString("MaSP")).get(),
-                    MauSac.layGiaTri(resultSet.getString("MauSac")), resultSet.getString("KichThuoc"), resultSet.getInt("SoLuong"), resultSet.getString("HinhAnh")));
+            ChiTietPhienBanSanPham chiTietPhienBanSanPham = new ChiTietPhienBanSanPham(
+                    resultSet.getString("MaPhienBanSP"),
+                    new SanPhamDAO().timKiem(resultSet.getString("MaSP")).get(),
+                    MauSac.layGiaTri(resultSet.getString("MauSac")),
+                    resultSet.getString("KichThuoc"),
+                    resultSet.getInt("SoLuong"),
+                    resultSet.getString("HinhAnh")
+            );
+            return Optional.of(chiTietPhienBanSanPham);
         } else {
             return Optional.empty();
         }

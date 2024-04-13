@@ -1,5 +1,7 @@
 package dev.skyherobrine.app.daos;
 
+import lombok.Getter;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -11,7 +13,14 @@ import java.sql.DriverManager;
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
+@Getter
 public class ConnectDB {
+    /**
+     * -- GETTER --
+     *  Lấy kết nối của CSDL, từ đây thì có thể thực hiện các câu lệnh truy vấn CSDL.
+     *
+     * @return {@link Connection} trả về kết nối của đối tượng
+     */
     private Connection connection;
 
     /**
@@ -22,13 +31,7 @@ public class ConnectDB {
     public ConnectDB() throws Exception {
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT;encrypt=false;trustServerCertificate=true", "sa", "123");
+
     }
 
-    /**
-     * Lấy kết nối của CSDL, từ đây thì có thể thực hiện các câu lệnh truy vấn CSDL.
-     * @return {@link Connection} trả về kết nối của đối tượng
-     */
-    public Connection getConnection() {
-        return connection;
-    }
 }
