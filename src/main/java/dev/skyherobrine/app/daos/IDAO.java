@@ -1,5 +1,7 @@
 package dev.skyherobrine.app.daos;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,7 +16,7 @@ import java.util.Optional;
  * @see T
  * @version 3.0
  */
-public interface IDAO<T>{
+public interface IDAO<T> extends Remote {
     /**
      * Chèn thêm dữ liệu vào trong CSDL.
      * @param t

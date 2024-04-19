@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể "Chi Tiết Phiếu Trả Khách Hàng", thực thể này dùng để lưu thông tin chi tiết về sản phẩm
  * mà khách hàng đến trả và cũng như số lượng khách hàng muốn trả.
@@ -22,8 +25,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChiTietPhieuTraKhachHang {
-    @EmbeddedId
+public class ChiTietPhieuTraKhachHang implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@EmbeddedId
     private ChiTietPhieuTraKhachHangId chiTietPhieuTraKhachHangId;
     @Column(name = "so_luong_tra", nullable = false)
     private int soLuongTra;

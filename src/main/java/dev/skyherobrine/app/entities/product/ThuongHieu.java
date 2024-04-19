@@ -4,6 +4,9 @@ import dev.skyherobrine.app.enums.TinhTrangThuongHieu;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể "Thương Hiệu", thực thể này dùng để lưu trữ thông tin của thương hiệu sản xuất ra sản phẩm.
  * Một sản phẩm có thể thuộc 1 thương hiệu nhưng một thương hiệu có thể sản xuất ra nhiều sản phẩm khác
@@ -14,8 +17,13 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class ThuongHieu {
-    @Id
+public class ThuongHieu implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_th", nullable = false)
     private String maTH;
     @Column(name = "ten_th", nullable = false)

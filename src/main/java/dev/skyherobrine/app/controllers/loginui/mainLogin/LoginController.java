@@ -1,15 +1,13 @@
 package dev.skyherobrine.app.controllers.loginui.mainLogin;
 
 
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.person.NhanVien;
 import dev.skyherobrine.app.views.dashboard.org.main.Main;
 import dev.skyherobrine.app.views.loginui.mainLogin.FormQuenMatKhau;
 import dev.skyherobrine.app.views.loginui.mainLogin.LoginUI;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,10 +17,10 @@ import java.util.List;
 public class LoginController implements ActionListener, KeyListener {
     private static LoginUI loginUI;
 
-    private NhanVienDAO nhanVienDAO;
+    private NhanVienImp nhanVienImp;
     public LoginController(LoginUI loginUI) {
         try {
-            nhanVienDAO = new NhanVienDAO();
+            nhanVienImp = new NhanVienImp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -68,7 +66,7 @@ public class LoginController implements ActionListener, KeyListener {
 
     public void checkLogin() throws Exception {
         try {
-            List<NhanVien> nhanViens = nhanVienDAO.timKiem();
+            List<NhanVien> nhanViens = nhanVienImp.timKiem();
             String tenTK = loginUI.getUsernameField().toString();
             String matKhau = loginUI.getUsernameField().toString();
             int count = 0;

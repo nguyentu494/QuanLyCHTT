@@ -5,12 +5,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
-public class Thue {
-    @Id
+public class Thue  implements Serializable {
+
+    /**
+	 * 
+	 */
+    @Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_thue", nullable = false)
     private String maThue;
     @Column(name = "gia_tri", nullable = false)

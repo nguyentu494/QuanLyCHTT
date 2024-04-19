@@ -4,6 +4,9 @@ import dev.skyherobrine.app.entities.product.SanPham;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể "Chi Tiết Phiếu Nhập", thực thể này dùng để lưu trữ thông tin chi tiết về nhập hàng, sản phẩm
  * nhập với số lượng là bao nhiêu? Số tiền nhập hàng ứng với sản phẩm đó là bao nhiêu?
@@ -17,8 +20,13 @@ import lombok.Getter;
         @NamedQuery(name = "CTPNH.findByID", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.id = :id"),
         @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP")
 })
-public class ChiTietPhieuNhapHang {
-    @Id
+public class ChiTietPhieuNhapHang implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private String maChiTietPhieuNhap;
     @ManyToOne(fetch = FetchType.LAZY)

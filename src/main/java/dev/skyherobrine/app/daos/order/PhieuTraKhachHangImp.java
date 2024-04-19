@@ -1,13 +1,10 @@
 package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.person.NhaCungCapDAO;
-import dev.skyherobrine.app.entities.order.PhieuNhapHang;
+import dev.skyherobrine.app.daos.PhieuTraKhachHangDAO;
 import dev.skyherobrine.app.entities.order.PhieuTraKhachHang;
-import dev.skyherobrine.app.enums.TinhTrangNhapHang;
 
-import java.sql.Date;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -15,9 +12,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
+public class PhieuTraKhachHangImp extends UnicastRemoteObject implements PhieuTraKhachHangDAO<PhieuTraKhachHang> {
     private ConnectDB connectDB;
-    public PhieuTraKhachHangDAO() throws Exception {
+    public PhieuTraKhachHangImp() throws Exception {
         connectDB = new ConnectDB();
     }
     @Override
@@ -55,7 +52,7 @@ public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
             PhieuTraKhachHang phieuTraKhachHang = new PhieuTraKhachHang(
                     resultSet.getString("MaPhieuTraKH"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get()
+                    new HoaDonImp().timKiem(resultSet.getString("MaHD"))
             );
 
             phieuTraKhachHangs.add(phieuTraKhachHang);
@@ -80,7 +77,7 @@ public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
             PhieuTraKhachHang phieuTraKhachHang = new PhieuTraKhachHang(
                     resultSet.getString("MaPhieuTraKH"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get()
+                    new HoaDonImp().timKiem(resultSet.getString("MaHD"))
             );
 
             phieuTraKhachHangs.add(phieuTraKhachHang);
@@ -89,7 +86,7 @@ public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
     }
 
     @Override
-    public Optional<PhieuTraKhachHang> timKiem(String id) throws Exception {
+    public PhieuTraKhachHang timKiem(String id) throws Exception {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from PhieuTraKhachHang where MaPhieuTraKH = ?");
         preparedStatement.setString(1, id);
@@ -99,10 +96,10 @@ public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
             return Optional.of(new PhieuTraKhachHang(
                     resultSet.getString("MaPhieuTraKH"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get()
-            ));
+                    new HoaDonImp().timKiem(resultSet.getString("MaHD"))
+            )).get();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override
@@ -122,7 +119,7 @@ public class PhieuTraKhachHangDAO implements IDAO<PhieuTraKhachHang> {
             PhieuTraKhachHang phieuTraKhachHang = new PhieuTraKhachHang(
                     resultSet.getString("MaPhieuTraKH"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get()
+                    new HoaDonImp().timKiem(resultSet.getString("MaHD"))
             );
 
             phieuTraKhachHangs.add(phieuTraKhachHang);

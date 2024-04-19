@@ -1,6 +1,6 @@
 package dev.skyherobrine.app.controllers.loginui.mainLogin;
 
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.person.NhanVien;
 import dev.skyherobrine.app.views.loginui.mainLogin.FormQuenMatKhau;
 
@@ -17,10 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class QuenMatKhauController implements ActionListener {
     private static FormQuenMatKhau quenMatKhau;
-    private NhanVienDAO nhanVienDAO;
+    private NhanVienImp nhanVienImp;
     public QuenMatKhauController(FormQuenMatKhau quenMatKhau) {
         try {
-            nhanVienDAO = new NhanVienDAO();
+            nhanVienImp = new NhanVienImp();
             this.quenMatKhau = quenMatKhau;
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -32,7 +32,7 @@ public class QuenMatKhauController implements ActionListener {
         try {
             Object o = e.getSource();
             if(o.equals(quenMatKhau.getBtnGui())) {
-                NhanVien nhanVien = nhanVienDAO.timKiem(quenMatKhau.getTxtMaNhanVien().getText()).get();
+                NhanVien nhanVien = nhanVienImp.timKiem(quenMatKhau.getTxtMaNhanVien().getText());
                 if(nhanVien == null) {
                     JOptionPane.showMessageDialog(null, "Mã nhân viên không tồn tại");
                     quenMatKhau.setVisible(false);
@@ -105,6 +105,6 @@ public class QuenMatKhauController implements ActionListener {
         Transport.send(msg);
 
         nhanVien.setMatKhau(String.valueOf(newPassword));
-        nhanVienDAO.capNhat(nhanVien);
+        nhanVienImp.capNhat(nhanVien);
     }
 }

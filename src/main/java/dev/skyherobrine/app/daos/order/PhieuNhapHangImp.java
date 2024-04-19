@@ -1,29 +1,17 @@
 package dev.skyherobrine.app.daos.order;
 
-import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.person.NhaCungCapDAO;
+import dev.skyherobrine.app.daos.PhieuNhapHangDAO;
 import dev.skyherobrine.app.entities.order.PhieuNhapHang;
-import dev.skyherobrine.app.entities.person.NhaCungCap;
-import dev.skyherobrine.app.entities.product.ThuongHieu;
-import dev.skyherobrine.app.enums.TinhTrangNhaCungCap;
-import dev.skyherobrine.app.enums.TinhTrangNhapHang;
-import dev.skyherobrine.app.enums.TinhTrangThuongHieu;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class PhieuNhapHangDAO implements IDAO<PhieuNhapHang> {
+public class PhieuNhapHangImp extends UnicastRemoteObject implements PhieuNhapHangDAO<PhieuNhapHang> {
     private EntityManager em;
-    public PhieuNhapHangDAO() throws Exception{
+    public PhieuNhapHangImp() throws Exception{
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
     @Override
@@ -112,7 +100,7 @@ public class PhieuNhapHangDAO implements IDAO<PhieuNhapHang> {
     }
 
     @Override
-    public Optional<PhieuNhapHang> timKiem(String id) throws Exception {
+    public PhieuNhapHang timKiem(String id) throws Exception {
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
 //                ("select * from PhieuNhapHang where MaPhieuNhap = ?");
 //        preparedStatement.setString(1, id);
@@ -125,7 +113,7 @@ public class PhieuNhapHangDAO implements IDAO<PhieuNhapHang> {
 //                    resultSet.getString("GhiChu"),
 //                    TinhTrangNhapHang.layGiaTri(resultSet.getString("TinhTrang"))));
 //        } else {
-            return Optional.empty();
+            return null;
 //        }
     }
 

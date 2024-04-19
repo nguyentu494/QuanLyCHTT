@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +28,14 @@ import java.util.List;
         @NamedQuery(name = "SanPham.findAll", query = "SELECT sp FROM SanPham sp"),
         @NamedQuery(name = "SanPham.findByID", query = "SELECT sp FROM SanPham sp WHERE sp.maSP = :maSP")
 })
-public class SanPham {
+public class SanPham implements Serializable {
 
-    @Id
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_sp", nullable = false)
     private String maSP;
     @Column(name = "ten_sp", nullable = false)

@@ -1,11 +1,10 @@
 package dev.skyherobrine.app.controllers.dashboardui.person;
 
 import dev.skyherobrine.app.controllers.loginui.mainLogin.LoginController;
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.person.NhanVien;
 import dev.skyherobrine.app.enums.CaLamViec;
 import dev.skyherobrine.app.enums.ChucVu;
-import dev.skyherobrine.app.enums.DoTuoi;
 import dev.skyherobrine.app.enums.TinhTrangNhanVien;
 import dev.skyherobrine.app.views.dashboard.component.FormTHongTinCaNhan;
 
@@ -26,13 +25,13 @@ import java.util.Map;
 
 public class ThongTinCaNhanController implements ActionListener {
     private FormTHongTinCaNhan formTHongTinCaNhan;
-    private NhanVienDAO nhanVienDAO;
+    private NhanVienImp nhanVienImp;
     private String fileAnh = "";
     private int trangThaiChinhSua = 0;
     public ThongTinCaNhanController(FormTHongTinCaNhan formTHongTinCaNhan) {
         this.formTHongTinCaNhan = formTHongTinCaNhan;
         try {
-            this.nhanVienDAO = new NhanVienDAO();
+            this.nhanVienImp = new NhanVienImp();
             loadComboboxTTNV();
             loadTTNV();
         } catch (Exception e) {
@@ -45,7 +44,7 @@ public class ThongTinCaNhanController implements ActionListener {
         conditions.put("TenTaiKhoan", LoginController.luuTkNhanVien());
         try {
             tuongTac(false);
-            List<NhanVien> nhanViens = nhanVienDAO.timKiem(conditions);
+            List<NhanVien> nhanViens = nhanVienImp.timKiem(conditions);
             NhanVien nhanVien = nhanViens.get(0);
             formTHongTinCaNhan.getTxtHoVaTen().setText(nhanVien.getHoTen());
             String date = String.valueOf(nhanVien.getNgaySinh());
@@ -165,7 +164,7 @@ public class ThongTinCaNhanController implements ActionListener {
                     int result = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn cập nhật thông tin nhân viên này không?", "Thông báo", JOptionPane.YES_NO_OPTION);
                     if(result==JOptionPane.YES_OPTION){
                         NhanVien nhanVien = new NhanVien(MaNv, HoVaTen, SoDienThoai, GioiTinh, NgaySinh1, Email, DiaChi, ChucVu.layGiaTri(formTHongTinCaNhan.getCbChucVu().getSelectedItem().toString()), CaLamViec.layGiaTri(formTHongTinCaNhan.getCbCaLamViec().getSelectedItem().toString()), TenTaiKhoan, MatKhau, fileAnh, TinhTrangNhanVien.layGiaTri(formTHongTinCaNhan.getCbTinhTrang().getSelectedItem().toString()));
-                        nhanVienDAO.capNhat(nhanVien);
+                        nhanVienImp.capNhat(nhanVien);
                     }
 
                 } catch (Exception ex) {

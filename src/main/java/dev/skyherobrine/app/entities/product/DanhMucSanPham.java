@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể "Danh Mục Sản Phẩm", thực thể này sẽ lưu trữ các danh mục bán hàng của cửa hàng, mỗi danh mục
  * sẽ có nhiều loại sản phẩm khác nhau và mỗi sản phẩm sẽ có nhiều phiên bản khác nhau.
@@ -14,8 +17,13 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class DanhMucSanPham {
-    @Id
+public class DanhMucSanPham implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_dm", nullable = false)
     private String maDM;
     @Column(name = "ten_dm", nullable = false)

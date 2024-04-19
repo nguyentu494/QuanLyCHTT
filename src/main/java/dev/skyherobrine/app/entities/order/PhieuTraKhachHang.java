@@ -4,6 +4,8 @@ import dev.skyherobrine.app.entities.order.HoaDon;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -15,8 +17,13 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-public class PhieuTraKhachHang {
-    @Id
+public class PhieuTraKhachHang implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_phieu_tra_khach_hang", nullable = false)
     private String maPhieuTraKhachHang;
     @Column(name = "ngay_lap", nullable = false)

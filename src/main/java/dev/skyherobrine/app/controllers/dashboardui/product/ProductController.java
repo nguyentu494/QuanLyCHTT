@@ -5,7 +5,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import dev.skyherobrine.app.daos.product.*;
-import dev.skyherobrine.app.daos.sale.ThueDAO;
+import dev.skyherobrine.app.daos.sale.ThueImp;
 import dev.skyherobrine.app.entities.product.*;
 import dev.skyherobrine.app.entities.sale.Thue;
 import dev.skyherobrine.app.enums.DoTuoi;
@@ -37,15 +37,15 @@ import java.util.List;
 public class ProductController implements ActionListener, MouseListener, KeyListener, TableActionEvent, TableModelListener {
     private final QuanLySanPham sanPhamUI;
     private  List<SanPham> dsSanPham;
-    private final SanPhamDAO sanPhamDAO;
+    private final SanPhamImp sanPhamImp;
     private List<LoaiSanPham> dsLoaiSanPham;
-    private final LoaiSanPhamDAO loaiSanPhamDAO;
-    private final ThuongHieuDAO thuongHieuDAO;
+    private final LoaiSanPhamImp loaiSanPhamImp;
+    private final ThuongHieuImp thuongHieuImp;
     private List<ThuongHieu> dsThuongHieu;
     private List<DanhMucSanPham> dsDanhMucSanPham;
-    private final DanhMucSanPhamDAO danhMucSanPhamDAO;
-    private final ChiTietPhienBanSanPhamDAO chiTietPhienBanSanPhamDAO;
-    private final ThueDAO thueDAO;
+    private final DanhMucSanPhamImp danhMucSanPhamImp;
+    private final ChiTietPhienBanSanPhamImp chiTietPhienBanSanPhamImp;
+    private final ThueImp thueImp;
 
     private static int trangThaiNutXoa = 0;
     private static int trangThaiNutThem = 0;
@@ -59,12 +59,12 @@ public class ProductController implements ActionListener, MouseListener, KeyList
     public ProductController(QuanLySanPham sanPhamUI) {
         try {
             this.sanPhamUI = sanPhamUI;
-            sanPhamDAO = new SanPhamDAO();
-            loaiSanPhamDAO = new LoaiSanPhamDAO();
-            thuongHieuDAO = new ThuongHieuDAO();
-            danhMucSanPhamDAO = new DanhMucSanPhamDAO();
-            chiTietPhienBanSanPhamDAO = new ChiTietPhienBanSanPhamDAO();
-            thueDAO = new ThueDAO();
+            sanPhamImp = new SanPhamImp();
+            loaiSanPhamImp = new LoaiSanPhamImp();
+            thuongHieuImp = new ThuongHieuImp();
+            danhMucSanPhamImp = new DanhMucSanPhamImp();
+            chiTietPhienBanSanPhamImp = new ChiTietPhienBanSanPhamImp();
+            thueImp = new ThueImp();
             loadDsSanPham();
             loadComboBoxPhanThongTinSP();
             loadComboBoxPhanTimKiem();
@@ -80,7 +80,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         clearTable.setRowCount(0);
         sanPhamUI.getTbDanhSachSanPham().setModel(clearTable);
         try {
-            dsSanPham = sanPhamDAO.timKiem();
+            dsSanPham = sanPhamImp.timKiem();
 
             DefaultTableModel tmSanPham = (DefaultTableModel) sanPhamUI.getTbDanhSachSanPham().getModel();
             for(SanPham sp : dsSanPham){
@@ -128,11 +128,11 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 if(sp != null){
                     if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thêm sản phẩm mới", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                         try {
-                            if(sanPhamDAO.them(sp)){
+                            if(sanPhamImp.them(sp)){
 
                                 if(listCTPBSP.size()>0){
                                     for(ChiTietPhienBanSanPham ct : listCTPBSP){
-                                        chiTietPhienBanSanPhamDAO.them(ct);
+                                        chiTietPhienBanSanPhamImp.them(ct);
                                         String data = ct.getMaPhienBanSP();
                                         String path = "src/main/resources/MaQRSanPham/"+ct.getMaPhienBanSP()+".jpg";
 
@@ -165,10 +165,10 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                     SanPham spSua = layDataSua();
                     if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn sửa sản phẩm có mã " +spSua.getMaSP()+" không?", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                         try {
-                            if(sanPhamDAO.capNhat(spSua)){
+                            if(sanPhamImp.capNhat(spSua)){
                                 if(listCTPBSP.size()>0){
                                     for(ChiTietPhienBanSanPham ct : listCTPBSP){
-                                        chiTietPhienBanSanPhamDAO.capNhat(ct);
+                                        chiTietPhienBanSanPhamImp.capNhat(ct);
                                     }
                                 }
                                 loadDsSanPham();
@@ -419,8 +419,8 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                             String mauSac = sanPhamUI.getCbDialogMauSac().getSelectedItem().toString();
                             String kichThuoc = sanPhamUI.getCbDialogKichThuoc().getSelectedItem().toString();
                             String maPhienBan = phatSinhMaPBSP(maSP, mauSac, kichThuoc);
-                            ChiTietPhienBanSanPham chiTietPhienBanSanPham = new ChiTietPhienBanSanPham(maPhienBan, sanPhamDAO.timKiem(maSP).get(), MauSac.layGiaTri(mauSac), kichThuoc, Integer.parseInt(sanPhamUI.getTxtDialogSoLuong().getText()), fileAnh);
-                            if(chiTietPhienBanSanPhamDAO.them(chiTietPhienBanSanPham)){
+                            ChiTietPhienBanSanPham chiTietPhienBanSanPham = new ChiTietPhienBanSanPham(maPhienBan, sanPhamImp.timKiem(maSP), MauSac.layGiaTri(mauSac), kichThuoc, Integer.parseInt(sanPhamUI.getTxtDialogSoLuong().getText()), fileAnh);
+                            if(chiTietPhienBanSanPhamImp.them(chiTietPhienBanSanPham)){
                                 JOptionPane.showMessageDialog(null, "Thêm thành công!");
                                 loadTTPBSP();
                                 xoaTrangPBSP(false);
@@ -504,7 +504,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                             "Bạn có chắc muốn ngừng bán sản phẩm có mã " + sanPhamUI.getTxtMaSanPham().getText() + " không?", "Lựa chọn",
                             JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION) {
                         try {
-                            if (sanPhamDAO.xoa(ma)){
+                            if (sanPhamImp.xoa(ma)){
                                 loadDsSanPham();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Xóa thành công!");
@@ -544,7 +544,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsDanhMuc = new HashMap<>();
                 conditionsDanhMuc.put("TenDM", sanPhamUI.getCbTkDanhMuc().getSelectedItem().toString());
                 try {
-                    dsDanhMucTim = danhMucSanPhamDAO.timKiem(conditionsDanhMuc);
+                    dsDanhMucTim = danhMucSanPhamImp.timKiem(conditionsDanhMuc);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -552,7 +552,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsLoai = new HashMap<>();
                 conditionsLoai.put("MaDM", dsDanhMucTim.get(0).getMaDM());
                 try {
-                    dsLoaiTim = loaiSanPhamDAO.timKiem(conditionsLoai);
+                    dsLoaiTim = loaiSanPhamImp.timKiem(conditionsLoai);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -561,7 +561,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                     Map<String, Object> conditionsSp = new HashMap<>();
                     conditionsSp.put("MaLoai", dsLoaiTim.get(i).getMaLoai());
                     try {
-                        dsTim.addAll(sanPhamDAO.timKiem(conditionsSp));
+                        dsTim.addAll(sanPhamImp.timKiem(conditionsSp));
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -841,7 +841,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsLoai = new HashMap<>();
                 conditionsLoai.put("TenLoai", sanPhamUI.getCbTkLoaiSanPham().getSelectedItem().toString());
                 try {
-                    dsLoaiTim = loaiSanPhamDAO.timKiem(conditionsLoai);
+                    dsLoaiTim = loaiSanPhamImp.timKiem(conditionsLoai);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -850,7 +850,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                     Map<String, Object> conditionsSp = new HashMap<>();
                     conditionsSp.put("MaLoai", dsLoaiTim.get(i).getMaLoai());
                     try {
-                        dsTim.addAll(sanPhamDAO.timKiem(conditionsSp));
+                        dsTim.addAll(sanPhamImp.timKiem(conditionsSp));
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1004,7 +1004,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsTinhTrang = new HashMap<>();
                 conditionsTinhTrang.put("TinhTrang", sanPhamUI.getCbTkTinhTrang().getSelectedItem().toString());
                 try {
-                    dsTim = sanPhamDAO.timKiem(conditionsTinhTrang);
+                    dsTim = sanPhamImp.timKiem(conditionsTinhTrang);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1076,7 +1076,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsTenThuongHieu = new HashMap<>();
                 conditionsTenThuongHieu.put("TenTH", sanPhamUI.getCbTkThuongHieu().getSelectedItem().toString());
                 try {
-                    dsThuongHieuTim = thuongHieuDAO.timKiem(conditionsTenThuongHieu);
+                    dsThuongHieuTim = thuongHieuImp.timKiem(conditionsTenThuongHieu);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1084,7 +1084,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsSanPham = new HashMap<>();
                 conditionsSanPham.put("MaTH", dsThuongHieuTim.get(0).getMaTH());
                 try {
-                    dsTim = sanPhamDAO.timKiem(conditionsSanPham);
+                    dsTim = sanPhamImp.timKiem(conditionsSanPham);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1120,7 +1120,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsDoTuoi = new HashMap<>();
                 conditionsDoTuoi.put("DoTuoi", sanPhamUI.getCbTkDoTuoi().getSelectedItem().toString());
                 try {
-                    dsTim = sanPhamDAO.timKiem(conditionsDoTuoi);
+                    dsTim = sanPhamImp.timKiem(conditionsDoTuoi);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1140,14 +1140,14 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 Map<String, Object> conditionsPhongCach = new HashMap<>();
                 conditionsPhongCach.put("PhongCachMac", sanPhamUI.getCbTkPhongCachMac().getSelectedItem().toString());
                 try {
-                    dsTim = sanPhamDAO.timKiem(conditionsPhongCach);
+                    dsTim = sanPhamImp.timKiem(conditionsPhongCach);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
             else {
                 try {
-                    dsTim = sanPhamDAO.timKiem();
+                    dsTim = sanPhamImp.timKiem();
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1248,7 +1248,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             Map<String, Object> loai = new HashMap<>();
             loai.put("TenLoai", sanPhamUI.getCbLoai().getSelectedItem().toString());
-            loaiSanPhams = loaiSanPhamDAO.timKiem(loai);
+            loaiSanPhams = loaiSanPhamImp.timKiem(loai);
 
             if(sanPhamUI.getDanhMuc().getSelectedItem().toString().equalsIgnoreCase("--Select--")){
                 JOptionPane.showMessageDialog(null, "Vui lòng chọn danh mục");
@@ -1256,7 +1256,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             Map<String, Object> dm = new HashMap<>();
             dm.put("TenDM", sanPhamUI.getDanhMuc().getSelectedItem().toString());
-            danhMucs = danhMucSanPhamDAO.timKiem(dm);
+            danhMucs = danhMucSanPhamImp.timKiem(dm);
 
             if(sanPhamUI.getCbThuongHieu().getSelectedItem().toString().equalsIgnoreCase("--Select--")){
                 JOptionPane.showMessageDialog(null, "Vui lòng chọn thương hiệu");
@@ -1264,7 +1264,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             Map<String, Object> th = new HashMap<>();
             th.put("TenTH", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
-            thuongHieu = thuongHieuDAO.timKiem(th);
+            thuongHieu = thuongHieuImp.timKiem(th);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -1299,7 +1299,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         conditions.put("HieuLuc", "CO");
         List<Thue> thue;
         try {
-           thue = thueDAO.timKiem(conditions);
+           thue = thueImp.timKiem(conditions);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1330,17 +1330,17 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         try {
             Map<String, Object> dm = new HashMap<>();
             dm.put("TenDM", sanPhamUI.getDanhMuc().getSelectedItem().toString());
-            danhMucs = danhMucSanPhamDAO.timKiem(dm);
+            danhMucs = danhMucSanPhamImp.timKiem(dm);
 
 
 
             Map<String, Object> loai = new HashMap<>();
             loai.put("TenLoai", sanPhamUI.getCbLoai().getSelectedItem().toString());
-            loaiSanPhams = loaiSanPhamDAO.timKiem(loai);
+            loaiSanPhams = loaiSanPhamImp.timKiem(loai);
 
             Map<String, Object> th = new HashMap<>();
             th.put("TenTH", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
-            thuongHieu = thuongHieuDAO.timKiem(th);
+            thuongHieu = thuongHieuImp.timKiem(th);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -1359,7 +1359,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         conditions.put("HieuLuc", "CO");
         List<Thue> thue;
         try {
-            thue = thueDAO.timKiem(conditions);
+            thue = thueImp.timKiem(conditions);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1383,7 +1383,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         String maSP = "";
         ArrayList<Integer> ma = new ArrayList<>();
         try {
-            dsMaSP = sanPhamDAO.timKiem(conditions, false, cols);
+            dsMaSP = sanPhamImp.timKiem(conditions, false, cols);
             for (int i = 0; i < dsMaSP.size(); i++) {
                 ma.add(Integer.parseInt(dsMaSP.get(i).get("MaSP").toString().substring(dsMaSP.get(i).get("MaSP").toString().length()-3)));
             }
@@ -1458,7 +1458,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         sanPhamUI.getTxtDialogMaSanPham().setText(maSP);
         condintions.put("MaSP", maSP);
         try {
-            List<Map<String, Object>> listCTPBSP = chiTietPhienBanSanPhamDAO.timKiem(condintions, false, cols);
+            List<Map<String, Object>> listCTPBSP = chiTietPhienBanSanPhamImp.timKiem(condintions, false, cols);
             DefaultTableModel tmCTPBSP = (DefaultTableModel) sanPhamUI.getTbDialogDanhSachCacSanPham().getModel();
             tmCTPBSP.setRowCount(0);
             for(Map<String, Object> map : listCTPBSP){
@@ -1520,7 +1520,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
 
         //Load cbDanhMuc
         try {
-            dsDanhMucSanPham = danhMucSanPhamDAO.timKiem();
+            dsDanhMucSanPham = danhMucSanPhamImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1533,7 +1533,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
 
         //Load cbLoaiSanPham
         try {
-            dsLoaiSanPham = loaiSanPhamDAO.timKiem();
+            dsLoaiSanPham = loaiSanPhamImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1546,7 +1546,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
 
         //Load cbThuongHieu
         try {
-            dsThuongHieu = thuongHieuDAO.timKiem();
+            dsThuongHieu = thuongHieuImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1576,7 +1576,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         //Lấy kích thước từ enum
         try {
             String[] kichThuoc;
-            List<ChiTietPhienBanSanPham> pbsp = chiTietPhienBanSanPhamDAO.timKiem(conditions);
+            List<ChiTietPhienBanSanPham> pbsp = chiTietPhienBanSanPhamImp.timKiem(conditions);
             if(trangThaiNutThem == 0 && pbsp.size()>0){
                 if(pbsp.get(0).getKichThuoc().matches("\\d+")){
                     kichThuoc = new String[]{"--Select--", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41","42", "43", "44", "45", "46", "47", "48"};
@@ -1602,7 +1602,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
     public void loadComboBoxPhanTimKiem(){
         //Load cbDanhMuc
         try {
-            dsDanhMucSanPham = danhMucSanPhamDAO.timKiem();
+            dsDanhMucSanPham = danhMucSanPhamImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1615,7 +1615,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
 
         //Load cbLoaiSanPham
         try {
-            dsLoaiSanPham = loaiSanPhamDAO.timKiem();
+            dsLoaiSanPham = loaiSanPhamImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1638,7 +1638,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
 
         //Load cbThuongHieu
         try {
-            dsThuongHieu = thuongHieuDAO.timKiem();
+            dsThuongHieu = thuongHieuImp.timKiem();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1703,17 +1703,17 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }else {
                 int row = sanPhamUI.getTbDanhSachSanPham().getSelectedRow();
                 String ma = sanPhamUI.getTbDanhSachSanPham().getValueAt(row, 0).toString();
-                Optional<SanPham> spHienThuc = null;
+                SanPham spHienThuc = new SanPham();
                 try {
-                    spHienThuc = sanPhamDAO.timKiem(ma);
+                    spHienThuc = sanPhamImp.timKiem(ma);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                sanPhamUI.getTxtMaSanPham().setText(spHienThuc.get().getMaSP());
-                sanPhamUI.getTxtTenSanPham().setText(spHienThuc.get().getTenSP());
+                sanPhamUI.getTxtMaSanPham().setText(spHienThuc.getMaSP());
+                sanPhamUI.getTxtTenSanPham().setText(spHienThuc.getTenSP());
 
                 //Xử lý ngày
-                String date = String.valueOf(spHienThuc.get().getNgaySanXuat());
+                String date = String.valueOf(spHienThuc.getNgaySanXuat());
                 Date date2 = null;
                 try {
                     date2 = new SimpleDateFormat("yyyy-mm-dd").parse(date);
@@ -1722,16 +1722,16 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 }
                 sanPhamUI.getJDateChooserNgaySanXuat().setDate(date2);
 
-                sanPhamUI.getTxtXuatXu().setText(spHienThuc.get().getXuatXu());
+                sanPhamUI.getTxtXuatXu().setText(spHienThuc.getXuatXu());
 
-                sanPhamUI.getCbDoTuoi().setSelectedItem(spHienThuc.get().getDoTuoi().toString());
-                sanPhamUI.getCbTinhTrang().setSelectedItem(spHienThuc.get().getTinhTrang().toString());
-                sanPhamUI.getDanhMuc().setSelectedItem(spHienThuc.get().getLoaiSanPham().getDanhMucSanPham().getTenDM());
-                sanPhamUI.getCbLoai().setSelectedItem(spHienThuc.get().getLoaiSanPham().getTenLoai());
-                sanPhamUI.getCbThuongHieu().setSelectedItem(spHienThuc.get().getThuongHieu().getTenTH());
+                sanPhamUI.getCbDoTuoi().setSelectedItem(spHienThuc.getDoTuoi().toString());
+                sanPhamUI.getCbTinhTrang().setSelectedItem(spHienThuc.getTinhTrang().toString());
+                sanPhamUI.getDanhMuc().setSelectedItem(spHienThuc.getLoaiSanPham().getDanhMucSanPham().getTenDM());
+                sanPhamUI.getCbLoai().setSelectedItem(spHienThuc.getLoaiSanPham().getTenLoai());
+                sanPhamUI.getCbThuongHieu().setSelectedItem(spHienThuc.getThuongHieu().getTenTH());
 
-                sanPhamUI.getTxtPhamTramLoi().setText(String.valueOf(spHienThuc.get().getPhanTramLoi()));
-                sanPhamUI.getCbKieuNguoiMac().setSelectedItem(spHienThuc.get().getPhongCachMac().toString());
+                sanPhamUI.getTxtPhamTramLoi().setText(String.valueOf(spHienThuc.getPhanTramLoi()));
+                sanPhamUI.getCbKieuNguoiMac().setSelectedItem(spHienThuc.getPhongCachMac().toString());
 
 
             }
@@ -1749,7 +1749,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 sanPhamUI.getCbDialogKichThuoc().setSelectedItem(kt);
                 sanPhamUI.getTxtDialogSoLuong().setText(sl);
                 try {
-                    Optional<ChiTietPhienBanSanPham> pbsp = chiTietPhienBanSanPhamDAO.timKiem(sanPhamUI.getTxtDialogMaSanPham().getText(), MauSac.layGiaTri(ms), kt);
+                    Optional<ChiTietPhienBanSanPham> pbsp = chiTietPhienBanSanPhamImp.timKiem(sanPhamUI.getTxtDialogMaSanPham().getText(), MauSac.layGiaTri(ms), kt);
                     importAnh(pbsp.get().getHinhAnh());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -1802,7 +1802,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 String ms = sanPhamUI.getTbDialogDanhSachCacSanPham().getValueAt(row, 0).toString();
                 String kt = sanPhamUI.getTbDialogDanhSachCacSanPham().getValueAt(row, 1).toString();
                 try {
-                    chiTietPhienBanSanPhamDAO.xoa(phatSinhMaPBSP(maSP, ms, kt));
+                    chiTietPhienBanSanPhamImp.xoa(phatSinhMaPBSP(maSP, ms, kt));
                     JOptionPane.showMessageDialog(null, "Xóa thành công!!");
                     loadTTPBSP();
                 } catch (Exception ex) {
@@ -1821,7 +1821,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             int row = e.getFirstRow();
             String maPBSP =  sanPhamUI.getTxtDialogMaSanPham().getText()+"-"+tmPBSP.getValueAt(row, 0).toString()+"-"+tmPBSP.getValueAt(row, 1).toString();
             try {
-                ChiTietPhienBanSanPham phienBanSanPham = new ChiTietPhienBanSanPham(maPBSP, sanPhamDAO.timKiem(sanPhamUI.getTxtDialogMaSanPham().getText()).get(), MauSac.layGiaTri(tmPBSP.getValueAt(row, 0).toString()), tmPBSP.getValueAt(row, 1).toString(), Integer.parseInt(tmPBSP.getValueAt(row, 2).toString()), fileAnh);
+                ChiTietPhienBanSanPham phienBanSanPham = new ChiTietPhienBanSanPham(maPBSP, sanPhamImp.timKiem(sanPhamUI.getTxtDialogMaSanPham().getText()), MauSac.layGiaTri(tmPBSP.getValueAt(row, 0).toString()), tmPBSP.getValueAt(row, 1).toString(), Integer.parseInt(tmPBSP.getValueAt(row, 2).toString()), fileAnh);
                 listCTPBSP.add(phienBanSanPham);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);

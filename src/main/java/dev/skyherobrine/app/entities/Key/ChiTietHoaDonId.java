@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /*
@@ -30,7 +31,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class ChiTietHoaDonId implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_hd", nullable = false)
     private HoaDon hoaDon;
 

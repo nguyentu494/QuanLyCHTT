@@ -1,6 +1,6 @@
 package dev.skyherobrine.app.controllers.dashboardui.product;
 
-import dev.skyherobrine.app.daos.sale.ThueDAO;
+import dev.skyherobrine.app.daos.sale.ThueImp;
 import dev.skyherobrine.app.entities.sale.Thue;
 import dev.skyherobrine.app.views.dashboard.component.FormThue;
 
@@ -19,13 +19,13 @@ import java.util.Optional;
 
 public class ThueController implements MouseListener, ActionListener {
     private FormThue formThue;
-    private ThueDAO thueDAO;
+    private ThueImp thueImp;
     private int tinhtrangnutthem = 0;
     private int tinhtrangnutxoa = 0;
     public ThueController(FormThue formThue) {
         this.formThue = formThue;
         try {
-            this.thueDAO = new ThueDAO();
+            this.thueImp = new ThueImp();
             formThue.getTxtMaThue().setEnabled(false);
 
             tuongTac(false);
@@ -37,7 +37,7 @@ public class ThueController implements MouseListener, ActionListener {
 
     public void loadThue(){
         try {
-            List<Thue> listThue = thueDAO.timKiem();
+            List<Thue> listThue = thueImp.timKiem();
             DefaultTableModel model = (DefaultTableModel) formThue.getTbDanhSachThueCuaSanPham().getModel();
             int i = 0;
             for (Thue thue : listThue) {
@@ -55,12 +55,12 @@ public class ThueController implements MouseListener, ActionListener {
         int row = formThue.getTbDanhSachThueCuaSanPham().getSelectedRow();
         String maThue = formThue.getTbDanhSachThueCuaSanPham().getValueAt(row, 1).toString();
         try {
-            Optional<Thue> thue = thueDAO.timKiem(maThue);
-            formThue.getTxtMaThue().setText(thue.get().getMaThue());
-            LocalDate ngayApDung1 = LocalDate.from(thue.get().getNgayApDung());
+            Thue thue = thueImp.timKiem(maThue);
+            formThue.getTxtMaThue().setText(thue.getMaThue());
+            LocalDate ngayApDung1 = LocalDate.from(thue.getNgayApDung());
             Date ngayApDung = java.sql.Date.valueOf(ngayApDung1);
             formThue.getjDateChooserNgayApDungThongTinThue().setDate(ngayApDung);
-            formThue.getTxtThue().setText(thue.get().getGiaTri()+"");
+            formThue.getTxtThue().setText(thue.getGiaTri()+"");
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -111,8 +111,8 @@ public class ThueController implements MouseListener, ActionListener {
                         LocalDateTime ngayApDung= LocalDateTime.parse(formThue.getjDateChooserNgayApDungThongTinThue()+" 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         System.out.println( ngayApDung);
                         Thue thue = new Thue(maThue,  Double.parseDouble(tiLe), ngayApDung, true);
-                        thueDAO.update("false");
-                        thueDAO.them(thue);
+                        thueImp.update("false");
+                        thueImp.them(thue);
 
                         JOptionPane.showMessageDialog(formThue, "Thêm thuế thành công");
                         DefaultTableModel model = (DefaultTableModel) formThue.getTbDanhSachThueCuaSanPham().getModel();
@@ -145,7 +145,7 @@ public class ThueController implements MouseListener, ActionListener {
     }
     public void phatSinhMaThue(){
         try {
-            List<Thue> list = thueDAO.timKiem();
+            List<Thue> list = thueImp.timKiem();
             int max = 0;
             for (Thue thue : list) {
                 int ma = Integer.parseInt(thue.getMaThue().substring(4));

@@ -1,15 +1,13 @@
 package dev.skyherobrine.app.daos.order;
 
+import dev.skyherobrine.app.daos.ChiTietHoaDonDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
-import dev.skyherobrine.app.entities.person.KhachHang;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,10 +15,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChiTietHoaDonDAO implements IDAO<ChiTietHoaDon> {
+public class ChiTietHoaDonImp extends UnicastRemoteObject implements ChiTietHoaDonDAO<ChiTietHoaDon> {
     private ConnectDB connectDB;
     private EntityManager em;
-    public ChiTietHoaDonDAO() throws Exception {
+    public ChiTietHoaDonImp() throws Exception {
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
     @Override
@@ -84,8 +82,8 @@ public class ChiTietHoaDonDAO implements IDAO<ChiTietHoaDon> {
     }
 
     @Override
-    public Optional<ChiTietHoaDon> timKiem(String id) throws Exception {
-        return Optional.empty();
+    public ChiTietHoaDon timKiem(String id) throws Exception {
+        return null;
     }
 
     @Override

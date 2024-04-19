@@ -4,6 +4,9 @@ import dev.skyherobrine.app.enums.TinhTrangNhaCungCap;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể nhà cung cấp, nhà cung cấp sẽ thực hiện cung cấp các sản phẩm đến cửa hàng, cửa hàng sẽ nhập các mặt
  * hàng do nhà cung cấp đến cung cấp. Mọi thông tin về sản phẩm được cung cấp từ ai sẽ lấy dữ liệu từ thực thể
@@ -13,8 +16,13 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-public class NhaCungCap {
-    @Id
+public class NhaCungCap implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_ncc", nullable = false)
     private String maNCC;
     @Column(name = "ten_ncc", nullable = false, columnDefinition = "nvarchar(255)")

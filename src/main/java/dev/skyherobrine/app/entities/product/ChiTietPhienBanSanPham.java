@@ -4,14 +4,22 @@ import dev.skyherobrine.app.enums.MauSac;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Getter
 @Entity
 @NamedQueries({
         @NamedQuery(name = "ChiTietPhienBanSanPham.findAll", query = "SELECT ctpbsp FROM ChiTietPhienBanSanPham ctpbsp"),
         @NamedQuery(name = "ChiTietPhienBanSanPham.findByID", query = "SELECT ctpbsp FROM ChiTietPhienBanSanPham ctpbsp WHERE ctpbsp.maPhienBanSP = :maPhienBanSP")
 })
-public class ChiTietPhienBanSanPham {
-    @Id
+public class ChiTietPhienBanSanPham implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_phien_ban_sp", nullable = false)
     private String maPhienBanSP;
     @ManyToOne(fetch = FetchType.LAZY)

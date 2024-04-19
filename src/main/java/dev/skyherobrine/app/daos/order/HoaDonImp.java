@@ -1,26 +1,25 @@
 package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.person.KhachHangDAO;
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
+import dev.skyherobrine.app.daos.HoaDonDAO;
+import dev.skyherobrine.app.daos.person.KhachHangImp;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.order.HoaDon;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.sql.Connection;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class HoaDonDAO implements IDAO<HoaDon> {
+public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> {
     private ConnectDB connectDB;
     private EntityManager em;
-    public HoaDonDAO() throws Exception {
+    public HoaDonImp() throws Exception {
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
     @Override
@@ -97,7 +96,7 @@ public class HoaDonDAO implements IDAO<HoaDon> {
     }
 
     @Override
-    public Optional<HoaDon> timKiem(String id) throws Exception {
+    public HoaDon timKiem(String id) throws Exception {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from HoaDon where MaHD = ?");
         preparedStatement.setString(1, id);
@@ -106,13 +105,13 @@ public class HoaDonDAO implements IDAO<HoaDon> {
             return Optional.of(new HoaDon(
                     resultSet.getString("MaHD"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienDAO().timKiem(resultSet.getString("MaNV")).get(),
-                    new KhachHangDAO().timKiem(resultSet.getString("MaKH")).get(),
+                    new NhanVienImp().timKiem(resultSet.getString("MaNV")),
+                    new KhachHangImp().timKiem(resultSet.getString("MaKH")),
                     resultSet.getBigDecimal("SoTienKHTra"),
                     resultSet.getString("GhiChu")
-            ));
+            )).get();
         }
-        return Optional.empty();
+        return (HoaDon) Optional.empty().get();
     }
 
     @Override
@@ -132,8 +131,8 @@ public class HoaDonDAO implements IDAO<HoaDon> {
             HoaDon hoaDon = new HoaDon(
                     resultSet.getString("MaHD"),
                     resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienDAO().timKiem(resultSet.getString("MaNV")).get(),
-                    new KhachHangDAO().timKiem(resultSet.getString("MaKH")).get(),
+                    new NhanVienImp().timKiem(resultSet.getString("MaNV")),
+                    new KhachHangImp().timKiem(resultSet.getString("MaKH")),
                     resultSet.getBigDecimal("SoTienKHTra"),
                     resultSet.getString("GhiChu")
             );

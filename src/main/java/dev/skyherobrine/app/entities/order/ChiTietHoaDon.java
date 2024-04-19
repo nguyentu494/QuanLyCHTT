@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,8 +25,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ChiTietHoaDon {
-    @EmbeddedId
+public class ChiTietHoaDon implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@EmbeddedId
     private ChiTietHoaDonId chiTietHoaDonId;
     @Column(name = "so_luong_mua", nullable = false)
     private int soLuongMua;

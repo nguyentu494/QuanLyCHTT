@@ -1,26 +1,19 @@
 package dev.skyherobrine.app.daos.product;
 
-import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.sale.ThueDAO;
-import dev.skyherobrine.app.entities.product.LoaiSanPham;
+import dev.skyherobrine.app.daos.SanPhamDAO;
 import dev.skyherobrine.app.entities.product.SanPham;
-import dev.skyherobrine.app.entities.product.ThuongHieu;
-import dev.skyherobrine.app.enums.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SanPhamDAO implements IDAO<SanPham> {
+public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPham> {
     private static EntityManager em;
-    public SanPhamDAO() throws Exception{
+    public SanPhamImp() throws Exception{
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
     @Override
@@ -79,7 +72,7 @@ public class SanPhamDAO implements IDAO<SanPham> {
     }
 
     @Override
-    public List<SanPham> timKiem() throws Exception {
+    public List<SanPham> timKiem() throws RemoteException {
         try {
             return em.createNamedQuery("SanPham.findAll", SanPham.class).getResultList();
         }catch (Exception e) {
@@ -106,9 +99,9 @@ public class SanPhamDAO implements IDAO<SanPham> {
     }
 
     @Override
-    public Optional<SanPham> timKiem(String id) throws Exception {
+    public SanPham timKiem(String id) throws Exception {
             SanPham sp = em.createNamedQuery("SanPham.findByID", SanPham.class).setParameter("maSP", id).getSingleResult();
-            return Optional.of(sp);
+            return Optional.of(sp).get();
     }
 
     @Override

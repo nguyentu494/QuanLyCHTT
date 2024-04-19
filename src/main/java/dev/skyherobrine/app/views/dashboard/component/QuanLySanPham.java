@@ -7,21 +7,11 @@ package dev.skyherobrine.app.views.dashboard.component;
 import com.toedter.calendar.JDateChooser;
 //import dev.skyherobrine.app.controllers.dashboardui.product.ProductController;
 import dev.skyherobrine.app.controllers.dashboardui.product.ProductController;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
-import dev.skyherobrine.app.entities.order.PhieuNhapHang;
-import dev.skyherobrine.app.controllers.dashboardui.product.ProductController;
-import dev.skyherobrine.app.entities.product.SanPham;
-import dev.skyherobrine.app.enums.MauSac;
-import dev.skyherobrine.app.enums.PhongCachMac;
-import dev.skyherobrine.app.enums.TinhTrangSanPham;
 import dev.skyherobrine.app.views.dashboard.component.nutXoaDongTb.TableActionEvent;
 
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import java.awt.*;
-import java.util.List;
 
 
 /**

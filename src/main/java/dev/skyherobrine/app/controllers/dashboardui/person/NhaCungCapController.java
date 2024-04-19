@@ -1,6 +1,6 @@
 package dev.skyherobrine.app.controllers.dashboardui.person;
 
-import dev.skyherobrine.app.daos.person.NhaCungCapDAO;
+import dev.skyherobrine.app.daos.person.NhaCungCapImp;
 import dev.skyherobrine.app.entities.person.NhaCungCap;
 import dev.skyherobrine.app.enums.TinhTrangNhaCungCap;
 import dev.skyherobrine.app.views.dashboard.component.FrmNhaCungCap;
@@ -14,7 +14,7 @@ import java.util.*;
 
 public class NhaCungCapController implements MouseListener, ActionListener, KeyListener {
     private FrmNhaCungCap frmNhaCungCap;
-    private NhaCungCapDAO nhaCungCapDAO;
+    private NhaCungCapImp nhaCungCapImp;
     private List<NhaCungCap> dsNhaCungCap;
 
 
@@ -25,7 +25,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
 
     public NhaCungCapController(FrmNhaCungCap frmNhaCungCap) {
         try {
-            nhaCungCapDAO = new NhaCungCapDAO();
+            nhaCungCapImp = new NhaCungCapImp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,7 +38,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
         clearTable.setRowCount(0);
         frmNhaCungCap.getTbDanhSachNhaCungCap().setModel(clearTable);
         try {
-            dsNhaCungCap = nhaCungCapDAO.timKiem();
+            dsNhaCungCap = nhaCungCapImp.timKiem();
             DefaultTableModel tmNhaCungCap = (DefaultTableModel) frmNhaCungCap.getTbDanhSachNhaCungCap().getModel();
             for(NhaCungCap ncc : dsNhaCungCap){
                 String row[] = {ncc.getMaNCC(), ncc.getTenNCC(), ncc.getDiaChiNCC(), ncc.getEmail(), ncc.getTinhTrang()+""};
@@ -82,7 +82,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
                 NhaCungCap ncc = layDataThem();
                 if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thêm nhà cung cấp mới", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                     try {
-                        if(nhaCungCapDAO.them(ncc)){
+                        if(nhaCungCapImp.them(ncc)){
                             loaddsNhaCungCap();
                             xoaTrangAll();
                             JOptionPane.showMessageDialog(null, "Thêm thành công!");
@@ -105,7 +105,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
                     NhaCungCap nccSua = layDataSua();
                     if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn sửa nhà cung cấp có mã " +nccSua.getMaNCC()+" không?", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                         try {
-                            if(nhaCungCapDAO.capNhat(nccSua)){
+                            if(nhaCungCapImp.capNhat(nccSua)){
                                 loaddsNhaCungCap();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Sửa thành công!");
@@ -155,7 +155,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
                             "Bạn có chắc muốn ngừng bán nhà cung cấp có mã " + frmNhaCungCap.getTxtMaNhaCungCap().getText() + " không?", "Lựa chọn",
                             JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION) {
                         try {
-                            if (nhaCungCapDAO.xoa(ma)){
+                            if (nhaCungCapImp.xoa(ma)){
                                 loaddsNhaCungCap();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Xóa thành công!");
@@ -190,14 +190,14 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("TinhTrang", frmNhaCungCap.getCbTkTinhTrangNhaCungCap().getSelectedItem().toString());
                 try {
-                    dsLoc = nhaCungCapDAO.timKiem(conditions);
+                    dsLoc = nhaCungCapImp.timKiem(conditions);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
             else{
                 try {
-                    dsLoc = nhaCungCapDAO.timKiem();
+                    dsLoc = nhaCungCapImp.timKiem();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -327,7 +327,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
         conditions.put("MaNCC", "%"+nThem+"%");
         List<NhaCungCap> nhaCC;
         try {
-            nhaCC = nhaCungCapDAO.timKiem(conditions);
+            nhaCC = nhaCungCapImp.timKiem(conditions);
         } catch (Exception e) {
             return 1;
         }
@@ -377,17 +377,17 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
         }else {
             int row = frmNhaCungCap.getTbDanhSachNhaCungCap().getSelectedRow();
             String ma = frmNhaCungCap.getTbDanhSachNhaCungCap().getValueAt(row, 0).toString();
-            Optional<NhaCungCap> nccHienThuc = null;
+            NhaCungCap nccHienThuc = new NhaCungCap();
             try {
-                nccHienThuc = nhaCungCapDAO.timKiem(ma);
+                nccHienThuc = nhaCungCapImp.timKiem(ma);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            frmNhaCungCap.getTxtMaNhaCungCap().setText(nccHienThuc.get().getMaNCC());
-            frmNhaCungCap.getTxtTenNhaCungCap().setText(nccHienThuc.get().getTenNCC());
-            frmNhaCungCap.getTxtEmailNhaCungCap().setText(nccHienThuc.get().getEmail());
-            frmNhaCungCap.getTxtDiaChiNhaCungCap().setText(nccHienThuc.get().getDiaChiNCC());
-            frmNhaCungCap.getCbTinhTrangNhaCungCap().setSelectedItem(nccHienThuc.get().getTinhTrang().toString());
+            frmNhaCungCap.getTxtMaNhaCungCap().setText(nccHienThuc.getMaNCC());
+            frmNhaCungCap.getTxtTenNhaCungCap().setText(nccHienThuc.getTenNCC());
+            frmNhaCungCap.getTxtEmailNhaCungCap().setText(nccHienThuc.getEmail());
+            frmNhaCungCap.getTxtDiaChiNhaCungCap().setText(nccHienThuc.getDiaChiNCC());
+            frmNhaCungCap.getCbTinhTrangNhaCungCap().setSelectedItem(nccHienThuc.getTinhTrang().toString());
         }
     }
 

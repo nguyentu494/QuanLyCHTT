@@ -6,6 +6,8 @@ import dev.skyherobrine.app.enums.TinhTrangNhanVien;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -25,8 +27,18 @@ import static java.time.Period.*;
  */
 @Getter
 @Entity
-public class NhanVien {
-    @Id
+@NamedQueries({
+        @NamedQuery(name = "NV.findAll", query = "SELECT nv FROM NhanVien nv"),
+        @NamedQuery(name = "NV.findByID", query = "SELECT nv FROM NhanVien nv WHERE nv.maNV = :id"),
+})
+public class NhanVien implements Serializable {
+
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_nv", nullable = false)
     private String maNV;
     @Column(name = "ho_ten", nullable = false, columnDefinition = "nvarchar(255)")

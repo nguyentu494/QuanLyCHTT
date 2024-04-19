@@ -1,6 +1,6 @@
 package dev.skyherobrine.app.controllers.dashboardui.person;
 
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.person.NhanVien;
 
 import dev.skyherobrine.app.enums.*;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class NhanVienController implements ActionListener, MouseListener, KeyListener {
     private FrmNhanVien nhanVienUI;
-    private NhanVienDAO nhanVienDAO;
+    private NhanVienImp nhanVienImp;
     private List<NhanVien> dsNhanVien;
 
 
@@ -36,7 +36,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
 
     public NhanVienController(FrmNhanVien nhanVienUI) {
         try {
-            nhanVienDAO = new NhanVienDAO();
+            nhanVienImp = new NhanVienImp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +49,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
         clearTable.setRowCount(0);
         nhanVienUI.getTbDanhSachNhanVien().setModel(clearTable);
         try {
-            dsNhanVien = nhanVienDAO.timKiem();
+            dsNhanVien = nhanVienImp.timKiem();
             DefaultTableModel tmNhanVien = (DefaultTableModel) nhanVienUI.getTbDanhSachNhanVien().getModel();
             for(dev.skyherobrine.app.entities.person.NhanVien nv : dsNhanVien){
                 String row[] = {nv.getMaNV(), nv.getHoTen(), nv.getSoDienThoai(), nv.isGioiTinh() ? "NAM" : "NỮ", nv.getNgaySinh()+"", nv.getEmail(), nv.getDiaChi(), nv.getChucVu()+"", nv.getCaLamViec()+"", nv.getTenTaiKhoan(), nv.getMatKhau(), nv.getTinhTrang()+""};
@@ -94,7 +94,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                 NhanVien nv = layDataThem();
                 if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thêm nhân viên mới", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                     try {
-                        if(nhanVienDAO.them(nv)){
+                        if(nhanVienImp.them(nv)){
                             loadDsNhanVien();
                             xoaTrangAll();
                             JOptionPane.showMessageDialog(null, "Thêm thành công!");
@@ -117,7 +117,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                     NhanVien nvSua = layDataSua();
                     if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn sửa nhân viên có mã " +nvSua.getMaNV()+" không?", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                         try {
-                            if(nhanVienDAO.capNhat(nvSua)){
+                            if(nhanVienImp.capNhat(nvSua)){
                                 loadDsNhanVien();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Sửa thành công!");
@@ -167,7 +167,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                             "Bạn có chắc muốn ngừng bán nhân viên có mã " + nhanVienUI.getTxtMaNhanVien().getText() + " không?", "Lựa chọn",
                             JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION) {
                         try {
-                            if (nhanVienDAO.xoa(ma)){
+                            if (nhanVienImp.xoa(ma)){
                                 loadDsNhanVien();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Xóa thành công!");
@@ -200,7 +200,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("GioiTinh", nhanVienUI.getCbTkGioiTinh().getSelectedItem().equals("NAM")? 1:0);
                 try {
-                    dsLoc = nhanVienDAO.timKiem(conditions);
+                    dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -272,7 +272,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("ChucVu", nhanVienUI.getCbTkChucVu().getSelectedItem().toString());
                 try {
-                    dsLoc = nhanVienDAO.timKiem(conditions);
+                    dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -308,7 +308,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("CaLamViec", nhanVienUI.getCbTkCaLamViec().getSelectedItem().toString());
                 try {
-                    dsLoc = nhanVienDAO.timKiem(conditions);
+                    dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -326,14 +326,14 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("TinhTrang", nhanVienUI.getCbTkTinhTrang().getSelectedItem().toString());
                 try {
-                    dsLoc = nhanVienDAO.timKiem(conditions);
+                    dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
             else {
                 try {
-                    dsLoc = nhanVienDAO.timKiem();
+                    dsLoc = nhanVienImp.timKiem();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -595,7 +595,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
         conditions.put("MaNV", "%"+nThem+"%");
         List<NhanVien> nhanViens;
         try {
-            nhanViens = nhanVienDAO.timKiem(conditions);
+            nhanViens = nhanVienImp.timKiem(conditions);
         } catch (Exception e) {
             return 1;
         }
@@ -645,22 +645,22 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
         }else {
             int row = nhanVienUI.getTbDanhSachNhanVien().getSelectedRow();
             String ma = nhanVienUI.getTbDanhSachNhanVien().getValueAt(row, 0).toString();
-            Optional<NhanVien> nvHienThuc = null;
+            NhanVien nvHienThuc = null;
             try {
-                nvHienThuc = nhanVienDAO.timKiem(ma);
+                nvHienThuc = nhanVienImp.timKiem(ma);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            nhanVienUI.getTxtMaNhanVien().setText(nvHienThuc.get().getMaNV());
-            nhanVienUI.getTxtHoTenNhanVien().setText(nvHienThuc.get().getHoTen());
-            nhanVienUI.getTxtSoDienThoaiNhanVien().setText(nvHienThuc.get().getSoDienThoai());
-            nhanVienUI.getTxtDiaChiNhanVien().setText(nvHienThuc.get().getDiaChi());
-            nhanVienUI.getTxtEmail().setText(nvHienThuc.get().getEmail());
-            nhanVienUI.getTxtTaiKhoanNhanVien().setText(nvHienThuc.get().getTenTaiKhoan());
-            nhanVienUI.getTxtMatKhauNhanVien().setText(nvHienThuc.get().getMatKhau());
+            nhanVienUI.getTxtMaNhanVien().setText(nvHienThuc.getMaNV());
+            nhanVienUI.getTxtHoTenNhanVien().setText(nvHienThuc.getHoTen());
+            nhanVienUI.getTxtSoDienThoaiNhanVien().setText(nvHienThuc.getSoDienThoai());
+            nhanVienUI.getTxtDiaChiNhanVien().setText(nvHienThuc.getDiaChi());
+            nhanVienUI.getTxtEmail().setText(nvHienThuc.getEmail());
+            nhanVienUI.getTxtTaiKhoanNhanVien().setText(nvHienThuc.getTenTaiKhoan());
+            nhanVienUI.getTxtMatKhauNhanVien().setText(nvHienThuc.getMatKhau());
 
             //Xử lý ngày
-            String date = String.valueOf(nvHienThuc.get().getNgaySinh());
+            String date = String.valueOf(nvHienThuc.getNgaySinh());
             Date date2 = null;
             try {
                 date2 = new SimpleDateFormat("yyyy-mm-dd").parse(date);
@@ -669,10 +669,10 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
             }
             nhanVienUI.getjDateChooserNgaySinhNhanVien().setDate(date2);
 
-            nhanVienUI.getCbCaLamViecNhanVien().setSelectedItem(nvHienThuc.get().getCaLamViec().toString());
-            nhanVienUI.getCbTinhTrangNhanVien().setSelectedItem(nvHienThuc.get().getTinhTrang().toString());
-            nhanVienUI.getCbGioiTinh().setSelectedItem(nvHienThuc.get().isGioiTinh() ? "NAM" : "NỮ");
-            nhanVienUI.getCbChucVu().setSelectedItem(nvHienThuc.get().getChucVu().toString());
+            nhanVienUI.getCbCaLamViecNhanVien().setSelectedItem(nvHienThuc.getCaLamViec().toString());
+            nhanVienUI.getCbTinhTrangNhanVien().setSelectedItem(nvHienThuc.getTinhTrang().toString());
+            nhanVienUI.getCbGioiTinh().setSelectedItem(nvHienThuc.isGioiTinh() ? "NAM" : "NỮ");
+            nhanVienUI.getCbChucVu().setSelectedItem(nvHienThuc.getChucVu().toString());
 
             URL path = getClass().getResource("/img/imgSanPham/Image_not_available.png");
             if(path==null){
@@ -724,7 +724,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
             String[] col = {"MaNV", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "Email", "DiaChi", "ChucVu", "CaLamViec", "TenTaiKhoan", "MatKhau", "TinhTrang"};
             List<Map<String, Object>> nv;
             try {
-                nv = nhanVienDAO.timKiem(conditions, false, col);
+                nv = nhanVienImp.timKiem(conditions, false, col);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -749,7 +749,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
             clearTable.setRowCount(0);
             nhanVienUI.getTbDanhSachNhanVien().setModel(clearTable);
             try {
-                dsNhanVien = nhanVienDAO.timKiem();
+                dsNhanVien = nhanVienImp.timKiem();
                 DefaultTableModel tmNhanVien = (DefaultTableModel) nhanVienUI.getTbDanhSachNhanVien().getModel();
                 for(NhanVien nv : dsNhanVien){
                     String row[] = {nv.getMaNV(), nv.getHoTen(), nv.getSoDienThoai(), nv.isGioiTinh() ? "NAM" : "NỮ", nv.getNgaySinh()+"", nv.getEmail(), nv.getDiaChi(), nv.getChucVu()+"", nv.getCaLamViec()+"", nv.getTenTaiKhoan(), nv.getMatKhau(), nv.getTinhTrang()+""};

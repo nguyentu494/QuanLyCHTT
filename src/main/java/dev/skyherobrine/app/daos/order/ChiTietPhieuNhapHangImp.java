@@ -1,22 +1,19 @@
 package dev.skyherobrine.app.daos.order;
 
-import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.ChiTietPhieuNhapHangDAO;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChiTietPhieuNhapHangDAO implements IDAO<ChiTietPhieuNhapHang> {
+public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiTietPhieuNhapHangDAO<ChiTietPhieuNhapHang> {
     private EntityManager em;
-    public ChiTietPhieuNhapHangDAO() throws Exception{
+    public ChiTietPhieuNhapHangImp() throws Exception{
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
 
@@ -101,7 +98,7 @@ public class ChiTietPhieuNhapHangDAO implements IDAO<ChiTietPhieuNhapHang> {
     }
 
     @Override
-    public Optional<ChiTietPhieuNhapHang> timKiem(String id) throws Exception {
+    public ChiTietPhieuNhapHang timKiem(String id) throws Exception {
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
 //                ("select * from ChiTietPhieuNhap where MaChiTietPhieuNhap = ?");
 //        preparedStatement.setString(1, id);
@@ -114,7 +111,7 @@ public class ChiTietPhieuNhapHangDAO implements IDAO<ChiTietPhieuNhapHang> {
 //                    resultSet.getDouble("GiaNhap")
 //            ));
 //        }
-        return Optional.empty();
+        return null;
     }
 
     @Override

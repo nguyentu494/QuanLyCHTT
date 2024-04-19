@@ -54,14 +54,14 @@ public class LoginUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        gradientPanel1 = new dev.virtue.loginui.swingLogin.GradientPanel();
+        gradientPanel1 = new dev.skyherobrine.app.views.loginui.swingLogin.GradientPanel();
         lbImgLogo = new javax.swing.JLabel();
         lbImgItroduction = new javax.swing.JLabel();
         lbTenDangNhap = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        txtUser = new dev.virtue.loginui.swingLogin.TextFieldUser();
-        passwordUser1 = new dev.virtue.loginui.swingLogin.PasswordUser();
-        buttonLogin1 = new dev.virtue.loginui.swingLogin.ButtonLogin();
+        txtUser = new dev.skyherobrine.app.views.loginui.swingLogin.TextFieldUser();
+        passwordUser1 = new dev.skyherobrine.app.views.loginui.swingLogin.PasswordUser();
+        buttonLogin1 = new dev.skyherobrine.app.views.loginui.swingLogin.ButtonLogin();
         btnQuenMatKhau = new javax.swing.JButton();
         btnThoatLogin = new javax.swing.JButton();
         btnMiniZine = new javax.swing.JButton();
@@ -242,14 +242,14 @@ public class LoginUI extends javax.swing.JFrame {
     private javax.swing.JButton btnMiniZine;
     private javax.swing.JButton btnQuenMatKhau;
     private javax.swing.JButton btnThoatLogin;
-    private dev.virtue.loginui.swingLogin.ButtonLogin buttonLogin1;
-    private dev.virtue.loginui.swingLogin.GradientPanel gradientPanel1;
+    private dev.skyherobrine.app.views.loginui.swingLogin.ButtonLogin buttonLogin1;
+    private dev.skyherobrine.app.views.loginui.swingLogin.GradientPanel gradientPanel1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lbImgItroduction;
     private javax.swing.JLabel lbImgLogo;
     private javax.swing.JLabel lbTenDangNhap;
-    private dev.virtue.loginui.swingLogin.PasswordUser passwordUser1;
-    private dev.virtue.loginui.swingLogin.TextFieldUser txtUser;
+    private dev.skyherobrine.app.views.loginui.swingLogin.PasswordUser passwordUser1;
+    private dev.skyherobrine.app.views.loginui.swingLogin.TextFieldUser txtUser;
 
     public Object getUsernameField() {
         return txtUser.getText();

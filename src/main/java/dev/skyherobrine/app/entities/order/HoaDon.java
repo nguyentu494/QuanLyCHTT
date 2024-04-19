@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,8 +25,13 @@ import java.util.List;
 })
 @NamedNativeQueries({
 })
-public class HoaDon {
-    @Id
+public class HoaDon implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_hd", nullable = false)
     private String maHD;
     @Column(name = "ngay_lap", nullable = false)

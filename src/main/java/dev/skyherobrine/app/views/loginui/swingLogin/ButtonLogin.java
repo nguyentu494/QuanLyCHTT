@@ -1,4 +1,4 @@
-package dev.virtue.loginui.swingLogin;
+package dev.skyherobrine.app.views.loginui.swingLogin;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

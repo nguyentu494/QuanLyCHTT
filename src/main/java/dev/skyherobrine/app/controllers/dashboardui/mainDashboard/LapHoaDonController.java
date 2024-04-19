@@ -7,14 +7,13 @@ import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import dev.skyherobrine.app.controllers.loginui.mainLogin.LoginController;
-import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.order.ChiTietHoaDonDAO;
-import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangDAO;
-import dev.skyherobrine.app.daos.order.HoaDonDAO;
-import dev.skyherobrine.app.daos.person.KhachHangDAO;
-import dev.skyherobrine.app.daos.person.NhanVienDAO;
-import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.order.ChiTietHoaDonImp;
+import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangImp;
+import dev.skyherobrine.app.daos.order.HoaDonImp;
+import dev.skyherobrine.app.daos.person.KhachHangImp;
+import dev.skyherobrine.app.daos.person.NhanVienImp;
+import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamImp;
+import dev.skyherobrine.app.daos.product.SanPhamImp;
 import dev.skyherobrine.app.entities.Key.ChiTietHoaDonId;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
 import dev.skyherobrine.app.entities.order.HoaDon;
@@ -59,18 +58,18 @@ import static java.lang.Math.abs;
 
 public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory, ActionListener, TableModelListener, TableActionEvent1, TableActionEvent {
     private final LapHoaDon lapHoaDon;
-    private final ChiTietHoaDonDAO chiTietHoaDonDAO;
+    private final ChiTietHoaDonImp chiTietHoaDonImp;
     private DefaultListModel<String> listModel;
-    private final ChiTietPhienBanSanPhamDAO chiTietPhienBanSanPhamDAO;
+    private final ChiTietPhienBanSanPhamImp chiTietPhienBanSanPhamImp;
     private WebcamPanel pnCam = null;
     private Webcam webcam = null;
     private final Executor executor = Executors.newSingleThreadExecutor(this);
-    private final SanPhamDAO sanPhamDAO;
-    private final NhanVienDAO nhanVienDAO;
-    private final KhachHangDAO khachHangDAO;
-    private final HoaDonDAO hoaDonDAO;
+    private final SanPhamImp sanPhamImp;
+    private final NhanVienImp nhanVienImp;
+    private final KhachHangImp khachHangImp;
+    private final HoaDonImp hoaDonImp;
     private DefaultListModel<String> listModelKH;
-    private final ChiTietPhieuNhapHangDAO chiTietPhieuNhapHangDAO;
+    private final ChiTietPhieuNhapHangImp chiTietPhieuNhapHangImp;
     private static final Map<String, Object> dsSPTAM = new HashMap<>();
     private static final Map<String, Integer> dsSPLuuTam = new HashMap<>();
     private static final int count = 0;
@@ -78,13 +77,13 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
     public LapHoaDonController(LapHoaDon lapHoaDon) {
         this.lapHoaDon = lapHoaDon;
         try {
-            this.chiTietPhienBanSanPhamDAO = new ChiTietPhienBanSanPhamDAO();
-            this.chiTietPhieuNhapHangDAO = new ChiTietPhieuNhapHangDAO();
-            this.sanPhamDAO = new SanPhamDAO();
-            this.nhanVienDAO = new NhanVienDAO();
-            this.khachHangDAO = new KhachHangDAO();
-            this.hoaDonDAO = new HoaDonDAO();
-            this.chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+            this.chiTietPhienBanSanPhamImp = new ChiTietPhienBanSanPhamImp();
+            this.chiTietPhieuNhapHangImp = new ChiTietPhieuNhapHangImp();
+            this.sanPhamImp = new SanPhamImp();
+            this.nhanVienImp = new NhanVienImp();
+            this.khachHangImp = new KhachHangImp();
+            this.hoaDonImp = new HoaDonImp();
+            this.chiTietHoaDonImp = new ChiTietHoaDonImp();
             loadTTNV();
 //            setCamera();
 
@@ -202,8 +201,8 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
     public void loadTTNV() throws Exception {
         // TODO implement here
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("TenTaiKhoan", LoginController.luuTkNhanVien());
-        List<NhanVien> nhanViens = nhanVienDAO.timKiem(conditions);
+        conditions.put("tenTaiKhoan", LoginController.luuTkNhanVien());
+        List<NhanVien> nhanViens = nhanVienImp.timKiem(conditions);
 
         lapHoaDon.getTxtTenNhanVien().setText(nhanViens.get(0).getHoTen());
         lapHoaDon.getTxtMaNhanVien().setText(nhanViens.get(0).getMaNV());
@@ -215,7 +214,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("SoDienThoai", soDienThoai);
         try {
-            List<KhachHang> khachHang = khachHangDAO.timKiem(conditions);
+            List<KhachHang> khachHang = khachHangImp.timKiem(conditions);
             if (!khachHang.isEmpty()) {
                 lapHoaDon.getTxtSoDienThoaiKh().setText(khachHang.get(0).getSoDienThoai());
                 lapHoaDon.getTxtTenKhachHang().setText(khachHang.get(0).getHoTen());
@@ -238,29 +237,29 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         lapHoaDon.getListProduct().setModel(listModel);
         listModel.removeAllElements();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaPhienBanSP", textSP);
-        String[] colNames = {"MaPhienBanSP", "KichThuoc", "SoLuong"};
+        conditions.put("maPhienBanSP", "%"+textSP+"%");
+        String[] colNames = {"maPhienBanSP", "kichThuoc", "soLuong"};
         DefaultTableModel tmGioHang = (DefaultTableModel) lapHoaDon.getTbDanhSachCacSanPhamTrongGioHang().getModel();
         Map<String, Object> dsSP = new HashMap<>();
         for (int i = 0; i < tmGioHang.getRowCount(); i++) {
             dsSP.put(tmGioHang.getValueAt(i, 1).toString(), tmGioHang.getValueAt(i, 4));
         }
         try {
-            List<Map<String, Object>> listCTPBSP = chiTietPhienBanSanPhamDAO.timKiem(conditions, false, colNames);
+            List<Map<String, Object>> listCTPBSP = chiTietPhienBanSanPhamImp.timKiem(conditions, false, colNames);
             if (listCTPBSP.isEmpty()) {
                 lapHoaDon.getMenuProduct().setVisible(false);
             } else {
                 int soLuong = 0;
                 for (int i = 0; i < listCTPBSP.size(); i++) {
-                    soLuong = Integer.parseInt(listCTPBSP.get(i).get("SoLuong").toString());
-                    if (dsSPLuuTam.containsKey(listCTPBSP.get(i).get("MaPhienBanSP").toString())) {
-                        soLuong = soLuong - Integer.parseInt(dsSPLuuTam.get(listCTPBSP.get(i).get("MaPhienBanSP").toString()).toString());
+                    soLuong = Integer.parseInt(listCTPBSP.get(i).get("soLuong").toString());
+                    if (dsSPLuuTam.containsKey(listCTPBSP.get(i).get("maPhienBanSP").toString())) {
+                        soLuong = soLuong - Integer.parseInt(dsSPLuuTam.get(listCTPBSP.get(i).get("maPhienBanSP").toString()).toString());
                     }
-                    if (dsSP.containsKey(listCTPBSP.get(i).get("MaPhienBanSP").toString())) {
-                        soLuong = soLuong - Integer.parseInt(dsSP.get(listCTPBSP.get(i).get("MaPhienBanSP").toString()).toString());
-                        listModel.addElement(listCTPBSP.get(i).get("MaPhienBanSP").toString() + " Số lượng:" + soLuong);
+                    if (dsSP.containsKey(listCTPBSP.get(i).get("maPhienBanSP").toString())) {
+                        soLuong = soLuong - Integer.parseInt(dsSP.get(listCTPBSP.get(i).get("maPhienBanSP").toString()).toString());
+                        listModel.addElement(listCTPBSP.get(i).get("maPhienBanSP").toString() + " Số lượng:" + soLuong);
                     } else {
-                        listModel.addElement(listCTPBSP.get(i).get("MaPhienBanSP").toString() + " Số lượng:" + soLuong);
+                        listModel.addElement(listCTPBSP.get(i).get("maPhienBanSP").toString() + " Số lượng:" + soLuong);
                     }
                 }
                 lapHoaDon.getMenuProduct().show(lapHoaDon.getTxtTimKiemSanPham(), 0, lapHoaDon.getTxtTimKiemSanPham().getHeight());
@@ -277,7 +276,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("SoDienThoai", textKH);
         try {
-            List<Map<String, Object>> listKH = khachHangDAO.timKiem(conditions, false, "SoDienThoai");
+            List<Map<String, Object>> listKH = khachHangImp.timKiem(conditions, false, "SoDienThoai");
             if (listKH.isEmpty()) {
                 lapHoaDon.getMenuKhachHang().setVisible(false);
             } else {
@@ -333,7 +332,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         conditions.put("ma_hd", "%" + nlap + "%");
         List<HoaDon> hoaDons = new ArrayList<>();
         try {
-            hoaDons = hoaDonDAO.timKiem(conditions);
+            hoaDons = hoaDonImp.timKiem(conditions);
 
         } catch (Exception e) {
             System.out.println("1");
@@ -371,34 +370,34 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
 
             try {
 //                System.out.println(conditions.size());
-                Optional<KhachHang> kh = Optional.empty();
+                KhachHang kh = new KhachHang();
                 if(lapHoaDon.getjCheckBox1().isSelected()){
-                    kh = khachHangDAO.timKiem("KH-00000000-000");
+                    kh = khachHangImp.timKiem("KH-00000000-000");
                 }else{
-                    kh = Optional.ofNullable(khachHangDAO.timKiem(conditions).get(0));
+                    kh = khachHangImp.timKiem(conditions).get(0);
                 }
-                if (kh.isEmpty()) {
-                    kh = Optional.of(new KhachHang("KH-00000000-000", "Khách vãng lai", "0000000000", true, LocalDate.now(), 0));
-                    khachHangDAO.them(kh.get());
+                if (kh == null) {
+                    kh = new KhachHang("KH-00000000-000", "Khách vãng lai", "0000000000", true, LocalDate.now(), 0);
+                    khachHangImp.them(kh);
                 }
-                HoaDon hd = new HoaDon(maHD, nl, nhanVienDAO.timKiem(maNV).get(), kh.get(), new BigDecimal(tienKHTra), null);
+                HoaDon hd = new HoaDon(maHD, nl, nhanVienImp.timKiem(maNV), kh, new BigDecimal(tienKHTra), null);
 
-                boolean a =  hoaDonDAO.them(hd);
+                boolean a =  hoaDonImp.them(hd);
                 if(a){
                     System.out.println("1");
                 }else{
                     System.out.println("0");
                 }
                 int sl = 0;
-                Optional<ChiTietPhienBanSanPham> pbsp = Optional.empty();
+                ChiTietPhienBanSanPham pbsp = new ChiTietPhienBanSanPham();
                 for (int i = 0; i < tmGioHang.getRowCount(); i++) {
-                    pbsp = chiTietPhienBanSanPhamDAO.timKiem(tmGioHang.getValueAt(i, 1).toString());
+                    pbsp = chiTietPhienBanSanPhamImp.timKiem(tmGioHang.getValueAt(i, 1).toString());
                     sl = Integer.parseInt(tmGioHang.getValueAt(i, 4).toString());
-                    ChiTietHoaDonId cthdId = new ChiTietHoaDonId(hd, pbsp.get());
+                    ChiTietHoaDonId cthdId = new ChiTietHoaDonId(hd, pbsp);
                     ChiTietHoaDon cthd = new ChiTietHoaDon(cthdId, sl);
-                    chiTietHoaDonDAO.them(cthd);
-                    pbsp.get().setSoLuong(pbsp.get().getSoLuong() - sl);
-                    chiTietPhienBanSanPhamDAO.capNhat(pbsp.get());
+                    chiTietHoaDonImp.them(cthd);
+                    pbsp.setSoLuong(pbsp.getSoLuong() - sl);
+                    chiTietPhienBanSanPhamImp.capNhat(pbsp);
                 }
                 xuatPDF();
             } catch (Exception e) {
@@ -447,7 +446,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
     }
 
     public boolean themSP(String maPBSP) {
-        Optional<ChiTietPhienBanSanPham> pbsp = Optional.empty();
+        ChiTietPhienBanSanPham pbsp = new ChiTietPhienBanSanPham();
 
         DefaultTableModel tmGioHang = (DefaultTableModel) lapHoaDon.getTbDanhSachCacSanPhamTrongGioHang().getModel();
         String SL = "1";
@@ -468,18 +467,18 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
             }
         }
         try {
-            pbsp = chiTietPhienBanSanPhamDAO.timKiem(maPBSP);
+            pbsp = chiTietPhienBanSanPhamImp.timKiem(maPBSP);
             int index = maPBSP.indexOf("-");
             String maSP = maPBSP.substring(0, index);
-            Optional<SanPham> sp = sanPhamDAO.timKiem(maSP);
+            SanPham sp = sanPhamImp.timKiem(maSP);
             Map<String, Object> conditions = new HashMap<>();
             conditions.put("ma_sp", maSP);
-            sp.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditions));
+            sp.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangImp.timKiem(conditions));
             int stt = tmGioHang.getRowCount() + 1;
             double tt = 0;
 //            String pbsp = maPBSP.substring(0, maPBSP.indexOf(" "));
             for (int i = 0; i < tmGioHang.getRowCount(); i++) {
-                if (tmGioHang.getValueAt(i, 1).toString().equalsIgnoreCase(pbsp.get().getMaPhienBanSP())) {
+                if (tmGioHang.getValueAt(i, 1).toString().equalsIgnoreCase(pbsp.getMaPhienBanSP())) {
                     int soLuong = Integer.parseInt(tmGioHang.getValueAt(i, 4).toString()) + Integer.parseInt(kQ);
                     if (Integer.parseInt(SL) >= Integer.parseInt(kQ)) {
                         tmGioHang.setValueAt((soLuong * Double.parseDouble(tmGioHang.getValueAt(i, 5).toString())), i, 6);
@@ -494,10 +493,10 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
             }
             int sl = Integer.parseInt(kQ);
 
-            double dongia = sp.get().giaBan();
+            double dongia = sp.giaBan();
             dongia = (double) Math.round(dongia * 100) / 100;
 //            System.out.println(dongia);
-            String[] rows = {stt + "", maPBSP, sp.get().getTenSP(), pbsp.get().getKichThuoc(), sl + "", dongia + "", sl * dongia + "", null};
+            String[] rows = {stt + "", maPBSP, sp.getTenSP(), pbsp.getKichThuoc(), sl + "", dongia + "", sl * dongia + "", null};
             tmGioHang.addRow(rows);
             lapHoaDon.getTxtTongTIen().setText(tinhTT() + "");
             lapHoaDon.getTxtTienKhachDua().setEnabled(true);
@@ -531,12 +530,12 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         double thue = 0;
         double tyLeThue = 1;
         double thanhtien = 0;
-        Optional<ChiTietPhienBanSanPham> pbsp = Optional.empty();
+        ChiTietPhienBanSanPham pbsp = new ChiTietPhienBanSanPham();
         for (int i = 0; i < tmGioHang.getRowCount(); i++) {
             thanhtien = (Double.parseDouble(tmGioHang.getValueAt(i, 6).toString()));
             try {
-                pbsp = chiTietPhienBanSanPhamDAO.timKiem(tmGioHang.getValueAt(i, 1).toString());
-                tyLeThue = (1 + pbsp.get().getSanPham().getThue().getGiaTri() / 100);
+                pbsp = chiTietPhienBanSanPhamImp.timKiem(tmGioHang.getValueAt(i, 1).toString());
+                tyLeThue = (1 + pbsp.getSanPham().getThue().getGiaTri() / 100);
                 thue += (thanhtien - ((Double.parseDouble(tmGioHang.getValueAt(i, 5).toString()) * Double.parseDouble(tmGioHang.getValueAt(i, 4).toString())) / tyLeThue));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -600,7 +599,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("SoDienThoai", lapHoaDon.getTxtSoDienThoaiKh().getText().trim());
         try {
-            String tenKH = khachHangDAO.timKiem(conditions).get(0).getHoTen();
+            String tenKH = khachHangImp.timKiem(conditions).get(0).getHoTen();
             String[] rows = {(tmTam.getRowCount() + 1) + "", tenKH, lapHoaDon.getTxtSoDienThoaiKh().getText().trim()};
             tmTam.addRow(rows);
         } catch (Exception e) {
@@ -697,7 +696,7 @@ public class LapHoaDonController implements KeyListener, Runnable, ThreadFactory
             ChiTietPhienBanSanPham pbsp = null;
             double tta = 0;
             try {
-                pbsp = chiTietPhienBanSanPhamDAO.timKiem(tmGioHang.getValueAt(row, 1).toString()).get();
+                pbsp = chiTietPhienBanSanPhamImp.timKiem(tmGioHang.getValueAt(row, 1).toString());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

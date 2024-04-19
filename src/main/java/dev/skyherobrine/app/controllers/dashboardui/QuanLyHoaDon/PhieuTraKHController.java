@@ -2,8 +2,9 @@ package dev.skyherobrine.app.controllers.dashboardui.QuanLyHoaDon;
 
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.order.*;
-import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamImp;
+import dev.skyherobrine.app.daos.product.SanPhamImp;
+import dev.skyherobrine.app.entities.Key.ChiTietPhieuTraKhachHangId;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuTraKhachHang;
 import dev.skyherobrine.app.entities.order.HoaDon;
@@ -21,11 +22,9 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.html.Option;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.sql.Array;
 import java.text.DecimalFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -36,25 +35,25 @@ import static java.lang.Math.abs;
 public class PhieuTraKHController implements KeyListener, TableModelListener, ActionListener, MouseListener, PropertyChangeListener {
     private QuanLyPhieuTraHangChoKhachHang quanLyPhieuTraHangChoKhachHang;
     private DefaultListModel<String> listModelHD;
-    private HoaDonDAO hoaDonDAO;
-    private ChiTietHoaDonDAO chiTietHoaDonDAO;
-    private SanPhamDAO sanPhamDAO;
-    private ChiTietPhieuNhapHangDAO chiTietPhieuNhapHangDAO;
-    private PhieuTraKhachHangDAO phieuTraKhachHangDAO;
-    private ChiTietPhieuTraKhachHangDAO chiTietPhieuTraKhachHangDAO;
-    private ChiTietPhienBanSanPhamDAO chiTietPhienBanSanPhamDAO;
+    private HoaDonImp hoaDonImp;
+    private ChiTietHoaDonImp chiTietHoaDonImp;
+    private SanPhamImp sanPhamImp;
+    private ChiTietPhieuNhapHangImp chiTietPhieuNhapHangImp;
+    private PhieuTraKhachHangImp phieuTraKhachHangImp;
+    private ChiTietPhieuTraKhachHangImp chiTietPhieuTraKhachHangImp;
+    private ChiTietPhienBanSanPhamImp chiTietPhienBanSanPhamImp;
     private ConnectDB connectDB;
     private String maPTKH;
     public PhieuTraKHController(QuanLyPhieuTraHangChoKhachHang quanLyPhieuTraHangChoKhachHang) {
         try {
             this.quanLyPhieuTraHangChoKhachHang = quanLyPhieuTraHangChoKhachHang;
-            this.chiTietPhieuTraKhachHangDAO = new ChiTietPhieuTraKhachHangDAO();
-            this.chiTietPhienBanSanPhamDAO = new ChiTietPhienBanSanPhamDAO();
-            this.phieuTraKhachHangDAO = new PhieuTraKhachHangDAO();
-            this.hoaDonDAO = new HoaDonDAO();
-            this.chiTietHoaDonDAO = new ChiTietHoaDonDAO();
-            this.sanPhamDAO = new SanPhamDAO();
-            this.chiTietPhieuNhapHangDAO = new ChiTietPhieuNhapHangDAO();
+            this.chiTietPhieuTraKhachHangImp = new ChiTietPhieuTraKhachHangImp();
+            this.chiTietPhienBanSanPhamImp = new ChiTietPhienBanSanPhamImp();
+            this.phieuTraKhachHangImp = new PhieuTraKhachHangImp();
+            this.hoaDonImp = new HoaDonImp();
+            this.chiTietHoaDonImp = new ChiTietHoaDonImp();
+            this.sanPhamImp = new SanPhamImp();
+            this.chiTietPhieuNhapHangImp = new ChiTietPhieuNhapHangImp();
             this.connectDB = new ConnectDB();
             loadPhieuTra();
         } catch (Exception e) {
@@ -126,43 +125,43 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
     }
     public void loadTTHD(String maHD){
         try {
-            Optional<HoaDon> hoaDon = hoaDonDAO.timKiem(maHD);
+            HoaDon hoaDon = hoaDonImp.timKiem(maHD);
             DefaultTableModel tmCTHD = (DefaultTableModel) quanLyPhieuTraHangChoKhachHang.getTbDanhSachSanPhamTrongHoaDon().getModel();
             Map<String, Object> conditions= new HashMap<>();
             conditions.put("MaHD", maHD);
-            List<ChiTietHoaDon> listCTHD = chiTietHoaDonDAO.timKiem(conditions);
+            List<ChiTietHoaDon> listCTHD = chiTietHoaDonImp.timKiem(conditions);
             SanPham sp;
             int i = 0;
             double tt = 0;
             double giaBan = 0;
             DecimalFormat format = new DecimalFormat("0.00");
-            List<PhieuTraKhachHang> phieuTraKhachHangs = phieuTraKhachHangDAO.timKiem(conditions);
+            List<PhieuTraKhachHang> phieuTraKhachHangs = phieuTraKhachHangImp.timKiem(conditions);
             if(!phieuTraKhachHangs.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Hóa đơn này đã được trả hàng");
                 return;
             }
-            if(hoaDon.isEmpty()){
+            if(hoaDon==null){
                 JOptionPane.showMessageDialog(null, "Hóa đơn này không tồn tại");
                 return;
             }
-            if(Period.between(LocalDate.from(hoaDon.get().getNgayLap()), LocalDate.now()).getDays()>=7){
+            if(Period.between(LocalDate.from(hoaDon.getNgayLap()), LocalDate.now()).getDays()>=7){
                 JOptionPane.showMessageDialog(null, "Hóa đơn này đã quá 7 ngày, không thể trả hàng");
                 return;
             }
             for(ChiTietHoaDon cthd : listCTHD){
-//                sp = cthd.getChiTietPhienBanSanPham().getSanPham();
-                sp = new SanPham();
+                sp = cthd.getChiTietHoaDonId().getPhienBanSanPham().getSanPham();
+//                sp = new SanPham();
                 Map<String, Object> conditionsSP= new HashMap<>();
                 conditionsSP.put("MaSP", sp.getMaSP());
-                sp.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditionsSP));
+                sp.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangImp.timKiem(conditionsSP));
                 giaBan = Double.parseDouble(format.format(sp.giaBan()))*1.08;
 //                Object[] row = {++i, cthd.getChiTietPhienBanSanPham().getMaPhienBanSP().toString(), sp.getTenSP(), "0","/"+cthd.getSoLuongMua(), giaBan, "0"};
-                Object[] row = {++i, null, sp.getTenSP(), "0","/"+cthd.getSoLuongMua(), giaBan, "0"};
+                Object[] row = {++i, cthd.getChiTietHoaDonId().getPhienBanSanPham().getMaPhienBanSP(), sp.getTenSP(), "0","/"+cthd.getSoLuongMua(), giaBan, "0"};
 
                 tt += giaBan * cthd.getSoLuongMua();
                 tmCTHD.addRow(row);
             }
-            quanLyPhieuTraHangChoKhachHang.getTxtMaHoaDon().setText(hoaDon.get().getMaHD());
+            quanLyPhieuTraHangChoKhachHang.getTxtMaHoaDon().setText(hoaDon.getMaHD());
             LocalDateTime local = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             quanLyPhieuTraHangChoKhachHang.getTxtNgayLapPhieu().setText(local.format(dateTimeFormatter));
@@ -174,12 +173,12 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
     public void loadPhieuTra(){
         DefaultTableModel tmPhieu = (DefaultTableModel) quanLyPhieuTraHangChoKhachHang.getTbDanhSachPhieuTraHangChoKhachHang().getModel();
         try {
-            List<PhieuTraKhachHang> listPTKH = phieuTraKhachHangDAO.timKiem();
+            List<PhieuTraKhachHang> listPTKH = phieuTraKhachHangImp.timKiem();
             int i = 0;
             for(PhieuTraKhachHang ptkh : listPTKH){
                 Map<String, Object> conditions= new HashMap<>();
                 conditions.put("MaPhieuTraKH", ptkh.getMaPhieuTraKhachHang().toString());
-                List<ChiTietPhieuTraKhachHang> listCTPTKH = chiTietPhieuTraKhachHangDAO.timKiem(conditions);
+                List<ChiTietPhieuTraKhachHang> listCTPTKH = chiTietPhieuTraKhachHangImp.timKiem(conditions);
                 String row[] ={(++i)+"", ptkh.getMaPhieuTraKhachHang(), ptkh.getNgayLap()+"", ptkh.getHoaDon().getMaHD(), ptkh.getHoaDon().getKhachHang().getHoTen(), listCTPTKH.size()+""};
                 tmPhieu.addRow(row);
             }
@@ -201,7 +200,7 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
             String nMua;
             LocalDate nlapHD;
             try {
-                List<Map<String, Object>> listHD = hoaDonDAO.timKiem(conditions, false, colNames);
+                List<Map<String, Object>> listHD = hoaDonImp.timKiem(conditions, false, colNames);
                 if(listHD.isEmpty()){
                     quanLyPhieuTraHangChoKhachHang.getMenuSuggestHD().setVisible(false);
                 }else{
@@ -253,19 +252,19 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
         String nLap = quanLyPhieuTraHangChoKhachHang.getTxtNgayLapPhieu().getText();
         LocalDateTime nl = LocalDateTime.parse(nLap, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
         try {
-            PhieuTraKhachHang phieuTraKhachHang = new PhieuTraKhachHang(maPTKH, nl, hoaDonDAO.timKiem(maHD).get());
-            phieuTraKhachHangDAO.them(phieuTraKhachHang);
-            Optional<ChiTietPhienBanSanPham> pbsp = Optional.empty();
+            PhieuTraKhachHang phieuTraKhachHang = new PhieuTraKhachHang(maPTKH, nl, hoaDonImp.timKiem(maHD));
+            phieuTraKhachHangImp.them(phieuTraKhachHang);
+            ChiTietPhienBanSanPham pbsp = new ChiTietPhienBanSanPham();
             int sl = 0;
             for(int i = 0; i < tmCTHD.getRowCount(); i++){
                 if(tmCTHD.getValueAt(i, 3).toString().equalsIgnoreCase("0")){
                     continue;
                 }
-                pbsp = chiTietPhienBanSanPhamDAO.timKiem(tmCTHD.getValueAt(i, 1).toString());
+                pbsp = chiTietPhienBanSanPhamImp.timKiem(tmCTHD.getValueAt(i, 1).toString());
                 sl = Integer.parseInt(tmCTHD.getValueAt(i, 3).toString());
-                ChiTietPhieuTraKhachHang chiTietPhieuTraKhachHang = new ChiTietPhieuTraKhachHang();
-//                ChiTietPhieuTraKhachHang chiTietPhieuTraKhachHang = new ChiTietPhieuTraKhachHang(phieuTraKhachHang, pbsp.get(), sl, quanLyPhieuTraHangChoKhachHang.getTxtLyDoTraHang().getText());
-                chiTietPhieuTraKhachHangDAO.them(chiTietPhieuTraKhachHang);
+//                ChiTietPhieuTraKhachHang chiTietPhieuTraKhachHang = new ChiTietPhieuTraKhachHang();
+                ChiTietPhieuTraKhachHang chiTietPhieuTraKhachHang = new ChiTietPhieuTraKhachHang(new ChiTietPhieuTraKhachHangId(phieuTraKhachHang, pbsp), sl, quanLyPhieuTraHangChoKhachHang.getTxtLyDoTraHang().getText());
+                chiTietPhieuTraKhachHangImp.them(chiTietPhieuTraKhachHang);
             }
             xuatHoaDon();
         } catch (Exception e) {
@@ -314,7 +313,7 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
         conditions.put("maPhieuTraKH", "%"+nlap+"%");
         List<PhieuTraKhachHang> phieuTraKhachHangs = new ArrayList<>();
         try{
-            phieuTraKhachHangs = phieuTraKhachHangDAO.timKiem(conditions);
+            phieuTraKhachHangs = phieuTraKhachHangImp.timKiem(conditions);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -408,14 +407,14 @@ public class PhieuTraKHController implements KeyListener, TableModelListener, Ac
            quanLyPhieuTraHangChoKhachHang.getTbDanhSachPhieuTraHangChoKhachHang().setRowSorter(sorter);
            sorter.setRowFilter(RowFilter.regexFilter(""));
               try {
-                List<PhieuTraKhachHang> listPTKH = phieuTraKhachHangDAO.timKiem(conditionsLoc);
+                List<PhieuTraKhachHang> listPTKH = phieuTraKhachHangImp.timKiem(conditionsLoc);
                 DefaultTableModel tmPhieu = (DefaultTableModel) quanLyPhieuTraHangChoKhachHang.getTbDanhSachPhieuTraHangChoKhachHang().getModel();
                 tmPhieu.setRowCount(0);
                 int i = 0;
                 for(PhieuTraKhachHang ptkh : listPTKH){
                      Map<String, Object> conditions= new HashMap<>();
                      conditions.put("MaPhieuTraKH", ptkh.getMaPhieuTraKhachHang().toString());
-                     List<ChiTietPhieuTraKhachHang> listCTPTKH = chiTietPhieuTraKhachHangDAO.timKiem(conditions);
+                     List<ChiTietPhieuTraKhachHang> listCTPTKH = chiTietPhieuTraKhachHangImp.timKiem(conditions);
                      String row[] ={(++i)+"", ptkh.getMaPhieuTraKhachHang(), ptkh.getNgayLap()+"", ptkh.getHoaDon().getMaHD(), ptkh.getHoaDon().getKhachHang().getHoTen(), listCTPTKH.size()+""};
                      tmPhieu.addRow(row);
                 }

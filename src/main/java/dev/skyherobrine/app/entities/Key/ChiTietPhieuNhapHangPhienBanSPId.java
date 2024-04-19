@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /*
@@ -30,7 +31,12 @@ import java.io.Serializable;
 @Embeddable
 @ToString
 public class ChiTietPhieuNhapHangPhienBanSPId implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private ChiTietPhieuNhapHang chiTietPhieuNhapHang;
     @ManyToOne(fetch = FetchType.EAGER)

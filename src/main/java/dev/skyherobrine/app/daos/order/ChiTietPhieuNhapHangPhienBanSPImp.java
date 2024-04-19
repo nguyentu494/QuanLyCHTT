@@ -1,23 +1,18 @@
 package dev.skyherobrine.app.daos.order;
 
-import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.ChiTietPhieuNhapHangPhienBanSPDAO;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class ChiTietPhieuNhapHangPhienBanSPDAO implements IDAO<ChiTietPhieuNhapHangPhienBanSP> {
+public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject implements ChiTietPhieuNhapHangPhienBanSPDAO<ChiTietPhieuNhapHangPhienBanSP> {
     private EntityManager em;
-    public ChiTietPhieuNhapHangPhienBanSPDAO() throws Exception{
+    public ChiTietPhieuNhapHangPhienBanSPImp() throws Exception{
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
 
@@ -48,7 +43,7 @@ public class ChiTietPhieuNhapHangPhienBanSPDAO implements IDAO<ChiTietPhieuNhapH
     }
 
     @Override
-    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem() throws Exception {
+    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem() throws RemoteException {
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
@@ -100,8 +95,8 @@ public class ChiTietPhieuNhapHangPhienBanSPDAO implements IDAO<ChiTietPhieuNhapH
     }
 
     @Override
-    public Optional<ChiTietPhieuNhapHangPhienBanSP> timKiem(String id) throws Exception {
-        return Optional.empty();
+    public ChiTietPhieuNhapHangPhienBanSP timKiem(String id) throws Exception {
+        return null;
     }
 
     @Override

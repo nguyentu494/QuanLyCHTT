@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -17,8 +19,13 @@ import java.time.LocalDate;
  */
 @Getter
 @Entity
-public class KhachHang {
-    @Id
+public class KhachHang implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_kh", nullable = false)
     private String maKH;
     @Column(name = "ho_ten", nullable = false, columnDefinition = "nvarchar(255)")

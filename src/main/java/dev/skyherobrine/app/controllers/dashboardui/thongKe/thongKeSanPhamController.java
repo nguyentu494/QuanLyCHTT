@@ -1,7 +1,6 @@
 package dev.skyherobrine.app.controllers.dashboardui.thongKe;
 
-import dev.skyherobrine.app.daos.order.ChiTietHoaDonDAO;
-import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
+import dev.skyherobrine.app.daos.order.ChiTietHoaDonImp;
 import dev.skyherobrine.app.views.dashboard.component.FormBaoCaoSanPhamCuaHang;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -9,17 +8,16 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class thongKeSanPhamController {
     private FormBaoCaoSanPhamCuaHang formBaoCaoSanPhamCuaHang;
-    private ChiTietHoaDonDAO chiTietHoaDonDAO;
+    private ChiTietHoaDonImp chiTietHoaDonImp;
     public thongKeSanPhamController(FormBaoCaoSanPhamCuaHang formBaoCaoSanPhamCuaHang){
         this.formBaoCaoSanPhamCuaHang = formBaoCaoSanPhamCuaHang;
         try {
-            this.chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+            this.chiTietHoaDonImp = new ChiTietHoaDonImp();
             loadData();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -41,7 +39,7 @@ public class thongKeSanPhamController {
         DefaultPieDataset dataset = new DefaultPieDataset();
 
         try {
-            List<Map<String, Integer>> result = chiTietHoaDonDAO.timKiem(cols, join, query);
+            List<Map<String, Integer>> result = chiTietHoaDonImp.timKiem(cols, join, query);
             String max = "";
             int maxSoLuong = 0;
             for (Map<String, Integer> map : result) {

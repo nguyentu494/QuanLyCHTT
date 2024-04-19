@@ -3,6 +3,9 @@ package dev.skyherobrine.app.entities.product;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Thực thể "Loại sản phẩm", thực thể này sẽ lưu trữ tất cả các sản phẩm tương ứng theo loại.
  * @author Trương Dương Minh Nhật
@@ -10,8 +13,13 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-public class LoaiSanPham {
-    @Id
+public class LoaiSanPham implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_loai", nullable = false)
     private String maLoai;
     @Column(name = "ten_loai", nullable = false)

@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /*
@@ -29,7 +30,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class ChiTietPhieuTraKhachHangId implements Serializable{
-    @ManyToOne
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@ManyToOne
     @JoinColumn(name = "ma_phieu_tra_khach_hang", nullable = false)
     private PhieuTraKhachHang phieuTra;
     @ManyToOne

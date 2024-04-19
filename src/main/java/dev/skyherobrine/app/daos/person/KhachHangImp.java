@@ -1,11 +1,10 @@
 package dev.skyherobrine.app.daos.person;
 
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
+import dev.skyherobrine.app.daos.KhachHangDAO;
 import dev.skyherobrine.app.entities.person.KhachHang;
-import dev.skyherobrine.app.entities.person.NhaCungCap;
-import dev.skyherobrine.app.enums.TinhTrangNhaCungCap;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,10 +12,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class KhachHangDAO implements IDAO<KhachHang> {
+public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<KhachHang> {
     private ConnectDB connectDB;
 
-    public KhachHangDAO() throws Exception {
+    public KhachHangImp() throws Exception {
         connectDB = new ConnectDB();
     }
 
@@ -103,7 +102,7 @@ public class KhachHangDAO implements IDAO<KhachHang> {
     }
 
     @Override
-    public Optional<KhachHang> timKiem(String id) throws Exception {
+    public KhachHang timKiem(String id) throws Exception {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from KhachHang KH where KH.MaKH = ?");
         preparedStatement.setString(1, id);
@@ -111,9 +110,9 @@ public class KhachHangDAO implements IDAO<KhachHang> {
         if (result.next()) {
             return Optional.of(new KhachHang(result.getString("MaKH"),
                     result.getString("HoTen"), result.getString("SoDienThoai"),
-                    result.getBoolean("GioiTinh"), result.getDate("NgaySinh").toLocalDate(), result.getFloat("DiemTichLuy")));
+                    result.getBoolean("GioiTinh"), result.getDate("NgaySinh").toLocalDate(), result.getFloat("DiemTichLuy"))).get();
         } else {
-            return Optional.empty();
+            return (KhachHang) Optional.empty().get();
         }
     }
 

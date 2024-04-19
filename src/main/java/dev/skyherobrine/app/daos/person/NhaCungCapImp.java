@@ -1,23 +1,20 @@
 package dev.skyherobrine.app.daos.person;
 
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
+import dev.skyherobrine.app.daos.NhaCungCapDAO;
 import dev.skyherobrine.app.entities.person.NhaCungCap;
-import dev.skyherobrine.app.entities.person.NhanVien;
-import dev.skyherobrine.app.enums.CaLamViec;
-import dev.skyherobrine.app.enums.ChucVu;
 import dev.skyherobrine.app.enums.TinhTrangNhaCungCap;
-import dev.skyherobrine.app.enums.TinhTrangNhanVien;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class NhaCungCapDAO implements IDAO<NhaCungCap> {
+public class NhaCungCapImp extends UnicastRemoteObject implements NhaCungCapDAO<NhaCungCap> {
     private ConnectDB connectDB;
-    public NhaCungCapDAO() throws Exception{
+    public NhaCungCapImp() throws Exception{
         connectDB = new ConnectDB();
     }
 
@@ -104,7 +101,7 @@ public class NhaCungCapDAO implements IDAO<NhaCungCap> {
     }
 
     @Override
-    public Optional<NhaCungCap> timKiem(String id) throws Exception {
+    public NhaCungCap timKiem(String id) throws Exception {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from NhaCungCap NCC where NCC.MaNCC = ?");
         preparedStatement.setString(1, id);
@@ -113,9 +110,9 @@ public class NhaCungCapDAO implements IDAO<NhaCungCap> {
         if (result.next()) {
             return Optional.of(new NhaCungCap(result.getString("MaNCC"),
                     result.getString("TenNCC"), result.getString("DiaChiNCC"),
-                    result.getString("Email"), TinhTrangNhaCungCap.layGiaTri(result.getString("TinhTrang"))));
+                    result.getString("Email"), TinhTrangNhaCungCap.layGiaTri(result.getString("TinhTrang")))).get();
         } else {
-            return Optional.empty();
+            return (NhaCungCap) Optional.empty().get();
         }
     }
 

@@ -2,7 +2,7 @@ package dev.skyherobrine.app.controllers.dashboardui.person;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JYearChooser;
-import dev.skyherobrine.app.daos.person.KhachHangDAO;
+import dev.skyherobrine.app.daos.person.KhachHangImp;
 import dev.skyherobrine.app.entities.person.KhachHang;
 import dev.skyherobrine.app.views.dashboard.component.FrmKhachHang;
 import org.apache.poi.ss.usermodel.Cell;
@@ -30,7 +30,7 @@ import java.util.*;
 
 public class KhachHangController implements MouseListener, ActionListener, PropertyChangeListener, KeyListener {
     private FrmKhachHang khachHangUI;
-    private KhachHangDAO khachHangDAO;
+    private KhachHangImp khachHangImp;
     private List<KhachHang> dsKhachHang;
 
 
@@ -41,7 +41,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
 
     public KhachHangController(FrmKhachHang khachHangUI) {
         try {
-            khachHangDAO = new KhachHangDAO();
+            khachHangImp = new KhachHangImp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -54,7 +54,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
         clearTable.setRowCount(0);
         khachHangUI.getTbDanhSachKhachHang().setModel(clearTable);
         try {
-            dsKhachHang = khachHangDAO.timKiem();
+            dsKhachHang = khachHangImp.timKiem();
             DefaultTableModel tmKhachHang = (DefaultTableModel) khachHangUI.getTbDanhSachKhachHang().getModel();
             for(KhachHang kh : dsKhachHang){
                 String row[] = {kh.getMaKH(), kh.getHoTen(), kh.getSoDienThoai(), kh.isGioiTinh() ? "NAM" : "NỮ",
@@ -99,7 +99,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                 KhachHang kh = layDataThem();
                 if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn thêm khách hàng mới", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                     try {
-                        if(khachHangDAO.them(kh)){
+                        if(khachHangImp.them(kh)){
                             loaddsKhachHang();
                             xoaTrangAll();
                             JOptionPane.showMessageDialog(null, "Thêm thành công!");
@@ -122,7 +122,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     KhachHang khSua = layDataSua();
                     if ((JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn sửa khách hàng có mã " +khSua.getMaKH()+" không?", "Lựa chọn", JOptionPane.YES_NO_OPTION)) == JOptionPane.YES_OPTION){
                         try {
-                            if(khachHangDAO.capNhat(khSua)){
+                            if(khachHangImp.capNhat(khSua)){
                                 loaddsKhachHang();
                                 xoaTrangAll();
                                 JOptionPane.showMessageDialog(null, "Sửa thành công!");
@@ -287,13 +287,13 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     Map<String, Object> conditions = new HashMap<>();
                     conditions.put("GioiTinh", khachHangUI.getCbTkGioiTinh().getSelectedItem().toString().equals("NAM") ? 1 : 0);
                     try {
-                        dsLoc = khachHangDAO.timKiem(conditions);
+                        dsLoc = khachHangImp.timKiem(conditions);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
                 }else{
                     try {
-                        dsLoc = khachHangDAO.timKiem();
+                        dsLoc = khachHangImp.timKiem();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -302,7 +302,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("NgaySinh", dateToLocalDate(khachHangUI.getjDateChooserTkNgaySinh().getDate()));
                 try {
-                    dsLoc = khachHangDAO.timKiem(conditions);
+                    dsLoc = khachHangImp.timKiem(conditions);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -340,7 +340,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     String[] col = {"MaKH", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "DiemTichLuy"};
                     List<Map<String, Object>> kh;
                     try {
-                        kh = khachHangDAO.timKiem(conditions1, false, col);
+                        kh = khachHangImp.timKiem(conditions1, false, col);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -365,7 +365,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     String[] col = {"MaKH", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "DiemTichLuy"};
                     List<Map<String, Object>> kh;
                     try {
-                        kh = khachHangDAO.timKiem(conditions1, false, col);
+                        kh = khachHangImp.timKiem(conditions1, false, col);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -390,7 +390,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                 String[] col = {"MaKH", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "DiemTichLuy"};
                 List<Map<String, Object>> kH;
                 try {
-                    kH = khachHangDAO.timKiem(conditions2, false, col);
+                    kH = khachHangImp.timKiem(conditions2, false, col);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -414,7 +414,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                 String[] col = {"MaKH", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "DiemTichLuy"};
                 List<Map<String, Object>> kH;
                 try {
-                    kH = khachHangDAO.timKiem(conditions2, false, col);
+                    kH = khachHangImp.timKiem(conditions2, false, col);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -581,7 +581,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
         conditions.put("MaKH", "%"+nThem+"%");
         List<KhachHang> khachHag;
         try {
-            khachHag = khachHangDAO.timKiem(conditions);
+            khachHag = khachHangImp.timKiem(conditions);
         } catch (Exception e) {
             return 1;
         }
@@ -631,20 +631,20 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
         }else {
             int row = khachHangUI.getTbDanhSachKhachHang().getSelectedRow();
             String ma = khachHangUI.getTbDanhSachKhachHang().getValueAt(row, 0).toString();
-            Optional<KhachHang> khHienThuc = null;
+            KhachHang khHienThuc = null;
             try {
-                khHienThuc = khachHangDAO.timKiem(ma);
+                khHienThuc = khachHangImp.timKiem(ma);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            khachHangUI.getTxtMaKhachHang().setText(khHienThuc.get().getMaKH());
-            khachHangUI.getTxtHoTenKhachHang().setText(khHienThuc.get().getHoTen());
-            khachHangUI.getTxtSoDienThoaiKhachHang().setText(khHienThuc.get().getSoDienThoai());
-            khachHangUI.getTxtDiemTichLuy().setText(String.valueOf(khHienThuc.get().getDiemTichLuy()));
+            khachHangUI.getTxtMaKhachHang().setText(khHienThuc.getMaKH());
+            khachHangUI.getTxtHoTenKhachHang().setText(khHienThuc.getHoTen());
+            khachHangUI.getTxtSoDienThoaiKhachHang().setText(khHienThuc.getSoDienThoai());
+            khachHangUI.getTxtDiemTichLuy().setText(String.valueOf(khHienThuc.getDiemTichLuy()));
 
 
             //Xử lý ngày
-            String date = String.valueOf(khHienThuc.get().getNgaySinh());
+            String date = String.valueOf(khHienThuc.getNgaySinh());
             Date date2 = null;
             try {
                 date2 = new SimpleDateFormat("yyyy-mm-dd").parse(date);
@@ -652,7 +652,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
 
             }
             khachHangUI.getjDateChooserNgaySinhKhachHang().setDate(date2);
-            khachHangUI.getCbGioiTinh().setSelectedItem(khHienThuc.get().isGioiTinh() ? "NAM" : "NỮ");
+            khachHangUI.getCbGioiTinh().setSelectedItem(khHienThuc.isGioiTinh() ? "NAM" : "NỮ");
         }
     }
 
@@ -695,7 +695,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
             String[] col = {"MaKH", "HoTen", "SoDienThoai", "GioiTinh", "NgaySinh", "DiemTichLuy"};
             List<Map<String, Object>> kh;
             try {
-                kh = khachHangDAO.timKiem(conditions, false, col);
+                kh = khachHangImp.timKiem(conditions, false, col);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -718,7 +718,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
             clearTable.setRowCount(0);
             khachHangUI.getTbDanhSachKhachHang().setModel(clearTable);
             try {
-                dsKhachHang = khachHangDAO.timKiem();
+                dsKhachHang = khachHangImp.timKiem();
                 DefaultTableModel tmKhachHang = (DefaultTableModel) khachHangUI.getTbDanhSachKhachHang().getModel();
                 for(KhachHang kh : dsKhachHang){
                     String row[] = {kh.getMaKH(), kh.getHoTen(), kh.getSoDienThoai(), kh.isGioiTinh() ? "NAM" : "NỮ", kh.getNgaySinh()+"", kh.getDiemTichLuy()+""};
@@ -752,7 +752,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     Map<String, Object> conditions = new HashMap<>();
                     conditions.put("GioiTinh", khachHangUI.getCbTkGioiTinh().getSelectedItem().toString().equals("NAM") ? 1 : 0);
                     try {
-                        dsLoc = khachHangDAO.timKiem(conditions);
+                        dsLoc = khachHangImp.timKiem(conditions);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -767,7 +767,7 @@ public class KhachHangController implements MouseListener, ActionListener, Prope
                     Map<String, Object> conditions = new HashMap<>();
                     conditions.put("NgaySinh", dateToLocalDate(khachHangUI.getjDateChooserTkNgaySinh().getDate()));
                     try {
-                        dsLoc = khachHangDAO.timKiem(conditions);
+                        dsLoc = khachHangImp.timKiem(conditions);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }

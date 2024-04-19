@@ -1,22 +1,18 @@
 package dev.skyherobrine.app.controllers.dashboardui.QuanLyHoaDon;
 
 
-import com.lowagie.text.pdf.PdfDocument;
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.order.ChiTietHoaDonDAO;
-import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangDAO;
-import dev.skyherobrine.app.daos.order.HoaDonDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.order.ChiTietHoaDonImp;
+import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangImp;
+import dev.skyherobrine.app.daos.order.HoaDonImp;
+import dev.skyherobrine.app.daos.product.SanPhamImp;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
-import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.HoaDon;
 import dev.skyherobrine.app.entities.product.SanPham;
 import dev.skyherobrine.app.views.dashboard.component.QuanLyHoaDon;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
-import net.sf.jasperreports.swing.JRViewer;
 import net.sf.jasperreports.view.JasperViewer;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -27,7 +23,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -35,11 +30,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,20 +45,20 @@ import static java.lang.Math.abs;
 public class HoaDonController implements MouseListener, ActionListener, KeyListener, PropertyChangeListener {
     private static QuanLyHoaDon hoaDonUI;
     private static List<HoaDon> dsHoaDon;
-    private static HoaDonDAO hoaDonDAO;
+    private static HoaDonImp hoaDonImp;
     private static List<ChiTietHoaDon> dsChiTietHoaDon;
-    private static ChiTietHoaDonDAO chiTietHoaDonDAO;
-    private static SanPhamDAO sanPhamDAO;
+    private static ChiTietHoaDonImp chiTietHoaDonImp;
+    private static SanPhamImp sanPhamImp;
     private static ConnectDB connectDB;
-    private static ChiTietPhieuNhapHangDAO chiTietPhieuNhapHangDAO;
+    private static ChiTietPhieuNhapHangImp chiTietPhieuNhapHangImp;
     private static List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
     public HoaDonController(QuanLyHoaDon hoaDonUI) {
         try {
             this.hoaDonUI = hoaDonUI;
-            hoaDonDAO = new HoaDonDAO();
-            chiTietHoaDonDAO = new ChiTietHoaDonDAO();
-            sanPhamDAO = new SanPhamDAO();
-            chiTietPhieuNhapHangDAO = new ChiTietPhieuNhapHangDAO();
+            hoaDonImp = new HoaDonImp();
+            chiTietHoaDonImp = new ChiTietHoaDonImp();
+            sanPhamImp = new SanPhamImp();
+            chiTietPhieuNhapHangImp = new ChiTietPhieuNhapHangImp();
             loadDsHoaDon();
 //            loadCbMucTien();
         } catch (Exception e) {
@@ -82,7 +74,7 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
                 Map<String, Object> conditions = new HashMap<>();
                 conditions.put("ngay_lap >= DATEADD(DAY, -7, GETDATE()) AND ma_hd", "%%");
                 try {
-                    dsHoaDon = hoaDonDAO.timKiem(conditions);
+                    dsHoaDon = hoaDonImp.timKiem(conditions);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -110,15 +102,15 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
             LocalDateTime ngayLap = hd.getNgayLap();
             Map<String, Object> conditionsSP = new HashMap<>();
             conditionsSP.put("ngay_lap", ngayLap);
-            chiTietHoaDons = chiTietHoaDonDAO.timKiem(conditions);
+            chiTietHoaDons = chiTietHoaDonImp.timKiem(conditions);
             double tongTien = 0;
             for(ChiTietHoaDon chiTietHoaDon : chiTietHoaDons){
-                Optional<SanPham> sanPham = Optional.of(new SanPham());
+                SanPham sanPham = new SanPham();
                 String maSp = chiTietHoaDon.getChiTietHoaDonId().getPhienBanSanPham().getSanPham().getMaSP();
                 conditionsSP.put("ma_sp", maSp);
-                sanPham = sanPhamDAO.timKiem(maSp);
-                sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiemHaiBang(conditionsSP));
-                tongTien += chiTietHoaDon.getSoLuongMua() * sanPham.get().giaBan();
+                sanPham = sanPhamImp.timKiem(maSp);
+                sanPham.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangImp.timKiemHaiBang(conditionsSP));
+                tongTien += chiTietHoaDon.getSoLuongMua() * sanPham.giaBan();
             }
             return Math.round(tongTien);
         } catch (Exception e) {
@@ -154,12 +146,12 @@ public class HoaDonController implements MouseListener, ActionListener, KeyListe
                     tienKhachDua = Double.parseDouble(hoaDonUI.getTxtKhachHang1().getText());
                     for(ChiTietHoaDon cthd : chiTietHoaDons){
 
-                        Optional<SanPham> sanPham = Optional.of(new SanPham());
+                        SanPham sanPham = new SanPham();
                         String maSp = cthd.getChiTietHoaDonId().getPhienBanSanPham().getSanPham().getMaSP();
                         conditionsSP.put("MaSP", maSp);
-                        sanPham = sanPhamDAO.timKiem(maSp);
-                        sanPham.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditionsSP));
-                        data.put("ThanhTien", cthd.getSoLuongMua() * sanPham.get().giaBan());
+                        sanPham = sanPhamImp.timKiem(maSp);
+                        sanPham.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangImp.timKiem(conditionsSP));
+                        data.put("ThanhTien", cthd.getSoLuongMua() * sanPham.giaBan());
                     }
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);

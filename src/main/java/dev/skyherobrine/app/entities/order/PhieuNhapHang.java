@@ -3,7 +3,10 @@ package dev.skyherobrine.app.entities.order;
 import dev.skyherobrine.app.entities.person.NhaCungCap;
 import dev.skyherobrine.app.enums.TinhTrangNhapHang;
 import jakarta.persistence.*;
+import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -12,13 +15,19 @@ import java.time.LocalDateTime;
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
+@Getter
 @Entity
 @NamedQueries({
         @NamedQuery(name = "PNH.findAll", query = "SELECT pnh FROM PhieuNhapHang pnh"),
         @NamedQuery(name = "PNH.findByID", query = "SELECT pnh FROM PhieuNhapHang pnh WHERE pnh.maPhieuNhap = :id")
 })
-public class PhieuNhapHang {
-    @Id
+public class PhieuNhapHang implements Serializable {
+    /**
+	 * 
+	 */
+	@Serial
+    private static final long serialVersionUID = 1L;
+	@Id
     @Column(name = "ma_phieu_nhap", nullable = false)
     private String maPhieuNhap;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -47,33 +56,18 @@ public class PhieuNhapHang {
 
     }
 
-    public String getMaPhieuNhap() {
-        return maPhieuNhap;
-    }
-
     public void setMaPhieuNhap(String maPhieuNhap) {
         this.maPhieuNhap = maPhieuNhap;
-    }
-
-    public NhaCungCap getNhaCungCap() {
-        return nhaCungCap;
     }
 
     public void setNhaCungCap(NhaCungCap nhaCungCap) {
         this.nhaCungCap = nhaCungCap;
     }
 
-    public LocalDateTime getNgayLapPhieu() {
-        return ngayLapPhieu;
-    }
-
     public void setNgayLapPhieu(LocalDateTime ngayLapPhieu) {
         this.ngayLapPhieu = ngayLapPhieu;
     }
 
-    public LocalDateTime getNgayHenGiao() {
-        return ngayHenGiao;
-    }
     /**
      * Set ngày hẹn giao phải lớn hơn ngày lập phiếu nhập <br></br>
      * Nếu ngày hẹn giao nhỏ hơn ngày lập phiếu thì sẽ xuất ra exception "Ngày hẹn giao không được sớm hơn ngày lập phiếu!"
@@ -85,16 +79,8 @@ public class PhieuNhapHang {
             throw new Exception("Ngày hẹn giao không được sớm hơn ngày lập phiếu!");
     }
 
-    public String getGhiChu() {
-        return ghiChu;
-    }
-
     public void setGhiChu(String ghiChu) {
         this.ghiChu = ghiChu;
-    }
-
-    public TinhTrangNhapHang getTinhTrang() {
-        return tinhTrang;
     }
 
     public void setTinhTrang(TinhTrangNhapHang tinhTrang) {

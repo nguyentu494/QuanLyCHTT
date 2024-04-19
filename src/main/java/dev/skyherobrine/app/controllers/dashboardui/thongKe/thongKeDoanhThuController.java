@@ -1,15 +1,14 @@
 package dev.skyherobrine.app.controllers.dashboardui.thongKe;
 
-import dev.skyherobrine.app.daos.order.ChiTietHoaDonDAO;
-import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.order.ChiTietHoaDonImp;
+import dev.skyherobrine.app.daos.order.ChiTietPhieuNhapHangImp;
+import dev.skyherobrine.app.daos.product.SanPhamImp;
 import dev.skyherobrine.app.entities.product.SanPham;
 import dev.skyherobrine.app.views.dashboard.component.FormBaoCaoDoanhThuCuaHang;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DefaultPieDataset;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,16 +17,16 @@ import java.util.Optional;
 
 public class thongKeDoanhThuController {
     private FormBaoCaoDoanhThuCuaHang formBaoCaoDoanhThuCuaHang;
-    private ChiTietHoaDonDAO chiTietHoaDonDAO;
-    private ChiTietPhieuNhapHangDAO chiTietPhieuNhapHangDAO;
-    private SanPhamDAO sanPhamDAO;
+    private ChiTietHoaDonImp chiTietHoaDonImp;
+    private ChiTietPhieuNhapHangImp chiTietPhieuNhapHangImp;
+    private SanPhamImp sanPhamImp;
 
     public thongKeDoanhThuController(FormBaoCaoDoanhThuCuaHang formBaoCaoDoanhThuCuaHang){
         this.formBaoCaoDoanhThuCuaHang = formBaoCaoDoanhThuCuaHang;
         try {
-            this.chiTietHoaDonDAO = new ChiTietHoaDonDAO();
-            this.chiTietPhieuNhapHangDAO = new ChiTietPhieuNhapHangDAO();
-            this.sanPhamDAO = new SanPhamDAO();
+            this.chiTietHoaDonImp = new ChiTietHoaDonImp();
+            this.chiTietPhieuNhapHangImp = new ChiTietPhieuNhapHangImp();
+            this.sanPhamImp = new SanPhamImp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -53,15 +52,16 @@ public class thongKeDoanhThuController {
         String query = " NgayLap >= DATEADD(DAY, -7, GETDATE())  group by MaSP, NgayLap";
 
         try {
-            List<Map<String, Object>> result = chiTietHoaDonDAO.timKiemHD(cols, join, query);
+            List<Map<String, Object>> result = chiTietHoaDonImp.timKiemHD(cols, join, query);
             double doanhthu = 0;
             for (Map<String, Object> map : result) {
                 for(Map.Entry<String, Object> entry : map.entrySet()){
-                    Optional<SanPham> sp  = sanPhamDAO.timKiem(entry.getKey());
+//                    Optional<SanPham> sp  = sanPhamImp.timKiem(entry.getKey());
+                    SanPham sp = new SanPham();
                     Map<String, Object> conditions = new HashMap<>();
                     conditions.put("MaSP", entry.getKey());
-                    sp.get().setChiTietPhieuNhapHangs(chiTietPhieuNhapHangDAO.timKiem(conditions));
-                    double dongia = sp.get().giaBan();
+                    sp.setChiTietPhieuNhapHangs(chiTietPhieuNhapHangImp.timKiem(conditions));
+                    double dongia = sp.giaBan();
                     Map<String, Integer> data = (Map<String, Integer>) entry.getValue();
                     for(Map.Entry<String, Integer> entry1 : data.entrySet()){
                         dataset.addValue(entry1.getValue()*dongia, series_1, entry1.getKey().substring(0,10));

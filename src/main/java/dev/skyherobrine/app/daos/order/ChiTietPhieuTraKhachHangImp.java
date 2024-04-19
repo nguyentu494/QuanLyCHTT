@@ -1,22 +1,21 @@
 package dev.skyherobrine.app.daos.order;
 
+import dev.skyherobrine.app.daos.ChiTietPhieuTraKhachHangDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
-import dev.skyherobrine.app.daos.IDAO;
-import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamDAO;
-import dev.skyherobrine.app.daos.product.SanPhamDAO;
+import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamImp;
+import dev.skyherobrine.app.entities.Key.ChiTietPhieuTraKhachHangId;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuTraKhachHang;
-import dev.skyherobrine.app.entities.order.PhieuTraKhachHang;
-import dev.skyherobrine.app.entities.person.KhachHang;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChiTietPhieuTraKhachHangDAO implements IDAO<ChiTietPhieuTraKhachHang> {
+public class ChiTietPhieuTraKhachHangImp extends UnicastRemoteObject implements ChiTietPhieuTraKhachHangDAO<ChiTietPhieuTraKhachHang> {
     private ConnectDB connectDB;
-    public ChiTietPhieuTraKhachHangDAO() throws Exception {
+    public ChiTietPhieuTraKhachHangImp() throws Exception {
         connectDB = new ConnectDB();
     }
     @Override
@@ -90,7 +89,7 @@ public class ChiTietPhieuTraKhachHangDAO implements IDAO<ChiTietPhieuTraKhachHan
     }
 
     @Override
-    public Optional<ChiTietPhieuTraKhachHang> timKiem(String id) throws Exception {
+    public ChiTietPhieuTraKhachHang timKiem(String id) throws Exception {
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from ChiTietPhieuTraKhachHang where MaPhieuTraKH = ?");
         preparedStatement.setString(1, id);
@@ -98,13 +97,13 @@ public class ChiTietPhieuTraKhachHangDAO implements IDAO<ChiTietPhieuTraKhachHan
         ResultSet resultSet = preparedStatement.executeQuery();
         if(resultSet.next()) {
             return Optional.of(new ChiTietPhieuTraKhachHang(
-//                    new PhieuTraKhachHangDAO().timKiem(resultSet.getString("MaPhieuTraKH")).get(),
-//                    new ChiTietPhienBanSanPhamDAO().timKiem(resultSet.getString("MaPhienBanSP")).get(),
-//                    resultSet.getInt("SoLuongTra"),
-//                    resultSet.getString("NoiDungTra")
-            ));
+                    new ChiTietPhieuTraKhachHangId(new PhieuTraKhachHangImp().timKiem(resultSet.getString("MaPhieuTraKH")),
+                            new ChiTietPhienBanSanPhamImp().timKiem(resultSet.getString("MaPhienBanSP"))),
+                    resultSet.getInt("SoLuongTra"),
+                    resultSet.getString("NoiDungTra")
+            )).get();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override
