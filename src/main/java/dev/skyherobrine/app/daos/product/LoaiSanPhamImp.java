@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.LoaiSanPhamDAO;
+import dev.skyherobrine.app.entities.order.PhieuTraKhachHang;
 import dev.skyherobrine.app.entities.product.LoaiSanPham;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -10,6 +11,8 @@ import jakarta.persistence.Query;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LoaiSanPhamImp extends UnicastRemoteObject implements LoaiSanPhamDAO<LoaiSanPham> {
     private EntityManager em;
@@ -84,44 +87,11 @@ public class LoaiSanPhamImp extends UnicastRemoteObject implements LoaiSanPhamDA
 
     @Override
     public LoaiSanPham timKiem(String id) throws Exception {
-//		PreparedStatement preparedStatement = connectDB.getConnection()
-//				.prepareStatement("select * from LoaiSanPham where MaLoai = ?");
-//		preparedStatement.setString(1, id);
-//		ResultSet resultSet = preparedStatement.executeQuery();
-//		if (resultSet.next()) {
-//			return Optional.of(new LoaiSanPham(resultSet.getString("MaLoai"), resultSet.getString("TenLoai"),
-//					new DanhMucSanPhamDAO().timKiem(resultSet.getString("MaDM")).get()));
-//		} else {
-//			return Optional.empty();
-//		}
-
         return Optional.of(em.find(LoaiSanPham.class, id)).get();
-
     }
 
     @Override
     public List<LoaiSanPham> timKiem(String... ids) throws Exception {
-//		String query = "select * from LoaiSanPham where ";
-//		String[] listID = (String[]) Arrays.stream(ids).toArray();
-//		for (int i = 0; i < listID.length; ++i) {
-//			query += ("MaLoai = '" + listID[i] + "'");
-//			if ((i + 1) >= listID.length)
-//				break;
-//			else
-//				query += ", ";
-//		}
-//
-//		List<LoaiSanPham> loaiSanPhams = new ArrayList<>();
-//		PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query);
-//		ResultSet resultSet = preparedStatement.executeQuery();
-//		while (resultSet.next()) {
-//			LoaiSanPham loaiSanPham = new LoaiSanPham(resultSet.getString("MaLoai"), resultSet.getString("TenLoai"),
-//					new DanhMucSanPhamDAO().timKiem(resultSet.getString("MaDM")).get());
-//
-//			loaiSanPhams.add(loaiSanPham);
-//		}
-//		return loaiSanPhams;
-
         List<LoaiSanPham> th = new ArrayList<>();
         for (String id : ids) {
             th.add(em.find(LoaiSanPham.class, id));
@@ -132,35 +102,6 @@ public class LoaiSanPhamImp extends UnicastRemoteObject implements LoaiSanPhamDA
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult,
                                              String... colNames) throws Exception {
-//		AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
-//		AtomicBoolean canPhay = new AtomicBoolean(false);
-//		AtomicBoolean canAnd = new AtomicBoolean(false);
-//
-//		Arrays.stream(colNames).forEach(column -> {
-//			query.set(query.get() + (canPhay.get() ? "," : "") + column);
-//			canPhay.set(true);
-//		});
-//
-//		query.set(query.get() + " from LoaiSanPham where ");
-//
-//		conditions.forEach((column, value) -> {
-//			query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
-//			canAnd.set(true);
-//		});
-//
-//		System.out.println(query);
-//		ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
-//
-//		List<Map<String, Object>> listResult = new ArrayList<>();
-//		while (resultSet.next()) {
-//			Map<String, Object> rowDatas = new HashMap<>();
-//			for (String column : Arrays.stream(colNames).toList()) {
-//				rowDatas.put(column, resultSet.getString(column));
-//			}
-//			listResult.add(rowDatas);
-//		}
-//		return listResult;
-
         StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
 
         for (int i = 0; i < colNames.length; i++) {

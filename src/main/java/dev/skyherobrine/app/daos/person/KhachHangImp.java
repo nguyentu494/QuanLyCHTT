@@ -3,7 +3,13 @@ package dev.skyherobrine.app.daos.person;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.KhachHangDAO;
 import dev.skyherobrine.app.entities.person.KhachHang;
+import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,157 +19,160 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<KhachHang> {
-    private ConnectDB connectDB;
+    private EntityManager em;
 
-    public KhachHangImp() throws Exception {
-        connectDB = new ConnectDB();
+    public KhachHangImp() throws RemoteException {
+        em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
 
     @Override
-    public boolean them(KhachHang khachHang) throws Exception {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("insert KhachHang values(?, ?, ?, ?, ?, ?)");
-        preparedStatement.setString(1, khachHang.getMaKH());
-        preparedStatement.setString(2, khachHang.getHoTen());
-        preparedStatement.setString(3, khachHang.getSoDienThoai());
-        preparedStatement.setBoolean(4, khachHang.isGioiTinh());
-        preparedStatement.setDate(5, Date.valueOf(khachHang.getNgaySinh()));
-        preparedStatement.setFloat(6, khachHang.getDiemTichLuy());
-
-        int result = preparedStatement.executeUpdate();
-        return result > 0;
+    public boolean them(KhachHang khachHang) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.persist(khachHang);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
     }
 
     @Override
-    public boolean capNhat(KhachHang target) throws Exception {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("Update KhachHang  set HoTen = ?," +
-                        "SoDienThoai = ?, GioiTinh = ?, NgaySinh = ?," +
-                        "DiemTichLuy = ? where MaKH = ?");
-        preparedStatement.setString(1, target.getHoTen());
-        preparedStatement.setString(2, target.getSoDienThoai());
-        preparedStatement.setBoolean(3, target.isGioiTinh());
-        preparedStatement.setDate(4, Date.valueOf(target.getNgaySinh()));
-        preparedStatement.setFloat(5, target.getDiemTichLuy());
-        preparedStatement.setString(6, target.getMaKH());
-
-        return preparedStatement.executeUpdate() > 0;
+    public boolean capNhat(KhachHang target) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.merge(target);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
     }
 
     @Override
-    public boolean xoa(String id) throws Exception {
+    public boolean xoa(String id) throws RemoteException {
         return false;
     }
 
     @Override
-    public int xoa(String... ids) throws Exception {
+    public int xoa(String... ids) throws RemoteException {
         return 0;
     }
 
     @Override
-    public List<KhachHang> timKiem() throws Exception {
-        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery
-                ("select TOP(10) * from KhachHang ORDER BY DiemTichLuy DESC");
-        List<KhachHang> khachHangs = new ArrayList<>();
-        while (resultSet.next()) {
-            KhachHang khachHang = new KhachHang
-                    (resultSet.getString("MaKH"), resultSet.getString("HoTen"), resultSet.getString("SoDienThoai"),
-                            resultSet.getBoolean("GioiTinh"), resultSet.getDate("NgaySinh").toLocalDate(),
-                            resultSet.getFloat("DiemTichLuy"));
-            khachHangs.add(khachHang);
+    public List<KhachHang> timKiem() throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            List<KhachHang> khachHangs = em.createNamedQuery("KhachHang.findAll", KhachHang.class).getResultList();
+            et.commit();
+            return khachHangs;
+        } catch (Exception e) {
+            et.rollback();
+            e.printStackTrace();
         }
-        return khachHangs;
+        return null;
     }
 
     @Override
-    public List<KhachHang> timKiem(Map<String, Object> conditions) throws Exception {
-        AtomicReference<String> query = new AtomicReference<>
-                ("select * from KhachHang t where ");
-        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
-
-        conditions.forEach((column, value) -> {
-            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("t." + column + "= '" + value +"'"));
-            isNeedAnd.set(true);
-        });
-        List<KhachHang> khachHangs = new ArrayList<>();
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
-        ResultSet result = preparedStatement.executeQuery();
-        while(result.next()) {
-            KhachHang khachHang = new KhachHang(
-                    result.getString("MaKH"),
-                    result.getString("HoTen"),
-                    result.getString("SoDienThoai"),
-                    result.getBoolean("GioiTinh"),
-                    result.getDate("NgaySinh").toLocalDate(),
-                    result.getFloat("DiemTichLuy"));
-            khachHangs.add(khachHang);
-        }
-        return khachHangs;
-    }
-
-    @Override
-    public KhachHang timKiem(String id) throws Exception {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("select * from KhachHang KH where KH.MaKH = ?");
-        preparedStatement.setString(1, id);
-        ResultSet result = preparedStatement.executeQuery();
-        if (result.next()) {
-            return Optional.of(new KhachHang(result.getString("MaKH"),
-                    result.getString("HoTen"), result.getString("SoDienThoai"),
-                    result.getBoolean("GioiTinh"), result.getDate("NgaySinh").toLocalDate(), result.getFloat("DiemTichLuy"))).get();
-        } else {
-            return (KhachHang) Optional.empty().get();
-        }
-    }
-
-    @Override
-    public List<KhachHang> timKiem(String... ids) throws Exception {
-        String query = "select * from KhachHang KH where ";
-        String[] listID = (String[]) Arrays.stream(ids).toArray();
-        for (int i = 0; i < listID.length; ++i) {
-            query += ("KH.MaKH like '%" + listID[i] + "%'");
-            if ((i + 1) >= listID.length) {
-                break;
-            } else {
-                query += ", ";
+    public List<KhachHang> timKiem(Map<String, Object> conditions) throws RemoteException {
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>("select kh from KhachHang kh where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND kh."+ key +" LIKE :"+ key);
             }
         }
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query);
-        List<KhachHang> khachHangs = new ArrayList<>();
-        ResultSet resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-            KhachHang khachHang = new KhachHang(resultSet.getString("MaKH"), resultSet.getString("HoTen"),
-                    resultSet.getString("SoDienThoai"), resultSet.getBoolean("GioiTinh"), resultSet.getDate("NgaySinh").toLocalDate(),
-                    resultSet.getFloat("DiemTichLuy"));
-            khachHangs.add(khachHang);
+        Query q = em.createQuery(query.get());
+
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
         }
-        return khachHangs;
+        List<KhachHang> khachHangs = new ArrayList<>();
+        try {
+            tx.begin();
+            khachHangs = em.createQuery(query.get(), KhachHang.class).getResultList();
+            tx.commit();
+            return khachHangs;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
-    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
+    public KhachHang timKiem(String id) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            KhachHang khachHang = em.find(KhachHang.class, id);
+            et.commit();
+            return khachHang;
+        }catch (Exception e){
+            et.rollback();
+            return null;
+        }
+    }
+
+    @Override
+    public List<KhachHang> timKiem(String... ids) throws RemoteException {
+        String query = "select kh from KhachHang kh where 1 = 1";
+        String[] listID = (String[]) Arrays.stream(ids).toArray();
+           for (int i = 0; i < listID.length; i++) {
+                query = query + " AND kh.id = :id" + i;
+            }
+        Query q = em.createQuery(query);
+        for (int i = 0; i < listID.length; i++) {
+            q.setParameter("id" + i, listID[i]);
+        }
+        List<KhachHang> khachHangs = new ArrayList<>();
+        try {
+            khachHangs = q.getResultList();
+            return khachHangs;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws RemoteException {
         AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
         AtomicBoolean canPhay = new AtomicBoolean(false);
-        AtomicBoolean canAnd = new AtomicBoolean(false);
 
         Arrays.stream(colNames).forEach(column -> {
-            query.set(query.get() + (canPhay.get() ? "," : "") + column);
+            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
             canPhay.set(true);
         });
-        query.set(query.get() + " from KhachHang where ");
 
-        conditions.forEach((column, value) -> {
-            query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like N'%" + value + "%'");
-            canAnd.set(true);
-        });
+        query.set(query.get() + " from KhachHang t where 1 = 1");
 
-        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND t."+key+" LIKE :"+key);
+            }
+        }
+        Query q = em.createQuery(query.get());
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
-        while(resultSet.next()){
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();
-            for(String column : Arrays.stream(colNames).toList()) {
-                rowDatas.put(column, resultSet.getString(column));
+            for (int i = 0; i < colNames.length; i++) {
+                rowDatas.put(colNames[i], result[i]);
             }
             listResult.add(rowDatas);
         }

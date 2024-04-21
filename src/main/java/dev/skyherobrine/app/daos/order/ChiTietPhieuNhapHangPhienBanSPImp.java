@@ -2,43 +2,69 @@ package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ChiTietPhieuNhapHangPhienBanSPDAO;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
+import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject implements ChiTietPhieuNhapHangPhienBanSPDAO<ChiTietPhieuNhapHangPhienBanSP> {
     private EntityManager em;
-    public ChiTietPhieuNhapHangPhienBanSPImp() throws Exception{
+    public ChiTietPhieuNhapHangPhienBanSPImp() throws RemoteException{
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
     }
 
     @Override
-    public boolean them(ChiTietPhieuNhapHangPhienBanSP chiTietPhieuNhapHangPhienBanSP) throws Exception {
-//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-//                ("Insert ChiTietPhieuNhapHangPhienBanSP values(?, ?, ?)");
-//        preparedStatement.setString(1, chiTietPhieuNhapHangPhienBanSP.getChiTietPhieuNhapHang().getMaChiTietPhieuNhap());
-//        preparedStatement.setString(2, chiTietPhieuNhapHangPhienBanSP.getChiTietPhienBanSanPham().getMaPhienBanSP());
-//        preparedStatement.setInt(3, chiTietPhieuNhapHangPhienBanSP.getSoLuongNhap());
-//        return preparedStatement.executeUpdate() > 0;
-        return false;
+    public boolean them(ChiTietPhieuNhapHangPhienBanSP chiTietPhieuNhapHangPhienBanSP) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.persist(chiTietPhieuNhapHangPhienBanSP);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
     }
 
     @Override
-    public boolean capNhat(ChiTietPhieuNhapHangPhienBanSP target) throws Exception {
-        return false;
+    public boolean capNhat(ChiTietPhieuNhapHangPhienBanSP target) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.merge(target);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
     }
 
     @Override
-    public boolean xoa(String id) throws Exception {
-        return false;
+    public boolean xoa(String id) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            ChiTietPhieuNhapHangPhienBanSP chiTietPhieuNhapHangPhienBanSP = em.find(ChiTietPhieuNhapHangPhienBanSP.class, id);
+            em.remove(chiTietPhieuNhapHangPhienBanSP);
+            et.commit();
+            return true;
+        }catch (Exception e) {
+            et.rollback();
+            return false;
+        }
     }
 
     @Override
-    public int xoa(String... ids) throws Exception {
+    public int xoa(String... ids) throws RemoteException {
         return 0;
     }
 
@@ -47,7 +73,8 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
-            List<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs = em.createNamedQuery("CTPNHPBSP.findAll", ChiTietPhieuNhapHangPhienBanSP.class).getResultList();
+            List<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs = em.createNamedQuery("CTPNHPBSP.findAll",
+                    ChiTietPhieuNhapHangPhienBanSP.class).getResultList();
             et.commit();
             return chiTietPhieuNhapHangPhienBanSPs;
         }catch (Exception e){
@@ -58,49 +85,89 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
     }
 
     @Override
-    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
-//        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
-//        AtomicBoolean canPhay = new AtomicBoolean(false);
-//        AtomicBoolean canAnd = new AtomicBoolean(false);
-//
-//        Arrays.stream(colNames).forEach(column -> {
-//            query.set(query.get() + (canPhay.get() ? "," : "") + column);
-//            canPhay.set(true);
-//        });
-//
-//        query.set(query.get() + " from ChiTietPhieuNhapHangPhienBanSP where ");
-//
-//        conditions.forEach((column, value) -> {
-//            query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
-//            canAnd.set(true);
-//        });
-//
-//        System.out.println(query);
-//        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
-//
+    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws RemoteException {
+        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
+        AtomicBoolean canPhay = new AtomicBoolean(false);
+
+        Arrays.stream(colNames).forEach(column -> {
+            query.set(query.get() + (canPhay.get() ? "," : "") + column);
+            canPhay.set(true);
+        });
+
+        query.set(query.get() + " from ChiTietPhieuNhapHangPhienBanSP t where 1 = 1");
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND t."+ key +" LIKE :"+ key);
+            }
+        }
+        Query q = em.createQuery(query.get());
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
+
         List<Map<String, Object>> listResult = new ArrayList<>();
-//        while(resultSet.next()){
-//            Map<String, Object> rowDatas = new HashMap<>();
-//            for(String column : Arrays.stream(colNames).toList()) {
-//                rowDatas.put(column, resultSet.getString(column));
-//            }
-//            listResult.add(rowDatas);
-//        }
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
+            Map<String, Object> rowDatas = new HashMap<>();
+            for (int i = 0; i < colNames.length; i++) {
+                rowDatas.put(colNames[i], result[i]);
+            }
+            listResult.add(rowDatas);
+        }
         return listResult;
     }
 
     @Override
-    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem(Map<String, Object> conditions) throws Exception {
-        return null;
+    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem(Map<String, Object> conditions) throws RemoteException {
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>
+                ("select ctpnhpbsp from ChiTietPhieuNhapHangPhienBanSP ctpnhpbsp where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND pbsp."+ key +" LIKE :"+ key);
+            }
+        }
+        Query q = em.createQuery(query.get());
+
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        List<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPS = new ArrayList<>();
+        try {
+            tx.begin();
+            chiTietPhieuNhapHangPhienBanSPS = em.createQuery(query.get(), ChiTietPhieuNhapHangPhienBanSP.class).getResultList();
+            tx.commit();
+            return chiTietPhieuNhapHangPhienBanSPS;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
-    public ChiTietPhieuNhapHangPhienBanSP timKiem(String id) throws Exception {
-        return null;
+    public ChiTietPhieuNhapHangPhienBanSP timKiem(String id) throws RemoteException {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            ChiTietPhieuNhapHangPhienBanSP chiTietPhieuNhapHangPhienBanSP = em.find(ChiTietPhieuNhapHangPhienBanSP.class, id);
+            et.commit();
+            return chiTietPhieuNhapHangPhienBanSP;
+        }catch (Exception e){
+            et.rollback();
+            return null;
+        }
     }
 
     @Override
-    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem(String... ids) throws Exception {
+    public List<ChiTietPhieuNhapHangPhienBanSP> timKiem(String... ids) throws RemoteException {
         return null;
     }
 }

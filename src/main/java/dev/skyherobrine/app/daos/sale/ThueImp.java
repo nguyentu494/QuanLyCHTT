@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.sale;
 
 import dev.skyherobrine.app.daos.ThueDAO;
+import dev.skyherobrine.app.entities.product.SanPham;
 import dev.skyherobrine.app.entities.sale.Thue;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -10,6 +11,8 @@ import jakarta.persistence.Query;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
 
@@ -20,7 +23,7 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
     }
 
     @Override
-    public boolean them(Thue thue) throws Exception {
+    public boolean them(Thue thue) throws RemoteException {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -35,12 +38,11 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
     }
 
     @Override
-    public boolean capNhat(Thue target) throws Exception {
+    public boolean capNhat(Thue target) throws RemoteException {
         return false;
     }
 
     public boolean update(String HieuLuc) {
-
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
@@ -49,30 +51,36 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
             return true;
         } catch (Exception e) {
             tx.rollback();
-            e.printStackTrace();
+            return false;
         }
+    }
+
+    @Override
+    public boolean xoa(String id) throws RemoteException {
         return false;
     }
 
     @Override
-    public boolean xoa(String id) throws Exception {
-        return false;
-    }
-
-    @Override
-    public int xoa(String... ids) throws Exception {
+    public int xoa(String... ids) throws RemoteException {
         return 0;
     }
 
     @Override
-    public List<Thue> timKiem() throws Exception {
-        return em.createQuery("select t from Thue t", Thue.class).getResultList();
+    public List<Thue> timKiem() throws RemoteException {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            List<Thue> thues = em.createNamedQuery("Thue.findAll", Thue.class).getResultList();
+            tx.commit();
+            return thues;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
-    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult,
-                                             String... colNames) throws Exception {
-
+    public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws RemoteException {
         StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
 
         for (int i = 0; i < colNames.length; i++) {
@@ -116,9 +124,8 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
         }
     }
 
-
     @Override
-    public List<Thue> timKiem(Map<String, Object> conditions) throws Exception {
+    public List<Thue> timKiem(Map<String, Object> conditions) throws RemoteException {
         StringBuilder jpqlBuilder = new StringBuilder("select t from Thue t where 1 = 1");
 
         for (String key : conditions.keySet()) {
@@ -136,13 +143,10 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
         return resultList.isEmpty() ? null : resultList;
     }
 
-
     @Override
     public Thue timKiem(String id) throws Exception {
-
         return Optional.of(em.find(Thue.class, id)).get();
     }
-
 
     @Override
     public List<Thue> timKiem(String... ids) throws Exception {
