@@ -2,8 +2,11 @@ package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.SanPhamDAO;
 import dev.skyherobrine.app.entities.product.SanPham;
+import dev.skyherobrine.app.enums.TinhTrangSanPham;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -18,6 +21,16 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
     }
     @Override
     public boolean them(SanPham sanPham) throws Exception {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.persist(sanPham);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
 //                ("Insert SanPham values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 //        preparedStatement.setString(1, sanPham.getMaSP());
@@ -32,11 +45,21 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
 //        preparedStatement.setString(10, sanPham.getThue().getMaThue());
 //        preparedStatement.setString(11, sanPham.getTinhTrang().toString());
 //        return preparedStatement.executeUpdate() > 0;
-        return false;
+//        return false;
     }
 
     @Override
     public boolean capNhat(SanPham target) throws Exception {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            em.merge(target);
+            et.commit();
+            return true;
+        }catch (Exception e){
+            et.rollback();
+            return false;
+        }
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
 //                ("Update SanPham set TenSP = ?, MaLoai = ?, PhongCachMac = ?, DoTuoi = ?, XuatXu = ?, MaTH = ?, PhanTramLoi = ?, NgaySanXuat = ?, MaThue = ?, TinhTrang = ? where MaSP = ?");
 //        preparedStatement.setString(1, target.getTenSP());
@@ -52,18 +75,30 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
 //        preparedStatement.setString(11, target.getMaSP());
 //
 //        return preparedStatement.executeUpdate() > 0;
-        return false;
+//        return false;
     }
 
     @Override
     public boolean xoa(String id) throws Exception {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            SanPham sanPham = em.find(SanPham.class, id);
+            sanPham.setTinhTrang(TinhTrangSanPham.KHONG_CON_BAN);
+            em.merge(sanPham);
+            et.commit();
+            return true;
+        }catch (Exception e) {
+            et.rollback();
+            return false;
+        }
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
 //                ("Update SanPham set TinhTrang = ? where MaSP = ?");
 //        preparedStatement.setString(1, "KHONG_CON_BAN");
 //        preparedStatement.setString(2, id);
 //
 //        return preparedStatement.executeUpdate() > 0;
-        return false;
+//        return false;
     }
 
     @Override
@@ -85,7 +120,7 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
     @Override
     public List<SanPham> timKiem(Map<String, Object> conditions) throws Exception {
         AtomicReference<String> query = new AtomicReference<>
-                ("select sp from SanPham sp where ");
+                ("select * from SanPham sp where ");
         AtomicBoolean isNeedAnd = new AtomicBoolean(false);
 
         conditions.forEach((column, value) -> {
@@ -93,9 +128,14 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
             isNeedAnd.set(true);
         });
 
-
         List<SanPham> sanPhams = new ArrayList<>();
-        return sanPhams;
+        try {
+            sanPhams = em.createNativeQuery(query.get(), SanPham.class).getResultList();
+            return sanPhams;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -106,15 +146,23 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
 
     @Override
     public List<SanPham> timKiem(String... ids) throws Exception {
-//        String query = "select * from SanPham where ";
-//        String[] listID = (String[]) Arrays.stream(ids).toArray();
-//        for(int i = 0; i < listID.length; ++i) {
-//            query += ("MaSP = '" + listID[i] + "'");
-//            if((i + 1) >= listID.length) break;
-//            else query += ", ";
-//        }
-//
+
+        String query = "select * from SanPham where ";
+        String[] listID = (String[]) Arrays.stream(ids).toArray();
+        for(int i = 0; i < listID.length; ++i) {
+            query += ("ma_sp = '" + listID[i] + "'");
+            if((i + 1) >= listID.length) break;
+            else query += ", ";
+        }
+
         List<SanPham> sanPhams = new ArrayList<>();
+        try {
+            sanPhams = em.createNativeQuery(query, SanPham.class).getResultList();
+            return sanPhams;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 //        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query);
 //        ResultSet resultSet = preparedStatement.executeQuery();
 //        while(resultSet.next()) {
@@ -132,38 +180,36 @@ public class SanPhamImp extends UnicastRemoteObject implements SanPhamDAO<SanPha
 //
 //            sanPhams.add(sanPham);
 //        }
-        return sanPhams;
+//        return sanPhams;
     }
 
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
-//        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
-//        AtomicBoolean canPhay = new AtomicBoolean(false);
-//        AtomicBoolean canAnd = new AtomicBoolean(false);
-//
-//        Arrays.stream(colNames).forEach(column -> {
-//            query.set(query.get() + (canPhay.get() ? "," : "") + column);
-//            canPhay.set(true);
-//        });
-//
-//        query.set(query.get() + " from SanPham where ");
-//
-//        conditions.forEach((column, value) -> {
-//            query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
-//            canAnd.set(true);
-//        });
-//
-//        System.out.println(query);
-//        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
-//
+        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
+        AtomicBoolean canPhay = new AtomicBoolean(false);
+        AtomicBoolean canAnd = new AtomicBoolean(false);
+
+        Arrays.stream(colNames).forEach(column -> {
+            query.set(query.get() + (canPhay.get() ? "," : "") + column);
+            canPhay.set(true);
+        });
+
+        query.set(query.get() + " from SanPham where ");
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
+            canAnd.set(true);
+        });
+
         List<Map<String, Object>> listResult = new ArrayList<>();
-//        while(resultSet.next()){
-//            Map<String, Object> rowDatas = new HashMap<>();
-//            for(String column : Arrays.stream(colNames).toList()) {
-//                rowDatas.put(column, resultSet.getString(column));
-//            }
-//            listResult.add(rowDatas);
-//        }
+        Query q = em.createNativeQuery(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
+            Map<String, Object> rowDatas = new HashMap<>();
+            for (int i = 0; i < colNames.length; i++) {
+                rowDatas.put(colNames[i], result[i]);
+            }
+            listResult.add(rowDatas);
+        }
         return listResult;
     }
 }

@@ -30,7 +30,7 @@ public class ConnectDB {
      */
     public ConnectDB() throws Exception {
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT;encrypt=false;trustServerCertificate=true", "sa", "123");
+        connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT;encrypt=false;trustServerCertificate=true", "sa", "sapassword");
 
     }
 

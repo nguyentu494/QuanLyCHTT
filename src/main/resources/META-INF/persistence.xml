@@ -10,7 +10,7 @@
                 value="jdbc:sqlserver://localhost:1433;databaseName=QLCHTT1;trustServerCertificate=true"/>
         <property name="jakarta.persistence.jdbc.user" value="sa"/>
         <property name="jakarta.persistence.jdbc.password"
-                  value="123"/>
+                  value="sapassword"/>
         <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="jakarta.persistence.jdbc.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
         <property name="hibernate.show_sql" value="true"/>

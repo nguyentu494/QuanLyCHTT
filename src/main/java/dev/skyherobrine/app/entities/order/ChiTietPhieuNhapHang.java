@@ -18,7 +18,11 @@ import java.io.Serializable;
 @NamedQueries({
         @NamedQuery(name = "CTPNH.findAll", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh"),
         @NamedQuery(name = "CTPNH.findByID", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.id = :id"),
-        @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP")
+        @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh " +
+                "inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap " +
+                "where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP"),
+        @NamedQuery(name = "CTPNH.findByMaPhieuNhapAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh " +
+                "WHERE ctpnh.phieuNhapHang.maPhieuNhap = :maPhieuNhap and ctpnh.sanPham.maSP = :maSP")
 })
 public class ChiTietPhieuNhapHang implements Serializable {
     /**

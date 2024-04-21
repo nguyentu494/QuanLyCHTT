@@ -198,7 +198,7 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
         if(op.equals(nhanVienUI.getCbTkGioiTinh()) || op.equals(nhanVienUI.getCbTkChucVu()) || op.equals(nhanVienUI.getCbTkTinhTrang()) || op.equals(nhanVienUI.getCbTkCaLamViec())){
             if(!nhanVienUI.getCbTkGioiTinh().getSelectedItem().equals("--Giới tính--")){
                 Map<String, Object> conditions = new HashMap<>();
-                conditions.put("GioiTinh", nhanVienUI.getCbTkGioiTinh().getSelectedItem().equals("NAM")? 1:0);
+                conditions.put("gioiTinh", nhanVienUI.getCbTkGioiTinh().getSelectedItem().equals("NAM")? true : false);
                 try {
                     dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {
@@ -270,7 +270,12 @@ public class NhanVienController implements ActionListener, MouseListener, KeyLis
             }
             else if (!nhanVienUI.getCbTkChucVu().getSelectedItem().equals("--Chức vụ--")) {
                 Map<String, Object> conditions = new HashMap<>();
-                conditions.put("ChucVu", nhanVienUI.getCbTkChucVu().getSelectedItem().toString());
+                String chucVu = nhanVienUI.getCbTkChucVu().getSelectedItem().toString();
+                if(chucVu.equals("QUAN_LY_NHAN_SU")){
+                    conditions.put("chucVu", ChucVu.QUAN_LY_NHAN_SU);
+                } else{
+                    conditions.put("chucVu", ChucVu.NHAN_VIEN_BAN_HANG);
+                }
                 try {
                     dsLoc = nhanVienImp.timKiem(conditions);
                 } catch (Exception e) {

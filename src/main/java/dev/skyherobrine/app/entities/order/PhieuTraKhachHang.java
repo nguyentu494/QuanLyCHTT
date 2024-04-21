@@ -17,9 +17,12 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "PhieuTraKhachHang.findAll", query = "SELECT ptkh FROM ChiTietPhieuTraKhachHang ptkh")
+})
 public class PhieuTraKhachHang implements Serializable {
     /**
-	 * 
+	 *
 	 */
 	@Serial
     private static final long serialVersionUID = 1L;

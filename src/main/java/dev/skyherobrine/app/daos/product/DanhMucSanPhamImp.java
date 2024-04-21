@@ -74,16 +74,24 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
 
     @Override
     public List<DanhMucSanPham> timKiem(Map<String, Object> conditions) throws Exception {
-//      AtomicReference<String> query = new AtomicReference<>
-//              ("select * from DanhMucSanPham dm where ");
-//      AtomicBoolean isNeedAnd = new AtomicBoolean(false);
-//
-//      conditions.forEach((column, value) -> {
-//          query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("dm." + column + " = N'" + value + "'"));
-//          isNeedAnd.set(true);
-//      });
-//
-//      List<DanhMucSanPham> danhMucSanPhams = new ArrayList<>();
+        AtomicReference<String> query = new AtomicReference<>
+                ("select * from DanhMucSanPham dm where ");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("dm." + column + " = N'" + value + "'"));
+            isNeedAnd.set(true);
+        });
+
+        List<DanhMucSanPham> danhMucSanPhams = new ArrayList<>();
+        try {
+            danhMucSanPhams = em.createNativeQuery(query.get(), DanhMucSanPham.class).getResultList();
+            return danhMucSanPhams;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
 //      PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query.get());
 //      ResultSet result = preparedStatement.executeQuery();
 //      while(result.next()) {
@@ -93,22 +101,21 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
 //          danhMucSanPhams.add(danhMucSanPham);
 //      }
 //      return danhMucSanPhams;
-
-        StringBuilder jpqlBuilder = new StringBuilder("select t from DanhMucSanPham t where 1 = 1");
-
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
-        }
-
-        Query query = em.createQuery(jpqlBuilder.toString(), DanhMucSanPham.class);
-
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        List<DanhMucSanPham> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+//        StringBuilder jpqlBuilder = new StringBuilder("select t from DanhMucSanPham t where 1 = 1");
+//
+//        for (String key : conditions.keySet()) {
+//            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+//        }
+//
+//        Query query = em.createQuery(jpqlBuilder.toString(), DanhMucSanPham.class);
+//
+//        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+//            query.setParameter(entry.getKey(), entry.getValue());
+//        }
+//
+//        List<DanhMucSanPham> resultList = query.getResultList();
+//
+//        return resultList.isEmpty() ? null : resultList;
     }
 
     @Override
@@ -163,7 +170,7 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
             }
         }
 
-        Query query = em.createQuery(jpqlBuilder.toString());
+        Query query = em.createNativeQuery(jpqlBuilder.toString());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {

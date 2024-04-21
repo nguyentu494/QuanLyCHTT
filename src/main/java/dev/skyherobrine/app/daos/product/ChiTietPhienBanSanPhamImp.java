@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.ChiTietPhienBanSanPhamDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import dev.skyherobrine.app.enums.MauSac;
 import jakarta.persistence.EntityManager;
@@ -11,6 +12,8 @@ import jakarta.persistence.Query;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements ChiTietPhienBanSanPhamDAO<ChiTietPhienBanSanPham> {
     private EntityManager em;
@@ -78,6 +81,18 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
 
     @Override
     public List<ChiTietPhienBanSanPham> timKiem() throws Exception {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            List<ChiTietPhienBanSanPham> chiTietPhienBanSanPhams = em.createNamedQuery("ChiTietPhienBanSanPham.findAll",
+                    ChiTietPhienBanSanPham.class).getResultList();
+            tx.commit();
+            return chiTietPhienBanSanPhams;
+        } catch (Exception e) {
+            tx.rollback();
+            e.printStackTrace();
+            return null;
+        }
 //      ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery("select * from PhienBanSanPham");
 //      List<ChiTietPhienBanSanPham> chiTietPhienBanSanPhams = new ArrayList<>();
 //      while(resultSet.next()) {
@@ -94,11 +109,35 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
 //      }
 //      return chiTietPhienBanSanPhams;
 
-        return em.createQuery("select n from ChiTietPhienBanSanPham n", ChiTietPhienBanSanPham.class).getResultList();
+//        return em.createQuery("select n from ChiTietPhienBanSanPham n", ChiTietPhienBanSanPham.class).getResultList();
     }
 
     @Override
     public List<ChiTietPhienBanSanPham> timKiem(Map<String, Object> conditions) throws Exception {
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>
+                ("select pbsp from ChiTietPhienBanSanPham pbsp where 1 = 1");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND pbsp."+key+" LIKE :"+key);
+            }
+        }
+        Query q = em.createQuery(query.get());
+
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        List<ChiTietPhienBanSanPham> chiTietPhienBanSanPhams = new ArrayList<>();
+        try {
+            chiTietPhienBanSanPhams = em.createQuery(query.get(), ChiTietPhienBanSanPham.class).getResultList();
+            return chiTietPhienBanSanPhams;
+        } catch (Exception e) {
+            return chiTietPhienBanSanPhams;
+        }
 //      AtomicReference<String> query = new AtomicReference<>
 //              ("select * from PhienBanSanPham t where ");
 //      AtomicBoolean isNeedAnd = new AtomicBoolean(false);
@@ -125,21 +164,21 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
 //      }
 //      return chiTietPhienBanSanPhams;
 
-        StringBuilder jpqlBuilder = new StringBuilder("select t from ChiTietPhienBanSanPham t where 1 = 1");
-
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
-        }
-
-        Query query = em.createQuery(jpqlBuilder.toString(), ChiTietPhienBanSanPham.class);
-
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        List<ChiTietPhienBanSanPham> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+//        StringBuilder jpqlBuilder = new StringBuilder("select t from ChiTietPhienBanSanPham t where 1 = 1");
+//
+//        for (String key : conditions.keySet()) {
+//            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+//        }
+//
+//        Query query = em.createQuery(jpqlBuilder.toString(), ChiTietPhienBanSanPham.class);
+//
+//        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+//            query.setParameter(entry.getKey(), entry.getValue());
+//        }
+//
+//        List<ChiTietPhienBanSanPham> resultList = query.getResultList();
+//
+//        return resultList.isEmpty() ? null : resultList;
     }
 
     @Override
@@ -175,81 +214,96 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
 //      } else {
 //          return Optional.empty();
 //      }
-        String query = "select n from ChiTietPhienBanSanPham n where n.maPhienBanSP = :maPhienBanSP and n.mauSac = :mauSac and n.kichThuoc = :kichThuoc";
-        return Optional.of(em.createQuery(query, ChiTietPhienBanSanPham.class).getSingleResult());
+        AtomicReference<String> query = new AtomicReference<>
+                ("select * from ChiTietPhienBanSanPham pbsp where pbsp.ma_sp = ? and pbsp.mau_sac = ? and pbsp.kich_thuoc = ?");
+        Query q = em.createNativeQuery(query.get(), ChiTietPhienBanSanPham.class);
+        q.setParameter(1, maSP);
+        q.setParameter(2, mauSac.toString());
+        q.setParameter(3, kichThuoc);
+        List<ChiTietPhienBanSanPham> results = q.getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
-//      AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
-//      AtomicBoolean canPhay = new AtomicBoolean(false);
-//      AtomicBoolean canAnd = new AtomicBoolean(false);
+//        StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
 //
-//      Arrays.stream(colNames).forEach(column -> {
-//          query.set(query.get() + (canPhay.get() ? "," : "") + column);
-//          canPhay.set(true);
-//      });
+//        for (int i = 0; i < colNames.length; i++) {
+//            jpqlBuilder.append("t.").append(colNames[i]);
+//            if (i < colNames.length - 1) {
+//                jpqlBuilder.append(", ");
+//            }
+//        }
 //
-//      query.set(query.get() + " from PhienBanSanPham where ");
+//        jpqlBuilder.append(" FROM ChiTietPhienBanSanPham t WHERE 1 = 1");
 //
-//      conditions.forEach((column, value) -> {
-//          query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
-//          canAnd.set(true);
-//      });
+//        if (conditions != null && !conditions.isEmpty()) {
+//            for (String key : conditions.keySet()) {
+//                jpqlBuilder.append(" AND t.").append(key).append(" LIKE :").append(key);
+//            }
+//        }
 //
-//      ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
 //
-//      List<Map<String, Object>> listResult = new ArrayList<>();
-//      while(resultSet.next()){
-//          Map<String, Object> rowDatas = new HashMap<>();
-//          for(String column : Arrays.stream(colNames).toList()) {
-//              rowDatas.put(column, resultSet.getString(column));
-//          }
-//          listResult.add(rowDatas);
-//      }
-//      return listResult;
+//        Query query = em.createQuery(jpqlBuilder.toString());
+//
+//        if (conditions != null && !conditions.isEmpty()) {
+//            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+//                query.setParameter(entry.getKey(), entry.getValue());
+//            }
+//        }
+//        List<Object[]> results = query.getResultList();
+//
+//        List<Map<String, Object>> formattedResults = new ArrayList<>();
+//        for (Object[] row : results) {
+//            Map<String, Object> rowMap = new HashMap<>();
+//            for (int i = 0; i < colNames.length; i++) {
+//                rowMap.put(colNames[i], row[i]);
+//            }
+//            formattedResults.add(rowMap);
+//        }
+//
+//
+//        if (isDuplicateResult || !formattedResults.isEmpty()) {
+//            return formattedResults;
+//        } else {
+//            return null;
+//        }
 
-        StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
+        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
+        AtomicBoolean canPhay = new AtomicBoolean(false);
+        AtomicBoolean canAnd = new AtomicBoolean(false);
 
-        for (int i = 0; i < colNames.length; i++) {
-            jpqlBuilder.append("t.").append(colNames[i]);
-            if (i < colNames.length - 1) {
-                jpqlBuilder.append(", ");
-            }
-        }
+        Arrays.stream(colNames).forEach(column -> {
+            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
+            canPhay.set(true);
+        });
 
-        jpqlBuilder.append(" FROM ChiTietPhienBanSanPham t WHERE 1 = 1");
+        query.set(query.get() + " from ChiTietPhienBanSanPham t where 1 = 1");
+        System.out.println(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                jpqlBuilder.append(" AND t.").append(key).append(" LIKE :").append(key);
+                query.set(query + " AND t."+key+" LIKE :"+key);
             }
         }
-
-
-        Query query = em.createQuery(jpqlBuilder.toString());
+        Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
+                q.setParameter(entry.getKey(), entry.getValue());
             }
         }
-        List<Object[]> results = query.getResultList();
 
-        List<Map<String, Object>> formattedResults = new ArrayList<>();
-        for (Object[] row : results) {
-            Map<String, Object> rowMap = new HashMap<>();
+        List<Map<String, Object>> listResult = new ArrayList<>();
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
+            Map<String, Object> rowDatas = new HashMap<>();
             for (int i = 0; i < colNames.length; i++) {
-                rowMap.put(colNames[i], row[i]);
+                rowDatas.put(colNames[i], result[i]);
             }
-            formattedResults.add(rowMap);
+            listResult.add(rowDatas);
         }
-
-
-        if (isDuplicateResult || !formattedResults.isEmpty()) {
-            return formattedResults;
-        } else {
-            return null;
-        }
+        return listResult;
     }
 }

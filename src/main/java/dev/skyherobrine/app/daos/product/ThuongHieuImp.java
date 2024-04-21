@@ -2,6 +2,7 @@ package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.ThuongHieuDAO;
+import dev.skyherobrine.app.entities.product.SanPham;
 import dev.skyherobrine.app.entities.product.ThuongHieu;
 import dev.skyherobrine.app.enums.TinhTrangThuongHieu;
 import jakarta.persistence.EntityManager;
@@ -61,21 +62,40 @@ public class ThuongHieuImp extends UnicastRemoteObject implements ThuongHieuDAO<
 
     @Override
     public List<ThuongHieu> timKiem(Map<String, Object> conditions) throws Exception {
-        StringBuilder jpqlBuilder = new StringBuilder("select t from ThuongHieu t where 1 = 1");
+        AtomicReference<String> query = new AtomicReference<>
+                ("select * from ThuongHieu th where ");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
 
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("th." + column + " = N'" + value + "'"));
+            isNeedAnd.set(true);
+        });
+
+        List<ThuongHieu> thuongHieus = new ArrayList<>();
+        try {
+            thuongHieus = em.createNativeQuery(query.get(), ThuongHieu.class).getResultList();
+            return thuongHieus;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
 
-        Query query = em.createQuery(jpqlBuilder.toString(), ThuongHieu.class);
 
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        List<ThuongHieu> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+//        StringBuilder jpqlBuilder = new StringBuilder("select t from ThuongHieu t where 1 = 1");
+//
+//        for (String key : conditions.keySet()) {
+//            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+//        }
+//
+//        Query query = em.createQuery(jpqlBuilder.toString(), ThuongHieu.class);
+//
+//        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+//            query.setParameter(entry.getKey(), entry.getValue());
+//        }
+//
+//        List<ThuongHieu> resultList = query.getResultList();
+//
+//        return resultList.isEmpty() ? null : resultList;
     }
 
     @Override

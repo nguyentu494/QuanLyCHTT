@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.LoaiSanPhamDAO;
+import dev.skyherobrine.app.entities.order.PhieuTraKhachHang;
 import dev.skyherobrine.app.entities.product.LoaiSanPham;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -10,6 +11,8 @@ import jakarta.persistence.Query;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LoaiSanPhamImp extends UnicastRemoteObject implements LoaiSanPhamDAO<LoaiSanPham> {
     private EntityManager em;
@@ -65,21 +68,38 @@ public class LoaiSanPhamImp extends UnicastRemoteObject implements LoaiSanPhamDA
 
     @Override
     public List<LoaiSanPham> timKiem(Map<String, Object> conditions) throws Exception {
-        StringBuilder jpqlBuilder = new StringBuilder("select t from LoaiSanPham t where 1 = 1");
+        AtomicReference<String> query = new AtomicReference<>
+                ("select * from LoaiSanPham where ");
+        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
 
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+        conditions.forEach((column, value) -> {
+            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + (column + " like '%" + value + "%'"));
+            isNeedAnd.set(true);
+        });
+        List<LoaiSanPham> loaiSanPhams = new ArrayList<>();
+        try {
+            loaiSanPhams = em.createNativeQuery(query.get(), LoaiSanPham.class).getResultList();
+            return loaiSanPhams;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
 
-        Query query = em.createQuery(jpqlBuilder.toString(), LoaiSanPham.class);
-
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        List<LoaiSanPham> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+//        StringBuilder jpqlBuilder = new StringBuilder("select t from LoaiSanPham t where 1 = 1");
+//
+//        for (String key : conditions.keySet()) {
+//            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+//        }
+//
+//        Query query = em.createQuery(jpqlBuilder.toString(), LoaiSanPham.class);
+//
+//        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+//            query.setParameter(entry.getKey(), entry.getValue());
+//        }
+//
+//        List<LoaiSanPham> resultList = query.getResultList();
+//
+//        return resultList.isEmpty() ? null : resultList;
     }
 
     @Override

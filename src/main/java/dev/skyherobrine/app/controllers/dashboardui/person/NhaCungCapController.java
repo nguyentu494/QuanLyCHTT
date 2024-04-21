@@ -188,7 +188,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
             List<NhaCungCap> dsTam = new ArrayList<>();
             if(!frmNhaCungCap.getCbTkTinhTrangNhaCungCap().getSelectedItem().equals("--Tình trạng--")){
                 Map<String, Object> conditions = new HashMap<>();
-                conditions.put("TinhTrang", frmNhaCungCap.getCbTkTinhTrangNhaCungCap().getSelectedItem().toString());
+                conditions.put("tinh_trang", frmNhaCungCap.getCbTkTinhTrangNhaCungCap().getSelectedItem().toString());
                 try {
                     dsLoc = nhaCungCapImp.timKiem(conditions);
                 } catch (Exception ex) {
@@ -324,7 +324,7 @@ public class NhaCungCapController implements MouseListener, ActionListener, KeyL
     public int laysoDuoiMaKH(){
         String nThem = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaNCC", "%"+nThem+"%");
+        conditions.put("ma_ncc", "%"+nThem+"%");
         List<NhaCungCap> nhaCC;
         try {
             nhaCC = nhaCungCapImp.timKiem(conditions);

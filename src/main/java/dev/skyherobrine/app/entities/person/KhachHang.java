@@ -1,8 +1,6 @@
 package dev.skyherobrine.app.entities.person;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -19,6 +17,10 @@ import java.time.LocalDate;
  */
 @Getter
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "KhachHang.findAll", query = "SELECT kh FROM KhachHang kh"),
+        @NamedQuery(name = "KhachHang.findByID", query = "SELECT kh FROM KhachHang kh WHERE kh.maKH = :id")
+})
 public class KhachHang implements Serializable {
     /**
 	 * 

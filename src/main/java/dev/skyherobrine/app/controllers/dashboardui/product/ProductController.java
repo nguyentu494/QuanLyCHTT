@@ -542,7 +542,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             //Lọc tuần tự từ trái sang phải
             if(!sanPhamUI.getCbTkDanhMuc().getSelectedItem().toString().equals("--Danh mục--")){
                 Map<String, Object> conditionsDanhMuc = new HashMap<>();
-                conditionsDanhMuc.put("TenDM", sanPhamUI.getCbTkDanhMuc().getSelectedItem().toString());
+                conditionsDanhMuc.put("ten_dm", sanPhamUI.getCbTkDanhMuc().getSelectedItem().toString());
                 try {
                     dsDanhMucTim = danhMucSanPhamImp.timKiem(conditionsDanhMuc);
                 } catch (Exception ex) {
@@ -550,7 +550,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 }
                 //
                 Map<String, Object> conditionsLoai = new HashMap<>();
-                conditionsLoai.put("MaDM", dsDanhMucTim.get(0).getMaDM());
+                conditionsLoai.put("ma_dm", dsDanhMucTim.get(0).getMaDM());
                 try {
                     dsLoaiTim = loaiSanPhamImp.timKiem(conditionsLoai);
                 } catch (Exception ex) {
@@ -559,7 +559,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 //
                 for(int i=0; i<dsLoaiTim.size(); i++){
                     Map<String, Object> conditionsSp = new HashMap<>();
-                    conditionsSp.put("MaLoai", dsLoaiTim.get(i).getMaLoai());
+                    conditionsSp.put("ma_loai", dsLoaiTim.get(i).getMaLoai());
                     try {
                         dsTim.addAll(sanPhamImp.timKiem(conditionsSp));
                     } catch (Exception ex) {
@@ -839,7 +839,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             else if(!sanPhamUI.getCbTkLoaiSanPham().getSelectedItem().toString().equals("--Loại--")){
                 Map<String, Object> conditionsLoai = new HashMap<>();
-                conditionsLoai.put("TenLoai", sanPhamUI.getCbTkLoaiSanPham().getSelectedItem().toString());
+                conditionsLoai.put("ten_loai", sanPhamUI.getCbTkLoaiSanPham().getSelectedItem().toString());
                 try {
                     dsLoaiTim = loaiSanPhamImp.timKiem(conditionsLoai);
                 } catch (Exception ex) {
@@ -848,7 +848,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 //
                 for(int i=0; i<dsLoaiTim.size(); i++){
                     Map<String, Object> conditionsSp = new HashMap<>();
-                    conditionsSp.put("MaLoai", dsLoaiTim.get(i).getMaLoai());
+                    conditionsSp.put("ma_loai", dsLoaiTim.get(i).getMaLoai());
                     try {
                         dsTim.addAll(sanPhamImp.timKiem(conditionsSp));
                     } catch (Exception ex) {
@@ -1002,7 +1002,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             else if (!sanPhamUI.getCbTkTinhTrang().getSelectedItem().toString().equals("--Tình trạng--")) {
                 Map<String, Object> conditionsTinhTrang = new HashMap<>();
-                conditionsTinhTrang.put("TinhTrang", sanPhamUI.getCbTkTinhTrang().getSelectedItem().toString());
+                conditionsTinhTrang.put("tinh_trang", sanPhamUI.getCbTkTinhTrang().getSelectedItem().toString());
                 try {
                     dsTim = sanPhamImp.timKiem(conditionsTinhTrang);
                 } catch (Exception ex) {
@@ -1074,7 +1074,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             else if(!sanPhamUI.getCbTkThuongHieu().getSelectedItem().toString().equals("--Thương hiệu--")){
                 Map<String, Object> conditionsTenThuongHieu = new HashMap<>();
-                conditionsTenThuongHieu.put("TenTH", sanPhamUI.getCbTkThuongHieu().getSelectedItem().toString());
+                conditionsTenThuongHieu.put("ten_th", sanPhamUI.getCbTkThuongHieu().getSelectedItem().toString());
                 try {
                     dsThuongHieuTim = thuongHieuImp.timKiem(conditionsTenThuongHieu);
                 } catch (Exception ex) {
@@ -1082,7 +1082,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 }
                 //
                 Map<String, Object> conditionsSanPham = new HashMap<>();
-                conditionsSanPham.put("MaTH", dsThuongHieuTim.get(0).getMaTH());
+                conditionsSanPham.put("ma_th", dsThuongHieuTim.get(0).getMaTH());
                 try {
                     dsTim = sanPhamImp.timKiem(conditionsSanPham);
                 } catch (Exception ex) {
@@ -1118,7 +1118,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             }
             else if(!sanPhamUI.getCbTkDoTuoi().getSelectedItem().toString().equals("--Độ tuổi--")){
                 Map<String, Object> conditionsDoTuoi = new HashMap<>();
-                conditionsDoTuoi.put("DoTuoi", sanPhamUI.getCbTkDoTuoi().getSelectedItem().toString());
+                conditionsDoTuoi.put("do_tuoi", sanPhamUI.getCbTkDoTuoi().getSelectedItem().toString());
                 try {
                     dsTim = sanPhamImp.timKiem(conditionsDoTuoi);
                 } catch (Exception ex) {
@@ -1138,7 +1138,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
             else if(!sanPhamUI.getCbTkPhongCachMac().getSelectedItem().toString().equals("--Phong cách--")){
 
                 Map<String, Object> conditionsPhongCach = new HashMap<>();
-                conditionsPhongCach.put("PhongCachMac", sanPhamUI.getCbTkPhongCachMac().getSelectedItem().toString());
+                conditionsPhongCach.put("phong_cach_mac", sanPhamUI.getCbTkPhongCachMac().getSelectedItem().toString());
                 try {
                     dsTim = sanPhamImp.timKiem(conditionsPhongCach);
                 } catch (Exception ex) {
@@ -1247,7 +1247,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 return null;
             }
             Map<String, Object> loai = new HashMap<>();
-            loai.put("TenLoai", sanPhamUI.getCbLoai().getSelectedItem().toString());
+            loai.put("ten_loai", sanPhamUI.getCbLoai().getSelectedItem().toString());
             loaiSanPhams = loaiSanPhamImp.timKiem(loai);
 
             if(sanPhamUI.getDanhMuc().getSelectedItem().toString().equalsIgnoreCase("--Select--")){
@@ -1255,7 +1255,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 return null;
             }
             Map<String, Object> dm = new HashMap<>();
-            dm.put("TenDM", sanPhamUI.getDanhMuc().getSelectedItem().toString());
+            dm.put("ten_dm", sanPhamUI.getDanhMuc().getSelectedItem().toString());
             danhMucs = danhMucSanPhamImp.timKiem(dm);
 
             if(sanPhamUI.getCbThuongHieu().getSelectedItem().toString().equalsIgnoreCase("--Select--")){
@@ -1263,7 +1263,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
                 return null;
             }
             Map<String, Object> th = new HashMap<>();
-            th.put("TenTH", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
+            th.put("ten_th", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
             thuongHieu = thuongHieuImp.timKiem(th);
 
         } catch (Exception ex) {
@@ -1296,7 +1296,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         //Mã sản phẩm
 
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("HieuLuc", "CO");
+        conditions.put("hieu_luc", "0");
         List<Thue> thue;
         try {
            thue = thueImp.timKiem(conditions);
@@ -1329,17 +1329,17 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         List<ThuongHieu> thuongHieu = new ArrayList<>();
         try {
             Map<String, Object> dm = new HashMap<>();
-            dm.put("TenDM", sanPhamUI.getDanhMuc().getSelectedItem().toString());
+            dm.put("ten_dm", sanPhamUI.getDanhMuc().getSelectedItem().toString());
             danhMucs = danhMucSanPhamImp.timKiem(dm);
 
 
 
             Map<String, Object> loai = new HashMap<>();
-            loai.put("TenLoai", sanPhamUI.getCbLoai().getSelectedItem().toString());
+            loai.put("ten_loai", sanPhamUI.getCbLoai().getSelectedItem().toString());
             loaiSanPhams = loaiSanPhamImp.timKiem(loai);
 
             Map<String, Object> th = new HashMap<>();
-            th.put("TenTH", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
+            th.put("ten_th", sanPhamUI.getCbThuongHieu().getSelectedItem().toString());
             thuongHieu = thuongHieuImp.timKiem(th);
 
         } catch (Exception ex) {
@@ -1356,7 +1356,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         TinhTrangSanPham tt = TinhTrangSanPham.layGiaTri(sanPhamUI.getCbTinhTrang().getSelectedItem().toString());
 //        int soLuong = Integer.parseInt(sanPhamUI.getTxtSoLuongSanPham().getText());
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("HieuLuc", "CO");
+        conditions.put("hieu_luc", "0");
         List<Thue> thue;
         try {
             thue = thueImp.timKiem(conditions);
@@ -1377,15 +1377,15 @@ public class ProductController implements ActionListener, MouseListener, KeyList
     //Hàm sinh mã sản phẩm
     public String laymaSP(){
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaSP", maLoai);
-        String[] cols = {"MaSP"};
+        conditions.put("ma_sp", maLoai);
+        String[] cols = {"ma_sp"};
         List<Map<String, Object>> dsMaSP = null;
         String maSP = "";
         ArrayList<Integer> ma = new ArrayList<>();
         try {
             dsMaSP = sanPhamImp.timKiem(conditions, false, cols);
             for (int i = 0; i < dsMaSP.size(); i++) {
-                ma.add(Integer.parseInt(dsMaSP.get(i).get("MaSP").toString().substring(dsMaSP.get(i).get("MaSP").toString().length()-3)));
+                ma.add(Integer.parseInt(dsMaSP.get(i).get("ma_sp").toString().substring(dsMaSP.get(i).get("ma_sp").toString().length()-3)));
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -1453,16 +1453,18 @@ public class ProductController implements ActionListener, MouseListener, KeyList
     }
     public void loadTTPBSP(){
         String maSP = sanPhamUI.getTxtMaSanPham().getText();
-        String[] cols = {"MauSac", "KichThuoc", "HinhAnh", "SoLuong"};
+        String[] cols = {"mauSac", "kichThuoc", "hinhAnh", "soLuong"};
         Map<String, Object> condintions=  new HashMap<>();
         sanPhamUI.getTxtDialogMaSanPham().setText(maSP);
-        condintions.put("MaSP", maSP);
+        condintions.put("maPhienBanSP", "%"+(maSP)+"%");
         try {
             List<Map<String, Object>> listCTPBSP = chiTietPhienBanSanPhamImp.timKiem(condintions, false, cols);
+            System.out.println("List chi tiết phiên bản sản phẩm");
+            listCTPBSP.forEach(System.out::println);
             DefaultTableModel tmCTPBSP = (DefaultTableModel) sanPhamUI.getTbDialogDanhSachCacSanPham().getModel();
             tmCTPBSP.setRowCount(0);
             for(Map<String, Object> map : listCTPBSP){
-                String[] row = {map.get("MauSac").toString(), map.get("KichThuoc").toString(), map.get("SoLuong").toString(),null};
+                String[] row = {map.get("mauSac").toString(), map.get("kichThuoc").toString(), map.get("soLuong").toString(),null};
                 tmCTPBSP.addRow(row);
             }
         } catch (Exception e) {
@@ -1570,7 +1572,7 @@ public class ProductController implements ActionListener, MouseListener, KeyList
         sanPhamUI.getCbDialogMauSac().setModel(mauSacCb);
         String maSP = sanPhamUI.getTxtMaSanPham().getText();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaSP", maSP);
+        conditions.put("maPhienBanSP", maSP);
         String loai = maSP.substring(0, 1);
 
         //Lấy kích thước từ enum
