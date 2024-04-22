@@ -2,6 +2,7 @@ package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.PhieuTraKhachHangDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.PhieuNhapHang;
 import dev.skyherobrine.app.entities.order.PhieuTraKhachHang;
 import jakarta.persistence.EntityManager;
@@ -88,21 +89,31 @@ public class PhieuTraKhachHangImp extends UnicastRemoteObject implements PhieuTr
                 ("select ptkh from PhieuTraKhachHang ptkh where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND ptkh."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND ptkh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND ptkh."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
 
+        Query q = em.createQuery(query.get(), PhieuTraKhachHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
         List<PhieuTraKhachHang> phieuTraKhachHangs = new ArrayList<>();
         try {
             tx.begin();
-            phieuTraKhachHangs = em.createQuery(query.get(), PhieuTraKhachHang.class).getResultList();
+            phieuTraKhachHangs = q.getResultList();
             tx.commit();
             return phieuTraKhachHangs;
         } catch (Exception e) {

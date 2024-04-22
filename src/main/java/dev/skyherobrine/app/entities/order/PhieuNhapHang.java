@@ -8,6 +8,7 @@ import lombok.Getter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * Thực thể "Phiếu Nhập Hàng", thực thể này dùng để lưu trữ thông tin phiếu nhập hàng của cửa hàng trong
@@ -42,6 +43,10 @@ public class PhieuNhapHang implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "tinh_trang", nullable = false)
     private TinhTrangNhapHang tinhTrang;
+
+    @OneToMany(mappedBy = "phieuNhapHang", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs;
+
 
     public PhieuNhapHang(String maPhieuNhap, NhaCungCap nhaCungCap, LocalDateTime ngayLapPhieu, LocalDateTime ngayHenGiao, String ghiChu, TinhTrangNhapHang tinhTrang) {
         this.maPhieuNhap = maPhieuNhap;

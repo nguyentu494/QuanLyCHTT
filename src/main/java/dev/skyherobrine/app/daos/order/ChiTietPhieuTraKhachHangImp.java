@@ -4,6 +4,7 @@ import dev.skyherobrine.app.daos.ChiTietPhieuTraKhachHangDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamImp;
 import dev.skyherobrine.app.entities.Key.ChiTietPhieuTraKhachHangId;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuTraKhachHang;
 import jakarta.persistence.EntityManager;
@@ -85,21 +86,31 @@ public class ChiTietPhieuTraKhachHangImp extends UnicastRemoteObject implements 
                 ("select ctptkh from ChiTietPhieuTraKhachHang ctptkh where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND ctptkh."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND ctptkh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND ctptkh."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
 
+        Query q = em.createQuery(query.get(), ChiTietPhieuTraKhachHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
         List<ChiTietPhieuTraKhachHang> chiTietPhieuTraKhachHangs = new ArrayList<>();
         try {
             tx.begin();
-            chiTietPhieuTraKhachHangs = em.createQuery(query.get(), ChiTietPhieuTraKhachHang.class).getResultList();
+            chiTietPhieuTraKhachHangs = q.getResultList();
             tx.commit();
             return chiTietPhieuTraKhachHangs;
         } catch (Exception e) {

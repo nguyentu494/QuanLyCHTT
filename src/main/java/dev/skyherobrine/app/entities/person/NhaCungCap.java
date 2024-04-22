@@ -16,6 +16,11 @@ import java.io.Serializable;
  */
 @Getter
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "NCC.findAll", query = "SELECT ncc FROM NhaCungCap ncc"),
+        @NamedQuery(name = "NCC.findByID", query = "SELECT ncc FROM NhaCungCap ncc WHERE ncc.maNCC = :id")
+
+})
 public class NhaCungCap implements Serializable {
     /**
 	 * 

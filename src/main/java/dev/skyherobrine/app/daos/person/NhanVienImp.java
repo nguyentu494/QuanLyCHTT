@@ -3,6 +3,7 @@ package dev.skyherobrine.app.daos.person;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.IDAO;
 import dev.skyherobrine.app.daos.NhanVienDAO;
+import dev.skyherobrine.app.entities.person.KhachHang;
 import dev.skyherobrine.app.entities.person.NhanVien;
 import dev.skyherobrine.app.enums.CaLamViec;
 import dev.skyherobrine.app.enums.ChucVu;
@@ -89,21 +90,41 @@ public class NhanVienImp extends UnicastRemoteObject implements NhanVienDAO<Nhan
     @Override
     public List<NhanVien> timKiem(Map<String, Object> conditions) throws Exception {
 
-        StringBuilder jpqlBuilder = new StringBuilder("select t from NhanVien t where 1 = 1 ");
-
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>("select kh from NhanVien kh where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND kh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND kh."+ key +" LIKE :"+ key);
+                }
+            }
         }
 
-        Query query = em.createQuery(jpqlBuilder.toString(), NhanVien.class);
+        Query q = em.createQuery(query.get(), NhanVien.class);
 
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
         }
-
-        List<NhanVien> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+        List<NhanVien> nhanViens = new ArrayList<>();
+        try {
+            tx.begin();
+            nhanViens = q.getResultList();
+            tx.commit();
+            return nhanViens;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
@@ -126,46 +147,39 @@ public class NhanVienImp extends UnicastRemoteObject implements NhanVienDAO<Nhan
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult,
                                              String... colNames) throws Exception {
-        StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
+        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
+        AtomicBoolean canPhay = new AtomicBoolean(false);
 
-        for (int i = 0; i < colNames.length; i++) {
-            jpqlBuilder.append("t.").append(colNames[i]);
-            if (i < colNames.length - 1) {
-                jpqlBuilder.append(", ");
-            }
-        }
+        Arrays.stream(colNames).forEach(column -> {
+            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
+            canPhay.set(true);
+        });
 
-        jpqlBuilder.append(" FROM NhanVien t WHERE 1 = 1");
+        query.set(query.get() + " from NhanVien t where 1 = 1");
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                jpqlBuilder.append(" AND t.").append(key).append(" = :").append(key);
+                query.set(query + " AND t."+key+" LIKE :"+key);
             }
         }
-
-        Query query = em.createQuery(jpqlBuilder.toString(), NhanVien.class);
+        Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
+                q.setParameter(entry.getKey(), entry.getValue());
             }
         }
 
-        List<Object[]> results = query.getResultList();
-
-        List<Map<String, Object>> formattedResults = new ArrayList<>();
-        for (Object[] row : results) {
-            Map<String, Object> rowMap = new HashMap<>();
+        List<Map<String, Object>> listResult = new ArrayList<>();
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
+            Map<String, Object> rowDatas = new HashMap<>();
             for (int i = 0; i < colNames.length; i++) {
-                rowMap.put(colNames[i], row[i]);
+                rowDatas.put(colNames[i], result[i]);
             }
-            formattedResults.add(rowMap);
+            listResult.add(rowDatas);
         }
-
-        if (isDuplicateResult || !formattedResults.isEmpty()) {
-            return formattedResults;
-        } else {
-            return null;
-        }
+        return listResult;
     }
 }

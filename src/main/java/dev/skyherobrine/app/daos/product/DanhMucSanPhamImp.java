@@ -3,6 +3,7 @@ package dev.skyherobrine.app.daos.product;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.DanhMucSanPhamDAO;
 import dev.skyherobrine.app.daos.IDAO;
+import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import dev.skyherobrine.app.entities.product.DanhMucSanPham;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -61,21 +62,41 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
 
     @Override
     public List<DanhMucSanPham> timKiem(Map<String, Object> conditions) throws Exception {
-        StringBuilder jpqlBuilder = new StringBuilder("select t from DanhMucSanPham t where 1 = 1");
-
-        for (String key : conditions.keySet()) {
-            jpqlBuilder.append(" and t.").append(key).append(" = :").append(key);
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>("select dm from DanhMucSanPham dm where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND dm."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND dm."+ key +" LIKE :"+ key);
+                }
+            }
         }
+        Query q = em.createQuery(query.get(), DanhMucSanPham.class);
 
-        Query query = em.createQuery(jpqlBuilder.toString(), DanhMucSanPham.class);
 
-        for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
         }
-
-        List<DanhMucSanPham> resultList = query.getResultList();
-
-        return resultList.isEmpty() ? null : resultList;
+        List<DanhMucSanPham> danhMucSanPhams = new ArrayList<>();
+        try {
+            tx.begin();
+            danhMucSanPhams = q.getResultList();
+            tx.commit();
+            return danhMucSanPhams;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
@@ -96,46 +117,39 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
 
-        StringBuilder jpqlBuilder = new StringBuilder("SELECT " + (isDuplicateResult ? "distinct " : ""));
+        AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
+        AtomicBoolean canPhay = new AtomicBoolean(false);
 
-        for (int i = 0; i < colNames.length; i++) {
-            jpqlBuilder.append("t.").append(colNames[i]);
-            if (i < colNames.length - 1) {
-                jpqlBuilder.append(", ");
-            }
-        }
+        Arrays.stream(colNames).forEach(column -> {
+            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
+            canPhay.set(true);
+        });
 
-        jpqlBuilder.append(" FROM DanhMucSanPham t WHERE 1 = 1");
+        query.set(query.get() + " from DanhMucSanPham t where 1 = 1");
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                jpqlBuilder.append(" AND t.").append(key).append(" = :").append(key);
+                query.set(query + " AND t."+key+" LIKE :"+key);
             }
         }
-
-        Query query = em.createNativeQuery(jpqlBuilder.toString());
+        Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
+                q.setParameter(entry.getKey(), entry.getValue());
             }
         }
 
-        List<Object[]> results = query.getResultList();
-
-        List<Map<String, Object>> formattedResults = new ArrayList<>();
-        for (Object[] row : results) {
-            Map<String, Object> rowMap = new HashMap<>();
+        List<Map<String, Object>> listResult = new ArrayList<>();
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
+            Map<String, Object> rowDatas = new HashMap<>();
             for (int i = 0; i < colNames.length; i++) {
-                rowMap.put(colNames[i], row[i]);
+                rowDatas.put(colNames[i], result[i]);
             }
-            formattedResults.add(rowMap);
+            listResult.add(rowDatas);
         }
-
-        if (isDuplicateResult || !formattedResults.isEmpty()) {
-            return formattedResults;
-        } else {
-            return null;
-        }
+        return listResult;
     }
 }

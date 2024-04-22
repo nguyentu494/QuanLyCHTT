@@ -2,6 +2,7 @@ package dev.skyherobrine.app.daos.person;
 
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.NhaCungCapDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.person.KhachHang;
 import dev.skyherobrine.app.entities.person.NhaCungCap;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
@@ -80,7 +81,7 @@ public class NhaCungCapImp extends UnicastRemoteObject implements NhaCungCapDAO<
         EntityTransaction et = em.getTransaction();
         try {
             et.begin();
-            List<NhaCungCap> nhaCungCaps = em.createNamedQuery("NhaCungCap.findAll", NhaCungCap.class).getResultList();
+            List<NhaCungCap> nhaCungCaps = em.createNamedQuery("NCC.findAll", NhaCungCap.class).getResultList();
             et.commit();
             return nhaCungCaps;
         } catch (Exception e) {
@@ -95,21 +96,34 @@ public class NhaCungCapImp extends UnicastRemoteObject implements NhaCungCapDAO<
         AtomicReference<String> query = new AtomicReference<>("select ncc from NhaCungCap ncc where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND ncc."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND ncc."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND ncc."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
 
+
+
+        Query q = em.createQuery(query.get(), NhaCungCap.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
+//        System.out.println(query.get());
         List<NhaCungCap> nhaCungCaps = new ArrayList<>();
         try {
             tx.begin();
-            nhaCungCaps = em.createQuery(query.get(), NhaCungCap.class).getResultList();
+            nhaCungCaps = q.getResultList();
             tx.commit();
             return nhaCungCaps;
         } catch (Exception e) {
@@ -123,7 +137,7 @@ public class NhaCungCapImp extends UnicastRemoteObject implements NhaCungCapDAO<
         EntityTransaction et = em.getTransaction();
         try {
             et.begin();
-            NhaCungCap nhaCungCap = em.createNamedQuery("NhaCungCap.findByID", NhaCungCap.class).setParameter("maNCC", id).getSingleResult();
+            NhaCungCap nhaCungCap = em.createNamedQuery("NCC.findByID", NhaCungCap.class).setParameter("id", id).getSingleResult();
             et.commit();
             return nhaCungCap;
         } catch (Exception e) {

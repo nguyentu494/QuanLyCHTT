@@ -2,6 +2,7 @@ package dev.skyherobrine.app.daos.person;
 
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.KhachHangDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.person.KhachHang;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import jakarta.persistence.EntityManager;
@@ -84,21 +85,31 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
         AtomicReference<String> query = new AtomicReference<>("select kh from KhachHang kh where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND kh."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND kh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND kh."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
 
+        Query q = em.createQuery(query.get(), KhachHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
         List<KhachHang> khachHangs = new ArrayList<>();
         try {
             tx.begin();
-            khachHangs = em.createQuery(query.get(), KhachHang.class).getResultList();
+            khachHangs = q.getResultList();
             tx.commit();
             return khachHangs;
         } catch (Exception e) {

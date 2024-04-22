@@ -65,7 +65,19 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
 
     @Override
     public int xoa(String... ids) throws RemoteException {
-        return 0;
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            for (String id : ids) {
+                ChiTietPhieuNhapHangPhienBanSP chiTietPhieuNhapHangPhienBanSP = em.find(ChiTietPhieuNhapHangPhienBanSP.class, id);
+                em.remove(chiTietPhieuNhapHangPhienBanSP);
+            }
+            et.commit();
+            return ids.length;
+        }catch (Exception e){
+            et.rollback();
+            return 0;
+        }
     }
 
     @Override
@@ -98,14 +110,24 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND t."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND t."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND t."+ key +" LIKE :"+ key);
+                }
             }
         }
         Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
 
@@ -129,21 +151,31 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
                 ("select ctpnhpbsp from ChiTietPhieuNhapHangPhienBanSP ctpnhpbsp where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND pbsp."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND ctpnhpbsp."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND ctpnhpbsp."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
+        Query q = em.createQuery(query.get(), ChiTietPhieuNhapHangPhienBanSP.class);
 
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
         List<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPS = new ArrayList<>();
         try {
             tx.begin();
-            chiTietPhieuNhapHangPhienBanSPS = em.createQuery(query.get(), ChiTietPhieuNhapHangPhienBanSP.class).getResultList();
+            chiTietPhieuNhapHangPhienBanSPS = q.getResultList();
             tx.commit();
             return chiTietPhieuNhapHangPhienBanSPS;
         } catch (Exception e) {

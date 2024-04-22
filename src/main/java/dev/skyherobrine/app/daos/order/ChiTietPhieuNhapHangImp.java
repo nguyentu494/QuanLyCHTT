@@ -13,6 +13,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiTietPhieuNhapHangDAO<ChiTietPhieuNhapHang> {
     private EntityManager em;
@@ -90,22 +92,32 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
         AtomicBoolean isNeedAnd = new AtomicBoolean(false);
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND ctpnh."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND ctpnh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND ctpnh."+ key +" LIKE :"+ key);
+                }
             }
         }
 
-        Query q = em.createQuery(query.get());
+        Query q = em.createQuery(query.get(), ChiTietPhieuNhapHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
 
         List<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs = new ArrayList<>();
         try {
             tx.begin();
-            chiTietPhieuNhapHangs = em.createQuery(query.get(), ChiTietPhieuNhapHang.class).getResultList();
+            chiTietPhieuNhapHangs = q.getResultList();
             tx.commit();
             return chiTietPhieuNhapHangs;
         } catch (Exception e) {
@@ -181,7 +193,7 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
         }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
-        System.out.println(query.get());
+//        System.out.println(query.get());
         List<Object[]> results = q.getResultList();
         for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();

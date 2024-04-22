@@ -93,21 +93,31 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
         AtomicReference<String> query = new AtomicReference<>("select pbsp from ChiTietPhienBanSanPham pbsp where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND pbsp."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND pbsp."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND pbsp."+ key +" LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
+        Query q = em.createQuery(query.get(), ChiTietPhienBanSanPham.class);
 
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
         List<ChiTietPhienBanSanPham> chiTietPhienBanSanPhams = new ArrayList<>();
         try {
             tx.begin();
-            chiTietPhienBanSanPhams = em.createQuery(query.get(), ChiTietPhienBanSanPham.class).getResultList();
+            chiTietPhienBanSanPhams = q.getResultList();
             tx.commit();
             return chiTietPhienBanSanPhams;
         } catch (Exception e) {

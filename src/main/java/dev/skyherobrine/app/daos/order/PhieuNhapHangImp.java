@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.PhieuNhapHangDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuTraKhachHang;
 import dev.skyherobrine.app.entities.order.PhieuNhapHang;
 import jakarta.persistence.EntityManager;
@@ -58,8 +59,8 @@ public class PhieuNhapHangImp extends UnicastRemoteObject implements PhieuNhapHa
             return true;
         }catch (Exception e) {
             et.rollback();
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -88,21 +89,34 @@ public class PhieuNhapHangImp extends UnicastRemoteObject implements PhieuNhapHa
                 ("select pnh from PhieuNhapHang pnh where 1 = 1");
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND pnh."+ key +" LIKE :"+ key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND pnh."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND cast( pnh."+ key +" as String ) LIKE :"+ key);
+                }
             }
         }
-        Query q = em.createQuery(query.get());
 
+        Query q = em.createQuery(query.get(), PhieuNhapHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")){
+                    String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    System.out.println(entry.getKey() + " " + entry.getValue());
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
+        System.out.println(query.get());
+
         List<PhieuNhapHang> phieuNhapHangs = new ArrayList<>();
         try {
             tx.begin();
-            phieuNhapHangs = em.createQuery(query.get(), PhieuNhapHang.class).getResultList();
+            phieuNhapHangs = q.getResultList();
             tx.commit();
             return phieuNhapHangs;
         } catch (Exception e) {

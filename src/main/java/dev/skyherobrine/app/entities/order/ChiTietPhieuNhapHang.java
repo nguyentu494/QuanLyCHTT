@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Thực thể "Chi Tiết Phiếu Nhập", thực thể này dùng để lưu trữ thông tin chi tiết về nhập hàng, sản phẩm
@@ -18,7 +19,8 @@ import java.io.Serializable;
 @NamedQueries({
         @NamedQuery(name = "CTPNH.findAll", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh"),
         @NamedQuery(name = "CTPNH.findByID", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.id = :id"),
-        @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP")
+        @NamedQuery(name = "CTPNH.findByDayAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh inner join PhieuNhapHang pnh on ctpnh.phieuNhapHang.maPhieuNhap = pnh.maPhieuNhap where pnh.ngayLapPhieu < :ngayNhap and ctpnh.sanPham.maSP = :maSP"),
+        @NamedQuery(name = "CTPNH.findByMaPhieuNhapAndMaSP", query = "SELECT ctpnh FROM ChiTietPhieuNhapHang ctpnh WHERE ctpnh.phieuNhapHang.maPhieuNhap = :maPhieuNhap and ctpnh.sanPham.maSP = :maSP")
 })
 public class ChiTietPhieuNhapHang implements Serializable {
     /**
@@ -37,6 +39,9 @@ public class ChiTietPhieuNhapHang implements Serializable {
     private SanPham sanPham;
     @Column(name = "gia_nhap", nullable = false)
     private double giaNhap;
+
+    @OneToMany(mappedBy = "chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs;
 
     public ChiTietPhieuNhapHang(String maChiTietPhieuNhap, PhieuNhapHang phieuNhapHang, SanPham sanPham, double giaNhap) throws Exception{
         this.setMaChiTietPhieuNhap(maChiTietPhieuNhap);
