@@ -5,9 +5,11 @@ import dev.skyherobrine.app.daos.HoaDonDAO;
 import dev.skyherobrine.app.daos.person.KhachHangImp;
 import dev.skyherobrine.app.daos.person.NhanVienImp;
 import dev.skyherobrine.app.entities.order.HoaDon;
+import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
@@ -17,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> {
-    private ConnectDB connectDB;
     private EntityManager em;
     public HoaDonImp() throws Exception {
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();
@@ -27,7 +28,7 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
-            em.merge(hoaDon);
+            em.persist(hoaDon);
             et.commit();
             return true;
         }catch (Exception e){
@@ -72,72 +73,83 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
-//            em.createNamedQuery()
+              List<HoaDon> hoaDons =   em.createNamedQuery("HD.orderByDate", HoaDon.class).getResultList();
             et.commit();
+            return hoaDons;
         }catch (Exception e){
-
+            et.rollback();
         }
         return null;
     }
 
     @Override
     public List<HoaDon> timKiem(Map<String, Object> conditions) throws Exception {
-        AtomicReference<String> query = new AtomicReference<>
-                ("select * from HoaDon hd where ");
-        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>("select hd from HoaDon hd where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND hd."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND hd."+ key +" LIKE :"+ key);
+                }
+            }
+        }
+        Query q = em.createQuery(query.get(), HoaDon.class);
 
-        conditions.forEach((column, value) -> {
-            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("hd." + column + " LIKE '" + value + "'") +"ORDER BY ngay_lap ASC");
-            isNeedAnd.set(true);
-        });
 
-
-        return em.createNativeQuery(query.get(), HoaDon.class).getResultList();
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        List<HoaDon> hoaDons = new ArrayList<>();
+        try {
+            tx.begin();
+            hoaDons = q.getResultList();
+            tx.commit();
+            return hoaDons;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override
     public HoaDon timKiem(String id) throws Exception {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("select * from HoaDon where MaHD = ?");
-        preparedStatement.setString(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        if (resultSet.next()) {
-            return Optional.of(new HoaDon(
-                    resultSet.getString("MaHD"),
-                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienImp().timKiem(resultSet.getString("MaNV")),
-                    new KhachHangImp().timKiem(resultSet.getString("MaKH")),
-                    resultSet.getBigDecimal("SoTienKHTra"),
-                    resultSet.getString("GhiChu")
-            )).get();
-        }
-        return (HoaDon) Optional.empty().get();
+        return em.createNamedQuery("HD.findByID", HoaDon.class).setParameter("id", id).getSingleResult();
     }
 
     @Override
     public List<HoaDon> timKiem(String... ids) throws Exception {
-        String query = "select * from HoaDon where ";
-        String[] listID = (String[]) Arrays.stream(ids).toArray();
-        for(int i = 0; i < listID.length; ++i) {
-            query += ("MaHD = '" + listID[i] + "'");
-            if((i + 1) >= listID.length) break;
-            else query += ", ";
-        }
+//        String query = "select * from HoaDon where ";
+//        String[] listID = (String[]) Arrays.stream(ids).toArray();
+//        for(int i = 0; i < listID.length; ++i) {
+//            query += ("MaHD = '" + listID[i] + "'");
+//            if((i + 1) >= listID.length) break;
+//            else query += ", ";
+//        }
 
         List<HoaDon> hoaDons = new ArrayList<>();
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        while(resultSet.next()) {
-            HoaDon hoaDon = new HoaDon(
-                    resultSet.getString("MaHD"),
-                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
-                    new NhanVienImp().timKiem(resultSet.getString("MaNV")),
-                    new KhachHangImp().timKiem(resultSet.getString("MaKH")),
-                    resultSet.getBigDecimal("SoTienKHTra"),
-                    resultSet.getString("GhiChu")
-            );
-            hoaDons.add(hoaDon);
-        }
+//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement(query);
+//        ResultSet resultSet = preparedStatement.executeQuery();
+//        while(resultSet.next()) {
+//            HoaDon hoaDon = new HoaDon(
+//                    resultSet.getString("MaHD"),
+//                    resultSet.getTimestamp("NgayLap").toLocalDateTime(),
+//                    new NhanVienImp().timKiem(resultSet.getString("MaNV")),
+//                    new KhachHangImp().timKiem(resultSet.getString("MaKH")),
+//                    resultSet.getBigDecimal("SoTienKHTra"),
+//                    resultSet.getString("GhiChu")
+//            );
+//            hoaDons.add(hoaDon);
+//        }
         return hoaDons;
     }
 
@@ -145,27 +157,34 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {
         AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
         AtomicBoolean canPhay = new AtomicBoolean(false);
-        AtomicBoolean canAnd = new AtomicBoolean(false);
 
         Arrays.stream(colNames).forEach(column -> {
-            query.set(query.get() + (canPhay.get() ? "," : "") + column);
+            query.set(query.get() + (canPhay.get() ? "," : "") + "hd."+column);
             canPhay.set(true);
         });
 
-        query.set(query.get() + " from HoaDon where ");
+        query.set(query.get() + " from HoaDon hd where 1 = 1");
 
-        conditions.forEach((column, value) -> {
-            query.set(query.get() + (canAnd.get() ? " AND " : "") + column + " like '%" + value + "%'");
-            canAnd.set(true);
-        });
-        System.out.println(query.get());
-        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery(query.get());
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                query.set(query + " AND t."+key+" LIKE :"+key);
+            }
+        }
+        Query q = em.createQuery(query.get());
+
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                q.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
-        while(resultSet.next()){
+        System.out.println(query.get());
+        List<Object[]> results = q.getResultList();
+        for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();
-            for(String column : Arrays.stream(colNames).toList()) {
-                rowDatas.put(column, resultSet.getString(column));
+            for (int i = 0; i < colNames.length; i++) {
+                rowDatas.put(colNames[i], result[i]);
             }
             listResult.add(rowDatas);
         }

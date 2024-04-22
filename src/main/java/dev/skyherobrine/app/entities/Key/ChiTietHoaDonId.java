@@ -37,11 +37,11 @@ public class ChiTietHoaDonId implements Serializable {
 	@Serial
     private static final long serialVersionUID = 1L;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_hd", nullable = false)
     private HoaDon hoaDon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_phien_ban_sp", nullable = false)
     private ChiTietPhienBanSanPham phienBanSanPham;
 }

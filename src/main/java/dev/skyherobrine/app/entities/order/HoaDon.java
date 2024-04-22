@@ -5,6 +5,7 @@ import dev.skyherobrine.app.entities.person.NhanVien;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
+import java.util.Set;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "HD.findAll", query = "SELECT hd FROM HoaDon hd"),
         @NamedQuery(name = "HD.findByID", query = "SELECT hd FROM HoaDon hd WHERE hd.maHD = :id"),
+        @NamedQuery(name = "HD.orderByDate", query = "SELECT hd FROM HoaDon hd WHERE (current_date - hd.ngayLap) >= 7 ORDER BY hd.ngayLap ASC")
 })
 @NamedNativeQueries({
 })
@@ -36,10 +38,10 @@ public class HoaDon implements Serializable {
     private String maHD;
     @Column(name = "ngay_lap", nullable = false)
     private LocalDateTime ngayLap;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_nv", nullable = false)
     private NhanVien nhanVienLap;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_kh", nullable = false)
     private KhachHang khachHang;
     @Column(name = "so_tien_kh_tra", nullable = false)
@@ -48,7 +50,7 @@ public class HoaDon implements Serializable {
     private String ghiChu;
     @OneToMany(mappedBy = "chiTietHoaDonId.hoaDon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<ChiTietHoaDon> chiTietHoaDons;
+    private Set<ChiTietHoaDon> chiTietHoaDons;
 
     public HoaDon(String maHD, LocalDateTime ngayLap, NhanVien nhanVienLap, KhachHang khachHang, BigDecimal soTienKHTra, String ghiChu) throws Exception {
         this.setMaHD(maHD);
@@ -87,7 +89,7 @@ public class HoaDon implements Serializable {
         this.ghiChu = ghiChu;
     }
 
-    public void setChiTietHoaDons(List<ChiTietHoaDon> chiTietHoaDons) {
+    public void setChiTietHoaDons(Set<ChiTietHoaDon> chiTietHoaDons) {
         this.chiTietHoaDons = chiTietHoaDons;
     }
 

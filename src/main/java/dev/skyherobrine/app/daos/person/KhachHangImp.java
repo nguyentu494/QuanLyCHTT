@@ -178,8 +178,8 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
         }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
-        System.out.println(query.get());
         List<Object[]> results = q.getResultList();
+
         for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();
             for (int i = 0; i < colNames.length; i++) {
@@ -189,4 +189,5 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
         }
         return listResult;
     }
+
 }

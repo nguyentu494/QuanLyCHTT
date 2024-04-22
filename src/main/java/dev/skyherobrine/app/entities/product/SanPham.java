@@ -40,7 +40,7 @@ public class SanPham implements Serializable {
     private String maSP;
     @Column(name = "ten_sp", nullable = false)
     private String tenSP;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_loai", nullable = false)
     private LoaiSanPham loaiSanPham;
     @Column(name = "phong_cach_mac", nullable = false)
@@ -51,14 +51,14 @@ public class SanPham implements Serializable {
     private DoTuoi doTuoi;
     @Column(name = "xuat_xu", nullable = false)
     private String xuatXu;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_th", nullable = false)
     private ThuongHieu thuongHieu;
     @Column(name = "phan_tram_loi", nullable = false)
     private float phanTramLoi;
     @Column(name = "ngay_san_xuat", nullable = false)
     private LocalDate ngaySanXuat;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_thue", nullable = false)
     private Thue thue;
     @Enumerated(EnumType.STRING)

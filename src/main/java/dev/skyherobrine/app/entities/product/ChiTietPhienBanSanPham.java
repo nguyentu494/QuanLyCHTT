@@ -22,7 +22,7 @@ public class ChiTietPhienBanSanPham implements Serializable {
 	@Id
     @Column(name = "ma_phien_ban_sp", nullable = false)
     private String maPhienBanSP;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_sp", nullable = false)
     private SanPham sanPham;
     @Enumerated(EnumType.STRING)

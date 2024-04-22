@@ -44,7 +44,7 @@ public class PhieuNhapHang implements Serializable {
     @Column(name = "tinh_trang", nullable = false)
     private TinhTrangNhapHang tinhTrang;
 
-    @OneToMany(mappedBy = "phieuNhapHang", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "phieuNhapHang", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs;
 
 

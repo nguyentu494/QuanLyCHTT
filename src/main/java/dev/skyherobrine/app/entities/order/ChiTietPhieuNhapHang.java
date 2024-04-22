@@ -31,10 +31,10 @@ public class ChiTietPhieuNhapHang implements Serializable {
 	@Id
     @Column(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private String maChiTietPhieuNhap;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_phieu_nhap", nullable = false)
     private PhieuNhapHang phieuNhapHang;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_sp", nullable = false)
     private SanPham sanPham;
     @Column(name = "gia_nhap", nullable = false)

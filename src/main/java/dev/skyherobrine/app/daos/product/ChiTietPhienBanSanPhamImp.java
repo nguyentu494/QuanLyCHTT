@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.product;
 
 import dev.skyherobrine.app.daos.ChiTietPhienBanSanPhamDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import dev.skyherobrine.app.enums.MauSac;
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements ChiTietPhienBanSanPhamDAO<ChiTietPhienBanSanPham> {
-    private EntityManager em;
+    private static EntityManager em;
 
     public ChiTietPhienBanSanPhamImp() throws RemoteException {
         em = Persistence.createEntityManagerFactory("JPA_Shop").createEntityManager();

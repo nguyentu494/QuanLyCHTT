@@ -24,7 +24,7 @@ public class LoaiSanPham implements Serializable {
     private String maLoai;
     @Column(name = "ten_loai", nullable = false)
     private String tenLoai;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_dm", nullable = false)
     private DanhMucSanPham danhMucSanPham;
 
