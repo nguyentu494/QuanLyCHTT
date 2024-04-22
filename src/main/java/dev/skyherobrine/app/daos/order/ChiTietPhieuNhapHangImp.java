@@ -152,22 +152,6 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
     public List<ChiTietPhieuNhapHang> timKiem(String... ids) throws RemoteException {
         return null;
     }
-
-    public Optional<ChiTietPhieuNhapHang> timKiem(String maPhieuNhap, String maSP) throws RemoteException{
-        EntityTransaction et = em.getTransaction();
-        try {
-            et.begin();
-            ChiTietPhieuNhapHang chiTietPhieuNhapHang = em.createNamedQuery("CTPNH.findByMaPhieuNhapAndMaSP", ChiTietPhieuNhapHang.class)
-                    .setParameter("maPhieuNhap", maPhieuNhap)
-                    .setParameter("maSP", maSP).getSingleResult();
-            et.commit();
-            return Optional.of(chiTietPhieuNhapHang);
-        } catch (Exception e) {
-            et.rollback();
-            return Optional.empty();
-        }
-    }
-
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws RemoteException {
         AtomicReference<String> query = new AtomicReference<>("select " + (isDuplicateResult ? "distinct " : ""));
@@ -204,5 +188,22 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
             listResult.add(rowDatas);
         }
         return listResult;
+    }
+
+    @Override
+    public List<ChiTietPhieuNhapHang> timKiem(String maPhieuNhap, String maSP) throws RemoteException{
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            List<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs = em.createNamedQuery("CTPNH.findByMaPhieuNhapAndMaSP", ChiTietPhieuNhapHang.class)
+                    .setParameter("maPhieuNhap", maPhieuNhap)
+                    .setParameter("maSP", maSP)
+                    .getResultList();
+            et.commit();
+            return chiTietPhieuNhapHangs;
+        } catch (Exception e) {
+            et.rollback();
+            return null;
+        }
     }
 }

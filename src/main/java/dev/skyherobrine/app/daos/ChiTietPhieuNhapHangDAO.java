@@ -1,5 +1,7 @@
 package dev.skyherobrine.app.daos;
 
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -129,4 +131,5 @@ public interface ChiTietPhieuNhapHangDAO<T> extends Remote {
      */
     List<T> timKiem(String...ids) throws Exception;
     List<T> timKiemHaiBang(Map<String, Object> conditions) throws RemoteException;
+    List<ChiTietPhieuNhapHang> timKiem(String maPhieuNhap, String maSP) throws RemoteException;
 }
