@@ -65,7 +65,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
     private PanelAction1 pnA1;
 
     public NhapHangController(QuanLyNhapHang nhapHangUI) {
-
+        this.nhapHangUI = nhapHangUI;
         try {
             phieuNhapHangImp = new PhieuNhapHangImp();
             chiTietPhienBanSanPhamImp = new ChiTietPhienBanSanPhamImp();
@@ -77,7 +77,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.nhapHangUI = nhapHangUI;
+
     }
 
     //Ham load phieu nhap hang
@@ -141,21 +141,19 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 List<ChiTietPhieuNhapHang> ct;
                 List<ChiTietPhieuNhapHangPhienBanSP> ctPNHPBSP;
                 Map<String,Object> conditions = new HashMap<>();
-                conditions.put("MaPhieuNhap", pnHienThuc.getMaPhieuNhap());
+                conditions.put("phieuNhapHang.maPhieuNhap", "%"+pnHienThuc.getMaPhieuNhap()+"%");
                 try {
                     ct = chiTietPhieuNhapHangImp.timKiem(conditions);
-
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
-
                 DefaultTableModel clear = (DefaultTableModel) nhapHangUI.getTbDanhSachSpTrongGioHang().getModel();
                 clear.setRowCount(0);
                 nhapHangUI.getTbDanhSachSpTrongGioHang().setModel(clear);
                 listMaCTPNXem = new HashMap<>();
                 for(int i=0; i<ct.size(); i++){
                     Map<String , Object> conditions1 = new HashMap<>();
-                    conditions1.put("MaChiTietPhieuNhap", ct.get(i).getMaChiTietPhieuNhap());
+                    conditions1.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang.maChiTietPhieuNhap", ct.get(i).getMaChiTietPhieuNhap());
 
                     listMaCTPNXem.put(ct.get(i).getMaChiTietPhieuNhap(), ct.get(i).getSanPham().getMaSP());
                     try {
@@ -295,8 +293,8 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
         nhapHangUI.getListSPNhap().setModel(listModelSP);
         listModelSP.removeAllElements();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaSP", textSP);
-        String []colNames= {"MaSP", "TenSP"};
+        conditions.put("maSP", "%"+textSP+"%");
+        String []colNames= {"maSP", "tenSP"};
         try {
             List<Map<String, Object>> listSP = sanPhamImp.timKiem(conditions, false, colNames);
             DefaultTableModel tmSP = (DefaultTableModel) nhapHangUI.getTbDanhSachSpTrongGioHang().getModel();
@@ -304,8 +302,8 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 nhapHangUI.getMenuSPNhap().setVisible(false);
             }else{
                 for(int i = 0; i < listSP.size(); i++){
-                    if(!listSPDaChon.containsKey(listSP.get(i).get("MaSP").toString())){
-                        listModelSP.addElement(listSP.get(i).get("MaSP").toString()+" || "+listSP.get(i).get("TenSP").toString());
+                    if(!listSPDaChon.containsKey(listSP.get(i).get("maSP").toString())){
+                        listModelSP.addElement(listSP.get(i).get("maSP").toString()+" || "+listSP.get(i).get("tenSP").toString());
                     }
                 }
                 nhapHangUI.getMenuSPNhap().show(nhapHangUI.getTxtTimKiemSanPhamNhap(), 0, nhapHangUI.getTxtTimKiemSanPhamNhap().getHeight());
@@ -322,7 +320,8 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
         nhapHangUI.getListNCCNhap().setModel(listModelNCC);
         listModelNCC.removeAllElements();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("TenNCC", textNCC);
+        conditions.put("tenNCC", "%"+textNCC+"%");
+
         try {
             listNCC = nhaCungCapImp.timKiem(conditions);
             if(listNCC.size()==0){
@@ -342,7 +341,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
     public boolean loadTTNCC(String tenNCC) {
         // TODO implement here
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("TenNCC", tenNCC);
+        conditions.put("tenNCC", tenNCC);
         try {
             List<NhaCungCap> ncc = nhaCungCapImp.timKiem(conditions);
             if(ncc.size()!=0) {
@@ -413,7 +412,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
     //Load các PBSP vào bảng chọn
     private void loadPBSP(String maSP) {
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaSP" , maSP);
+        conditions.put("sanPham.maSP" , maSP);
         List<ChiTietPhienBanSanPham> pbsp;
         DefaultTableModel clearTable = (DefaultTableModel) nhapHangUI.getTblChonPBSP().getModel();
         clearTable.setRowCount(0);
@@ -547,9 +546,9 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                             }
                         }
                         JOptionPane.showMessageDialog(null, "Thêm phiếu nhập và duyệt phiếu thành công!");
+                        loadPhieuNhap();
                         listMaCTPN = new HashMap<>();
                         listSPDaChon = new HashMap<>();
-                        loadPhieuNhap();
                         nhapHangUI.getBtnThemPhieuNhap().setText("Thêm phiếu nhập");
                         nhapHangUI.getBtnSuaPhieuNhap().setText("Sửa phiếu nhập");
                         nhapHangUI.getBtnXuatFile().setText("Xóa phiếu chờ");
@@ -575,24 +574,21 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 double gia = 0;
                 try {
                     if(phieuNhapHangImp.capNhat(phieuNhapHang)){
-
-                        System.out.println(listMaCTPNXem);
                         for(Map.Entry<String, String> entry : listMaCTPNXem.entrySet()){
                             listPBSP = (Map<String, String>) listSPDaChon.get(entry.getValue());
-                            Optional<ChiTietPhieuNhapHang> ctpnh = chiTietPhieuNhapHangImp.timKiem(phieuNhapHang.getMaPhieuNhap(), entry.getValue());
+                            List<ChiTietPhieuNhapHang> ctpnh = chiTietPhieuNhapHangImp.timKiem(phieuNhapHang.getMaPhieuNhap(), entry.getValue());
                             for(int i = 0; i < tmGioHang.getRowCount(); i++){
                                 if(tmGioHang.getValueAt(i, 1).toString().equalsIgnoreCase(entry.getValue())){
                                     gia = Double.parseDouble(tmGioHang.getValueAt(i, 5).toString());
                                 }
                             }
-                            ctpnh.get().setGiaNhap(gia);
-                            chiTietPhieuNhapHangImp.capNhat(ctpnh.get());
+                            ctpnh.get(0).setGiaNhap(gia);
+                            chiTietPhieuNhapHangImp.capNhat(ctpnh.get(0));
                             if(listSPDaChon.get(entry.getValue())!=null){
                                 for(Map.Entry<String, String> entry1 : listPBSP.entrySet()){
-                                    listPBSPDaCo.put("MaChiTietPhieuNhap", entry.getKey());
-                                    listPBSPDaCo.put("MaPhienBanSP", entry1.getKey());
+                                    listPBSPDaCo.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang.maChiTietPhieuNhap", entry.getKey());
+                                    listPBSPDaCo.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhienBanSanPham.maPhienBanSP", entry1.getKey());
                                     List<ChiTietPhieuNhapHangPhienBanSP> ctpnhPBSP = chiTietPhieuNhapHangPhienBanSPImp.timKiem(listPBSPDaCo);
-                                    System.out.println(ctpnhPBSP.get(0));
                                     ctpnhPBSP.get(0).setSoLuongNhap(Integer.parseInt(entry1.getValue()));
                                     chiTietPhieuNhapHangPhienBanSPImp.capNhat(ctpnhPBSP.get(0));
                                 }
@@ -621,7 +617,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
 
         /*NÚT SỬA*/
         if(op.equals(nhapHangUI.getBtnSuaPhieuNhap())){
-            // Thực hiện biến đổi các nút thành nút chức năng của nghiệp vụ sửa nhân viên
+            // Thực hiện biến đổi các nút thành nút chức năng của nghiệp vụ sua phieu nhap
             if (trangThaiNutSuaPN==0) {
                 //Mở tương tác với thông tin
                 DefaultTableModel tmPhieu = (DefaultTableModel) nhapHangUI.getTbDanhSachPheiNhap().getModel();
@@ -648,7 +644,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 trangThaiNutSuaPN = 1;
                 trangThaiNutXuatFilePN = 1;
             }
-            // Thực hiện xóa trắng dữ liệu ở nghiệp vụ sửa thông tín nhân viên
+            // Thực hiện xóa trắng dữ liệu ở nghiệp vụ sửa thông tín phieu nhap
             else if(trangThaiNutSuaPN==1) {
                 return;
             }
@@ -683,6 +679,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                             }
                             ctpn = new ChiTietPhieuNhapHang(entry.getKey(), pnh, sp, gia);
                             chiTietPhieuNhapHangImp.them(ctpn);
+
                             Map<String, String> listPBSP = (Map<String, String>) listSPDaChon.get(entry.getValue());
                             for(Map.Entry<String, String> entry1 : listPBSP.entrySet()){
                                 ChiTietPhienBanSanPham pbsp = chiTietPhienBanSanPhamImp.timKiem(entry1.getKey());
@@ -691,10 +688,11 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                                 chiTietPhieuNhapHangPhienBanSPImp.them(ctpnhPBSP);
                             }
                         }
-                        JOptionPane.showMessageDialog(null, "Thêm phiếu nhập và duyệt phiếu thành công!");
+                        JOptionPane.showMessageDialog(null, "Thêm phiếu nhập thành công!");
                         loadPhieuNhap();
                         listMaCTPN = new HashMap<>();
                         listSPDaChon = new HashMap<>();
+
                         nhapHangUI.getBtnThemPhieuNhap().setText("Thêm phiếu nhập");
                         nhapHangUI.getBtnSuaPhieuNhap().setText("Sửa phiếu nhập");
                         nhapHangUI.getBtnXuatFile().setText("Xóa phiếu chờ");
@@ -715,7 +713,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
 
         /*NÚT XÓA PHIẾU CHỜ*/
         if (op.equals(nhapHangUI.getBtnXuatFile())) {
-            // Thực hiện chức năng nghiệp vụ xóa nhân viên
+            // Thực hiện chức năng nghiệp vụ xóa phieu nhap
             if (trangThaiNutXuatFilePN==0) {
                 DefaultTableModel tmPhieuNhap = (DefaultTableModel) nhapHangUI.getTbDanhSachPheiNhap().getModel();
                 DefaultTableModel tmGioHang = (DefaultTableModel) nhapHangUI.getTbDanhSachSpTrongGioHang().getModel();
@@ -733,10 +731,13 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                     int result = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn xóa phiếu nhập có mã " + MaPN + " không?", "Lựa chọn", JOptionPane.YES_NO_OPTION);
                     if(result == JOptionPane.YES_OPTION){
                         try {
-                            for(Map.Entry entry : listMaCTPNXem.entrySet()){
-                                chiTietPhieuNhapHangPhienBanSPImp.xoa(entry.getKey().toString());
-                            }
-                            chiTietPhieuNhapHangImp.xoa(MaPN);
+//                            for(Map.Entry entry : listMaCTPNXem.entrySet()){
+//
+//                                chiTietPhieuNhapHangPhienBanSPImp.xoa(entry.getKey().toString());
+////                                System.out.println(entry.getKey().toString() + entry.getValue().toString());
+//                            }
+//                            chiTietPhieuNhapHangImp.xoa(MaPN);
+                            phieuNhapHangImp = new PhieuNhapHangImp();
                             phieuNhapHangImp.xoa(MaPN);
                         } catch (Exception ex) {
                             throw new RuntimeException(ex);
@@ -788,14 +789,14 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 if(!nhapHangUI.getCbTkNhaCungCap().getSelectedItem().equals("--Nhà cung cấp--")){
                     List<NhaCungCap> ncc;
                     Map<String, Object> conditions = new HashMap<>();
-                    conditions.put("TenNCC", nhapHangUI.getCbTkNhaCungCap().getSelectedItem().toString());
+                    conditions.put("tenNCC", nhapHangUI.getCbTkNhaCungCap().getSelectedItem().toString());
                     try {
                         ncc = nhaCungCapImp.timKiem(conditions);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
                     Map<String, Object> conditions1 = new HashMap<>();
-                    conditions1.put("MaNCC", ncc.get(0).getMaNCC());
+                    conditions1.put("nhaCungCap.maNCC", ncc.get(0).getMaNCC());
                     try {
                         dsLoc = phieuNhapHangImp.timKiem(conditions1);
                     } catch (Exception ex) {
@@ -813,7 +814,9 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 }
                 else if (!nhapHangUI.getCbTkTinhTrang().getSelectedItem().equals("--Tình trạng--")) {
                     Map<String, Object> conditions = new HashMap<>();
-                    conditions.put("TinhTrang", nhapHangUI.getCbTkTinhTrang().getSelectedItem().toString());
+                    String tt = nhapHangUI.getCbTkTinhTrang().getSelectedItem().toString();
+                    TinhTrangNhapHang value = TinhTrangNhapHang.valueOf(tt);
+                    conditions.put("tinhTrang", value);
                     try {
                         dsLoc = phieuNhapHangImp.timKiem(conditions);
                     } catch (Exception ex) {
@@ -830,7 +833,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
             }
             else if (nhapHangUI.getjDateChooserTkNgayHenGiao().getDate() != null) {
                 Map<String,Object> conditions = new HashMap<>();
-                conditions.put("NgayHenGiao", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayHenGiao().getDate()));
+                conditions.put("ngayHenGiao", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayHenGiao().getDate()));
                 try {
                     dsLoc = phieuNhapHangImp.timKiem(conditions);
                 } catch (Exception ex) {
@@ -903,7 +906,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
             }
             else if (nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate() != null) {
                 Map<String,Object> conditions = new HashMap<>();
-                conditions.put("NgayLapPhieu", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate()));
+                conditions.put("ngayLapPhieu", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate()));
                 try {
                     dsLoc = phieuNhapHangImp.timKiem(conditions);
                 } catch (Exception ex) {
@@ -998,19 +1001,17 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 nhapHangUI.getBtnTrangThaiPhieu().setVisible(false);
                 nhapHangUI.getCbkDangLayHang().setSelected(true);
                 nhapHangUI.getCbkHoanThanh().setSelected(true);
-                String []columnNames = {"MaPhienBanSP","SoLuong"};
-                System.out.println(listMaCTPNXem);
+                String []columnNames = {"chiTietPhieuNhapHangPhienBanSPId.chiTietPhienBanSanPham.maPhienBanSP",
+                        "soLuongNhap"};
                 for(Map.Entry<String, String> entry : listMaCTPNXem.entrySet()){
-                    System.out.println(entry.getKey());
                     Map<String, Object> listCTPN = new HashMap<>();
-                    listCTPN.put("MaChiTietPhieuNhap", entry.getKey());
+                    listCTPN.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang.maChiTietPhieuNhap", entry.getKey());
                     try {
                         List<Map<String, Object>> ctpnhPBSP = chiTietPhieuNhapHangPhienBanSPImp.timKiem(listCTPN,false,columnNames);
                         for(Map<String, Object> entry1 : ctpnhPBSP){
-                            ChiTietPhienBanSanPham pbsp = chiTietPhienBanSanPhamImp.timKiem(entry1.get("MaPhienBanSP").toString());
-                            System.out.println(pbsp);
-                            pbsp.setSoLuong(pbsp.getSoLuong()+Integer.parseInt(entry1.get("SoLuong").toString()));
-                            System.out.println(pbsp);
+                            ChiTietPhienBanSanPham pbsp = chiTietPhienBanSanPhamImp.timKiem(entry1.get("chiTietPhieuNhapHangPhienBanSPId.chiTietPhienBanSanPham.maPhienBanSP").toString());
+                            pbsp.setSoLuong(pbsp.getSoLuong()+Integer.parseInt(entry1.get("soLuongNhap").toString()));
+
                             chiTietPhienBanSanPhamImp.capNhat(pbsp);
                         }
                     } catch (Exception ex) {
@@ -1043,7 +1044,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
     public int laysoDuoiMaPN(){
         String nThem = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaPhieuNhap", "%"+nThem+"%");
+        conditions.put("maPhieuNhap", "%"+nThem+"%");
         List<PhieuNhapHang> phieuNhapHangs;
         try {
             phieuNhapHangs = phieuNhapHangImp.timKiem(conditions);
@@ -1101,7 +1102,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
     public int laysoDuoiMaCTPN(){
         String nThem = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("MaChiTietPhieuNhap", "%"+nThem+"%");
+        conditions.put("maChiTietPhieuNhap", "%"+nThem+"%");
         List<ChiTietPhieuNhapHang> ctpnh;
         try {
             ctpnh = chiTietPhieuNhapHangImp.timKiem(conditions);
@@ -1136,7 +1137,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 if(nhapHangUI.getCbTkNhaCungCap().getSelectedItem().equals("--Nhà cung cấp--") && nhapHangUI.getCbTkTinhTrang().getSelectedItem().equals("--Tình trạng--")){
                     if (nhapHangUI.getjDateChooserTkNgayHenGiao().getDate() != null){
                         Map<String, Object> conditions = new HashMap<>();
-                        conditions.put("NgayHenGiao", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayHenGiao().getDate()));
+                        conditions.put("ngayHenGiao", "%"+dateToLocalDate(nhapHangUI.getjDateChooserTkNgayHenGiao().getDate())+"%");
                         try {
                             dsLoc = phieuNhapHangImp.timKiem(conditions);
                         } catch (Exception e) {
@@ -1154,7 +1155,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                     }
                     else if(nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate() != null){
                         Map<String, Object> conditions = new HashMap<>();
-                        conditions.put("NgayLapPhieu", dateToLocalDate(nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate()));
+                        conditions.put("ngayLapPhieu", "%"+dateToLocalDate(nhapHangUI.getjDateChooserTkNgayLapPhieu().getDate())+"%");
                         try {
                             dsLoc = phieuNhapHangImp.timKiem(conditions);
                         } catch (Exception e) {
@@ -1171,14 +1172,14 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 else if(!nhapHangUI.getCbTkNhaCungCap().getSelectedItem().equals("--Nhà cung cấp--")) {
                     List<NhaCungCap> ncc;
                     Map<String, Object> conditions = new HashMap<>();
-                    conditions.put("TenNCC", nhapHangUI.getCbTkNhaCungCap().getSelectedItem().toString());
+                    conditions.put("tenNCC", nhapHangUI.getCbTkNhaCungCap().getSelectedItem().toString());
                     try {
                         ncc = nhaCungCapImp.timKiem(conditions);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
                     Map<String, Object> conditions1 = new HashMap<>();
-                    conditions1.put("MaNCC", ncc.get(0).getMaNCC());
+                    conditions1.put("nhaCungCap.maNCC", ncc.get(0).getMaNCC());
                     try {
                         dsLoc = phieuNhapHangImp.timKiem(conditions1);
                     } catch (Exception ex) {
@@ -1249,7 +1250,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 }
                 else if (!nhapHangUI.getCbTkTinhTrang().getSelectedItem().equals("--Tình trạng--")){
                     Map<String, Object> conditions = new HashMap<>();
-                    conditions.put("TinhTrang", nhapHangUI.getCbTkTinhTrang().getSelectedItem().toString());
+                    conditions.put("tinhTrang", nhapHangUI.getCbTkTinhTrang().getSelectedItem().toString());
                     try {
                         dsLoc = phieuNhapHangImp.timKiem(conditions);
                     } catch (Exception e) {
@@ -1388,7 +1389,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
         String mapn = nhapHangUI.getTxtMaPhieuNhap().getText();
         List<NhaCungCap> nhaCC = new ArrayList<>();
         Map<String, Object> conditions = new HashMap<>();
-        conditions.put("TenNCC", nhapHangUI.getTxtNhaCungCap().getText());
+        conditions.put("tenNCC", nhapHangUI.getTxtNhaCungCap().getText());
         try {
             nhaCC = nhaCungCapImp.timKiem(conditions);
         } catch (Exception e) {
@@ -1474,7 +1475,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 DefaultTableModel tmPNH = (DefaultTableModel) nhapHangUI.getTbDanhSachPheiNhap().getModel();
                 int rowSelected = nhapHangUI.getTbDanhSachPheiNhap().getSelectedRow();
                 String maPN = tmPNH.getValueAt(rowSelected, 0).toString();
-                Optional<ChiTietPhieuNhapHang> ctpnh;
+                List<ChiTietPhieuNhapHang> ctpnh;
                 try {
                     ctpnh = chiTietPhieuNhapHangImp.timKiem(maPN, maSP);
                 } catch (Exception e) {
@@ -1482,7 +1483,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 }
                 List<ChiTietPhieuNhapHangPhienBanSP> ct;
                 Map<String, Object> conditons = new HashMap<>();
-                conditons.put("MaChiTietPhieuNhap", ctpnh.get().getMaChiTietPhieuNhap());
+                conditons.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang.maChiTietPhieuNhap", ctpnh.get(0).getMaChiTietPhieuNhap());
                 try {
                     ct = chiTietPhieuNhapHangPhienBanSPImp.timKiem(conditons);
                 } catch (Exception e) {
@@ -1492,7 +1493,10 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 tmPBSP.setRowCount(0);
                 nhapHangUI.getTblChonPBSP().setModel(tmPBSP);
                 for(ChiTietPhieuNhapHangPhienBanSP ctPNHPhienBanSP : ct){
-//                    tmPBSP.addRow(new Object[]{ctPNHPhienBanSP.getChiTietPhienBanSanPham().getMaPhienBanSP(), ctPNHPhienBanSP.getChiTietPhienBanSanPham().getMauSac(), ctPNHPhienBanSP.getChiTietPhienBanSanPham().getKichThuoc(), ctPNHPhienBanSP.getSoLuongNhap(), true});
+                    tmPBSP.addRow(new Object[]{ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getMaPhienBanSP(),
+                            ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getMauSac(),
+                            ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getKichThuoc(),
+                            ctPNHPhienBanSP.getSoLuongNhap(), true});
                 }
                 nhapHangUI.getTxtMaSPBangChonPBSP().setText(maSP);
                 nhapHangUI.getTblChonPBSP().setEnabled(false);
@@ -1509,7 +1513,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 DefaultTableModel tmPNH = (DefaultTableModel) nhapHangUI.getTbDanhSachPheiNhap().getModel();
                 int rowSelected = nhapHangUI.getTbDanhSachPheiNhap().getSelectedRow();
                 String maPN = tmPNH.getValueAt(rowSelected, 0).toString();
-                Optional<ChiTietPhieuNhapHang> ctpnh;
+                List<ChiTietPhieuNhapHang> ctpnh;
                 try {
                     ctpnh = chiTietPhieuNhapHangImp.timKiem(maPN, maSP);
                 } catch (Exception e) {
@@ -1518,7 +1522,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
 
                 List<ChiTietPhieuNhapHangPhienBanSP> ct;
                 Map<String, Object> conditons = new HashMap<>();
-                conditons.put("MaChiTietPhieuNhap", ctpnh.get().getMaChiTietPhieuNhap());
+                conditons.put("chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang.maChiTietPhieuNhap", ctpnh.get(0).getMaChiTietPhieuNhap());
                 try {
                     ct = chiTietPhieuNhapHangPhienBanSPImp.timKiem(conditons);
                 } catch (Exception e) {
@@ -1528,7 +1532,10 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 tmPBSP.setRowCount(0);
                 nhapHangUI.getTblChonPBSP().setModel(tmPBSP);
                 for(ChiTietPhieuNhapHangPhienBanSP ctPNHPhienBanSP : ct){
-//                    tmPBSP.addRow(new Object[]{ctPNHPhienBanSP.getChiTietPhienBanSanPham().getMaPhienBanSP(), ctPNHPhienBanSP.getChiTietPhienBanSanPham().getMauSac(), ctPNHPhienBanSP.getChiTietPhienBanSanPham().getKichThuoc(), ctPNHPhienBanSP.getSoLuongNhap(), true});
+                    tmPBSP.addRow(new Object[]{ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getMaPhienBanSP(),
+                            ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getMauSac(),
+                            ctPNHPhienBanSP.getChiTietPhieuNhapHangPhienBanSPId().getChiTietPhienBanSanPham().getKichThuoc(),
+                            ctPNHPhienBanSP.getSoLuongNhap(), true});
                 }
                 nhapHangUI.getTxtMaSPBangChonPBSP().setText(maSP);
                 nhapHangUI.getTblChonPBSP().setEnabled(true);
