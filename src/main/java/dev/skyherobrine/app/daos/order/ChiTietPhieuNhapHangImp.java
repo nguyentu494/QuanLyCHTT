@@ -126,6 +126,7 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
         }
     }
 
+    @Override
     public List<ChiTietPhieuNhapHang> timKiemHaiBang(Map<String, Object> conditions) throws RemoteException {
         return em.createNamedQuery("CTPNH.findByDayAndMaSP", ChiTietPhieuNhapHang.class)
                 .setParameter("ngayNhap", conditions.get("ngay_lap"))
