@@ -115,6 +115,7 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
                 }
             }
         }
+        System.out.println(query.get());
         List<ChiTietPhienBanSanPham> chiTietPhienBanSanPhams = new ArrayList<>();
         try {
             tx.begin();
@@ -198,9 +199,8 @@ public class ChiTietPhienBanSanPhamImp extends UnicastRemoteObject implements Ch
                 q.setParameter(entry.getKey(), entry.getValue());
             }
         }
-
-        List<Map<String, Object>> listResult = new ArrayList<>();
         System.out.println(query.get());
+        List<Map<String, Object>> listResult = new ArrayList<>();
         List<Object[]> results = q.getResultList();
         for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();

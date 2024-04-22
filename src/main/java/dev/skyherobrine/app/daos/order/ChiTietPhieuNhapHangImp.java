@@ -190,6 +190,7 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
         return listResult;
     }
 
+    //Đổi Optional thành List
     @Override
     public List<ChiTietPhieuNhapHang> timKiem(String maPhieuNhap, String maSP) throws RemoteException{
         EntityTransaction et = em.getTransaction();

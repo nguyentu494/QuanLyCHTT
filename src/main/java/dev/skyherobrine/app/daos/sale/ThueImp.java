@@ -106,7 +106,6 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
         }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
-        System.out.println(query.get());
         List<Object[]> results = q.getResultList();
         for (Object[] result : results) {
             Map<String, Object> rowDatas = new HashMap<>();
@@ -128,7 +127,7 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
                     String ex = key.substring(key.lastIndexOf(".")+1);
                     query.set(query + " AND th."+ key +" LIKE :"+ ex);
                 }else{
-                    query.set(query + " AND th."+ key +" LIKE :"+ key);
+                    query.set(query + " AND cast( th."+ key +" as String ) LIKE :"+ key);
                 }
             }
         }
