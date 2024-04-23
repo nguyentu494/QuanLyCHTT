@@ -2,6 +2,7 @@ package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ChiTietHoaDonDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
+import dev.skyherobrine.app.daos.HoaDonDAO;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
 import dev.skyherobrine.app.entities.order.HoaDon;
 import jakarta.persistence.EntityManager;
@@ -30,6 +31,7 @@ public class ChiTietHoaDonImp extends UnicastRemoteObject implements ChiTietHoaD
             et.begin();
             em.persist(chiTietHoaDon);
             et.commit();
+            new HoaDonImp();
             return true;
         } catch (Exception e) {
             et.rollback();
