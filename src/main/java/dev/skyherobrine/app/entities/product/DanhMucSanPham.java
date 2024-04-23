@@ -26,7 +26,7 @@ public class DanhMucSanPham implements Serializable {
 	@Id
     @Column(name = "ma_dm", nullable = false)
     private String maDM;
-    @Column(name = "ten_dm", nullable = false)
+    @Column(name = "ten_dm", nullable = false, columnDefinition = "nvarchar(255)")
     private String tenDM;
 
     public DanhMucSanPham(String maDM, String tenDM) {

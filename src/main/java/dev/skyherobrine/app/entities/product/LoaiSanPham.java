@@ -22,7 +22,7 @@ public class LoaiSanPham implements Serializable {
 	@Id
     @Column(name = "ma_loai", nullable = false)
     private String maLoai;
-    @Column(name = "ten_loai", nullable = false)
+    @Column(name = "ten_loai", nullable = false, columnDefinition = "nvarchar(255)")
     private String tenLoai;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_dm", nullable = false)

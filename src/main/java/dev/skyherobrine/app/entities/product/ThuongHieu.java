@@ -26,7 +26,7 @@ public class ThuongHieu implements Serializable {
 	@Id
     @Column(name = "ma_th", nullable = false)
     private String maTH;
-    @Column(name = "ten_th", nullable = false)
+    @Column(name = "ten_th", nullable = false, columnDefinition = "nvarchar(255)")
     private String tenTH;
     @Enumerated(value = EnumType.STRING)
     @Column(name = "tinh_trang", nullable = false)
