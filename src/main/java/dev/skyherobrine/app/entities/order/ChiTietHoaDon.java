@@ -24,7 +24,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
+@NamedQueries(
+        {
+                @NamedQuery(name = "CTHD.findAll", query = "SELECT cthd FROM ChiTietHoaDon cthd"),
+                @NamedQuery(name = "CTHD.findByID", query = "SELECT cthd FROM ChiTietHoaDon cthd WHERE cthd.chiTietHoaDonId = :id"),
+                @NamedQuery(name = "CTHD.findByMaHD", query = "SELECT cthd FROM ChiTietHoaDon cthd WHERE cthd.chiTietHoaDonId.hoaDon.maHD = :maHD")
+        }
+)
 public class ChiTietHoaDon implements Serializable {
     /**
 	 * 

@@ -23,7 +23,8 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "HD.findAll", query = "SELECT hd FROM HoaDon hd"),
         @NamedQuery(name = "HD.findByID", query = "SELECT hd FROM HoaDon hd WHERE hd.maHD = :id"),
-        @NamedQuery(name = "HD.orderByDate", query = "SELECT hd FROM HoaDon hd WHERE (current_date - hd.ngayLap) >= 7 ORDER BY hd.ngayLap ASC")
+        @NamedQuery(name = "HD.findTop30", query = "SELECT hd FROM HoaDon hd ORDER BY hd.ngayLap ASC LIMIT 30"),
+        @NamedQuery(name = "HD.findByDate", query = "SELECT hd FROM HoaDon hd WHERE (current_date - hd.ngayLap) >= 7"),
 })
 @NamedNativeQueries({
 })
@@ -38,10 +39,10 @@ public class HoaDon implements Serializable {
     private String maHD;
     @Column(name = "ngay_lap", nullable = false)
     private LocalDateTime ngayLap;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_nv", nullable = false)
     private NhanVien nhanVienLap;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_kh", nullable = false)
     private KhachHang khachHang;
     @Column(name = "so_tien_kh_tra", nullable = false)

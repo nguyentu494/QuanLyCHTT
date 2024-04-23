@@ -10,10 +10,15 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
+import java.io.File;
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,7 +78,7 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
         EntityTransaction et = em.getTransaction();
         try{
             et.begin();
-              List<HoaDon> hoaDons =   em.createNamedQuery("HD.orderByDate", HoaDon.class).getResultList();
+              List<HoaDon> hoaDons = em.createNamedQuery("HD.findAll", HoaDon.class).getResultList();
             et.commit();
             return hoaDons;
         }catch (Exception e){
@@ -199,5 +204,23 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
             listResult.add(rowDatas);
         }
         return listResult;
+    }
+    @Override
+    public List<HoaDon> timKiemTop30() throws Exception{
+        return em.createNamedQuery("HD.findTop30", HoaDon.class).getResultList();
+    }
+
+    @Override
+    public JasperPrint xuatHoaDon(Map<String, Object> data) throws JRException, RemoteException, SQLException {
+        JasperDesign jasperDesign = JRXmlLoader.load(new File("src/main/resources/HoaDon/hoadon.jrxml"));
+        JasperReport jreport = JasperCompileManager.compileReport(jasperDesign);
+        Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT1;encrypt=false;trustServerCertificate=true", "sa", "123");
+        JasperPrint jprint = JasperFillManager.fillReport(jreport, data, con);
+        return jprint;
+    }
+
+    @Override
+    public List<HoaDon> timKiemHoaDonTheoNgay() throws Exception {
+        return em.createNamedQuery("HD.findByDate", HoaDon.class).getResultList();
     }
 }

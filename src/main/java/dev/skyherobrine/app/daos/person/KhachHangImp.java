@@ -87,9 +87,9 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
             for (String key : conditions.keySet()) {
                 if(key.contains(".")){
                     String ex = key.substring(key.lastIndexOf(".")+1);
-                    query.set(query + " AND kh."+ key +" LIKE :"+ ex);
+                    query.set(query + " AND CAST( kh."+ key +" as String) LIKE :"+ ex);
                 }else{
-                    query.set(query + " AND kh."+ key +" LIKE :"+ key);
+                    query.set(query + " AND CAST( kh."+ key +" as String) LIKE :"+ key);
                 }
             }
         }

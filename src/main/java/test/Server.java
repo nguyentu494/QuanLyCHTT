@@ -53,6 +53,8 @@ public class Server {
         ChiTietPhieuNhapHangPhienBanSPDAO<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPDAO = new ChiTietPhieuNhapHangPhienBanSPImp();
         HoaDonDAO<HoaDon> hoaDonDAO = new HoaDonImp();
         PhieuNhapHangDAO<PhieuNhapHang> phieuNhapHangDAO = new PhieuNhapHangImp();
+        PhieuTraKhachHangDAO<PhieuTraKhachHang> phieuTraKhachHangDAO = new PhieuTraKhachHangImp();
+        ChiTietPhieuTraKhachHangDAO<ChiTietPhieuTraKhachHang> chiTietPhieuTraKhachHangDAO = new ChiTietPhieuTraKhachHangImp();
 
 
 //        System.out.println(nhanVienDAO.timKiem("NV-20231020-001").get());
@@ -74,6 +76,8 @@ public class Server {
         context.bind(URL + "chiTietPhieuNhapHangPhienBanSPDAO", chiTietPhieuNhapHangPhienBanSPDAO);
         context.bind(URL + "hoaDonDAO", hoaDonDAO);
         context.bind(URL + "phieuNhapHangDAO", phieuNhapHangDAO);
+        context.bind(URL + "phieuTraKhachHangDAO", phieuTraKhachHangDAO);
+        context.bind(URL + "chiTietPhieuTraKhachHangDAO", chiTietPhieuTraKhachHangDAO);
 
 
         System.out.println("Server is running...");

@@ -64,7 +64,6 @@ public class PhieuTraKhachHangImp extends UnicastRemoteObject implements PhieuTr
             return phieuTraKhachHangs;
         } catch (Exception e) {
             et.rollback();
-            e.printStackTrace();
             return null;
         }
 //        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery

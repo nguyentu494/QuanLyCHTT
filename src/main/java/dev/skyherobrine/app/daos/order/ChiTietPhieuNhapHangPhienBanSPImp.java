@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ChiTietPhieuNhapHangPhienBanSPDAO;
+import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHangPhienBanSP;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import jakarta.persistence.EntityManager;
@@ -202,4 +203,5 @@ public class ChiTietPhieuNhapHangPhienBanSPImp extends UnicastRemoteObject imple
     public List<ChiTietPhieuNhapHangPhienBanSP> timKiem(String... ids) throws RemoteException {
         return null;
     }
+
 }

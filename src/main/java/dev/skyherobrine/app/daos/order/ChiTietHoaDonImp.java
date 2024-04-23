@@ -3,9 +3,11 @@ package dev.skyherobrine.app.daos.order;
 import dev.skyherobrine.app.daos.ChiTietHoaDonDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
+import dev.skyherobrine.app.entities.order.HoaDon;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
@@ -52,33 +54,47 @@ public class ChiTietHoaDonImp extends UnicastRemoteObject implements ChiTietHoaD
 
     @Override
     public List<ChiTietHoaDon> timKiem() throws Exception {
-        ResultSet resultSet = connectDB.getConnection().createStatement().executeQuery
-                ("select * from ChiTietHoaDon");
-        List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
-        while(resultSet.next()) {
-            ChiTietHoaDon chiTietHoaDon = new ChiTietHoaDon();
-//                    (new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get(),
-//                     new ChiTietPhienBanSanPhamDAO().timKiem(resultSet.getString("MaPhienBanSP")).get(),
-//                     resultSet.getInt("SoLuongMua"));
-
-            chiTietHoaDons.add(chiTietHoaDon);
-        }
-        return chiTietHoaDons;
+        return em.createNamedQuery("CTHD.findAll", ChiTietHoaDon.class).getResultList();
     }
 
     @Override
     public List<ChiTietHoaDon> timKiem(Map<String, Object> conditions) throws Exception {
-        AtomicReference<String> query = new AtomicReference<>
-                ("select * from ChiTietHoaDon cthd where ");
-        AtomicBoolean isNeedAnd = new AtomicBoolean(false);
+        EntityTransaction tx = em.getTransaction();
+        AtomicReference<String> query = new AtomicReference<>("select cthd from ChiTietHoaDon cthd where 1 = 1");
+        if (conditions != null && !conditions.isEmpty()) {
+            for (String key : conditions.keySet()) {
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND cthd."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND cthd."+ key +" LIKE :"+ key);
+                }
+            }
+        }
+        Query q = em.createQuery(query.get(), ChiTietHoaDon.class);
 
-        conditions.forEach((column, value) -> {
-            query.set(query.get() + (isNeedAnd.get() ? " and " : "") + ("cthd." + column + " like '%" + value + "%'"));
-            isNeedAnd.set(true);
-        });
+        System.out.println(query.get());
 
-        List<ChiTietHoaDon> chiTietHoaDons = em.createNativeQuery(query.get(), ChiTietHoaDon.class).getResultList();
-        return chiTietHoaDons;
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        List<ChiTietHoaDon> chiTietHoaDons = new ArrayList<>();
+        try {
+            tx.begin();
+            chiTietHoaDons = q.getResultList();
+            tx.commit();
+            return chiTietHoaDons;
+        } catch (Exception e) {
+            tx.rollback();
+            return null;
+        }
     }
 
     @Override

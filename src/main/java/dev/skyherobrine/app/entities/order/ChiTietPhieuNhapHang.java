@@ -40,6 +40,7 @@ public class ChiTietPhieuNhapHang implements Serializable {
     @Column(name = "gia_nhap", nullable = false)
     private double giaNhap;
 
+
     @OneToMany(mappedBy = "chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs;
 

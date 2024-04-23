@@ -1,6 +1,7 @@
 package dev.skyherobrine.app.daos.order;
 
 import dev.skyherobrine.app.daos.ChiTietPhieuNhapHangDAO;
+import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
 import dev.skyherobrine.app.entities.order.ChiTietPhieuNhapHang;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import jakarta.persistence.EntityManager;
@@ -207,4 +208,6 @@ public class ChiTietPhieuNhapHangImp extends UnicastRemoteObject implements ChiT
             return null;
         }
     }
+
+
 }

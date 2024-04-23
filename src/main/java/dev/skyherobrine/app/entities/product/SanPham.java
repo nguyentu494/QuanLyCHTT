@@ -38,7 +38,7 @@ public class SanPham implements Serializable {
 	@Id
     @Column(name = "ma_sp", nullable = false)
     private String maSP;
-    @Column(name = "ten_sp", nullable = false)
+    @Column(name = "ten_sp", nullable = false, columnDefinition = "nvarchar(255)")
     private String tenSP;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_loai", nullable = false)
@@ -49,7 +49,7 @@ public class SanPham implements Serializable {
     @Column(name = "do_tuoi", nullable = false)
     @Enumerated(EnumType.STRING)
     private DoTuoi doTuoi;
-    @Column(name = "xuat_xu", nullable = false)
+    @Column(name = "xuat_xu", nullable = false, columnDefinition = "nvarchar(255)")
     private String xuatXu;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_th", nullable = false)
