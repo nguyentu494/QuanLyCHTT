@@ -138,6 +138,16 @@ public class DanhMucSanPhamImp extends UnicastRemoteObject implements DanhMucSan
             }
         }
         Query q = em.createQuery(query.get());
+        if (conditions != null && !conditions.isEmpty()) {
+            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
+            }
+        }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
         System.out.println(query.get());
