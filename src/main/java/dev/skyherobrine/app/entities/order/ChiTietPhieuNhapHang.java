@@ -31,16 +31,16 @@ public class ChiTietPhieuNhapHang implements Serializable {
 	@Id
     @Column(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private String maChiTietPhieuNhap;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_phieu_nhap", nullable = false)
     private PhieuNhapHang phieuNhapHang;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_sp", nullable = false)
     private SanPham sanPham;
     @Column(name = "gia_nhap", nullable = false)
     private double giaNhap;
 
-    @OneToMany(mappedBy = "chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs;
 
     public ChiTietPhieuNhapHang(String maChiTietPhieuNhap, PhieuNhapHang phieuNhapHang, SanPham sanPham, double giaNhap) throws Exception{

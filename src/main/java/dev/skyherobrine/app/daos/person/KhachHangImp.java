@@ -158,7 +158,7 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
         AtomicBoolean canPhay = new AtomicBoolean(false);
 
         Arrays.stream(colNames).forEach(column -> {
-            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
+            query.set(query.get() + (canPhay.get() ? "," : "") + column);
             canPhay.set(true);
         });
 
@@ -166,14 +166,24 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND t."+key+" LIKE :"+key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND t."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND t."+ key +" LIKE :"+ key);
+                }
             }
         }
         Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
 

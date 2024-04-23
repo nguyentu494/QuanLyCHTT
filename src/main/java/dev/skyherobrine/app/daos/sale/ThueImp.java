@@ -86,24 +86,23 @@ public class ThueImp extends UnicastRemoteObject implements ThueDAO<Thue> {
         AtomicBoolean canPhay = new AtomicBoolean(false);
 
         Arrays.stream(colNames).forEach(column -> {
-            query.set(query.get() + (canPhay.get() ? "," : "") + "t."+column);
+            query.set(query.get() + (canPhay.get() ? "," : "") + column);
             canPhay.set(true);
         });
 
-        query.set(query.get() + " from Thue t where 1 = 1");
+        query.set(query.get() + " from Thue t  where 1 = 1");
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND t."+key+" LIKE :"+key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND t."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND t."+ key +" LIKE :"+ key);
+                }
             }
         }
         Query q = em.createQuery(query.get());
-
-        if (conditions != null && !conditions.isEmpty()) {
-            for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
-            }
-        }
 
         List<Map<String, Object>> listResult = new ArrayList<>();
         List<Object[]> results = q.getResultList();

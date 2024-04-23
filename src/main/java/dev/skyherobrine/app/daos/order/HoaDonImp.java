@@ -159,22 +159,32 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
         AtomicBoolean canPhay = new AtomicBoolean(false);
 
         Arrays.stream(colNames).forEach(column -> {
-            query.set(query.get() + (canPhay.get() ? "," : "") + "hd."+column);
+            query.set(query.get() + (canPhay.get() ? "," : "") + column);
             canPhay.set(true);
         });
 
-        query.set(query.get() + " from HoaDon hd where 1 = 1");
+        query.set(query.get() + " from HoaDon t where 1 = 1");
 
         if (conditions != null && !conditions.isEmpty()) {
             for (String key : conditions.keySet()) {
-                query.set(query + " AND t."+key+" LIKE :"+key);
+                if(key.contains(".")){
+                    String ex = key.substring(key.lastIndexOf(".")+1);
+                    query.set(query + " AND t."+ key +" LIKE :"+ ex);
+                }else{
+                    query.set(query + " AND t."+ key +" LIKE :"+ key);
+                }
             }
         }
         Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
-                q.setParameter(entry.getKey(), entry.getValue());
+                if(entry.getKey().contains(".")) {
+                    String ex = entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1);
+                    q.setParameter(ex, entry.getValue());
+                }else{
+                    q.setParameter(entry.getKey(), entry.getValue());
+                }
             }
         }
 

@@ -33,7 +33,7 @@ public class ChiTietPhieuNhapHangPhienBanSPId implements Serializable {
 	 */
 	@Serial
     private static final long serialVersionUID = 1L;
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private ChiTietPhieuNhapHang chiTietPhieuNhapHang;
     @ManyToOne(fetch = FetchType.EAGER)
