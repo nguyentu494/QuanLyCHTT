@@ -1001,7 +1001,7 @@ public class NhapHangController implements MouseListener, KeyListener, TableMode
                 nhapHangUI.getBtnTrangThaiPhieu().setVisible(false);
                 nhapHangUI.getCbkDangLayHang().setSelected(true);
                 nhapHangUI.getCbkHoanThanh().setSelected(true);
-                String []columnNames = {"chiTietPhieuNhapHangPhienBanSPId.chiTietPhienBanSanPham.maPhienBanSP",
+                String []columnNames = {"f",
                         "soLuongNhap"};
                 for(Map.Entry<String, String> entry : listMaCTPNXem.entrySet()){
                     Map<String, Object> listCTPN = new HashMap<>();
