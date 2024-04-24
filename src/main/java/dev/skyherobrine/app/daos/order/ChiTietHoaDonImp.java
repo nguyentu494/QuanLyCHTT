@@ -3,6 +3,8 @@ package dev.skyherobrine.app.daos.order;
 import dev.skyherobrine.app.daos.ChiTietHoaDonDAO;
 import dev.skyherobrine.app.daos.ConnectDB;
 import dev.skyherobrine.app.daos.HoaDonDAO;
+import dev.skyherobrine.app.daos.product.ChiTietPhienBanSanPhamImp;
+import dev.skyherobrine.app.entities.Key.ChiTietHoaDonId;
 import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
 import dev.skyherobrine.app.entities.order.HoaDon;
 import jakarta.persistence.EntityManager;
@@ -10,6 +12,7 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
 
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -108,49 +111,65 @@ public class ChiTietHoaDonImp extends UnicastRemoteObject implements ChiTietHoaD
     public List<ChiTietHoaDon> timKiem(String... ids) throws Exception {
         return null;
     }
-    public List<Map<String, Integer>> timKiem(String cols, String join, String query) throws SQLException {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+    @Override
+    public List<Map<String, Integer>> timKiem(String cols, String join, String query) throws SQLException, RemoteException {
+//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
+//                ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
+//
+//        ResultSet resultSet = preparedStatement.executeQuery();
         List<Map<String, Integer>> listResult = new ArrayList<>();
-        while (resultSet.next()) {
+        String sql = ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
+        listResult = em.createNativeQuery(sql).getResultList().stream().map(row -> {
+            Object[] o = (Object[]) row;
             Map<String, Integer> rowDatas = new HashMap<>();
-            rowDatas.put(resultSet.getString("TenSP"), resultSet.getInt("soLuongBan"));
-            listResult.add(rowDatas);
-        }
+            rowDatas.put((String) o[0], (Integer) o[1]);
+            return rowDatas;
+        }).toList();
         return listResult;
     }
-    public List<Map<String, Object>> timKiemHD(String cols, String join, String query) throws SQLException {
-        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
-                ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
+    @Override
+    public List<Map<String, Object>> timKiemHD(String cols, String join, String query) throws Exception {
+//        PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
+//                ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
+//
+//        ResultSet resultSet = preparedStatement.executeQuery();
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+        String sql = ("select " + cols + " from  ChiTietHoaDon " + join + " where " + query);
+
+
         List<Map<String, Object>> listResult = new ArrayList<>();
-        while (resultSet.next()) {
+        listResult = em.createNativeQuery(sql).getResultList().stream().map(row -> {
+            Object[] o = (Object[]) row;
             Map<String, Integer> rowDatas = new HashMap<>();
-            rowDatas.put(resultSet.getString("NgayLap"), resultSet.getInt("soLuongBan"));
+            rowDatas.put((String) o[2], (Integer) o[1]);
             Map<String, Object> rowDatas1 = new HashMap<>();
-            rowDatas1.put(resultSet.getString("MaSP"), rowDatas);
-            listResult.add(rowDatas1);
-        }
+            rowDatas1.put((String) o[0], rowDatas);
+            return rowDatas1;
+        }).toList();
+        System.out.println("SSSS"+sql);
+        System.out.println(listResult);
+//        while (resultSet.next()) {
+//            Map<String, Integer> rowDatas = new HashMap<>();
+//            rowDatas.put(resultSet.getString("NgayLap"), resultSet.getInt("soLuongBan"));
+//            Map<String, Object> rowDatas1 = new HashMap<>();
+//            rowDatas1.put(resultSet.getString("MaSP"), rowDatas);
+//            listResult.add(rowDatas1);
+//        }
         return listResult;
     }
-    public Optional<ChiTietHoaDon> timKiem(String maHD, String maPhienBanSP) throws Exception{
+    @Override
+    public ChiTietHoaDon timKiem(String maHD, String maPhienBanSP) throws Exception{
         PreparedStatement preparedStatement = connectDB.getConnection().prepareStatement
                 ("select * from ChiTietHoaDon where MaPhienBanSP = ? and MaHD = ?");
         preparedStatement.setString(1, maPhienBanSP);
         preparedStatement.setString(2, maHD);
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
-//            return Optional.of(new ChiTietHoaDon(new HoaDonDAO().timKiem(resultSet.getString("MaHD")).get(),
-//                    new ChiTietPhienBanSanPhamDAO().timKiem(resultSet.getString("MaPhienBanSP")).get(),
-//                    resultSet.getInt("SoLuongMua")));
-            return Optional.empty();
-        } else {
-            return Optional.empty();
-        }
+
+        ChiTietHoaDon chiTietHoaDon = em.find(ChiTietHoaDon.class, new ChiTietHoaDonId(new HoaDonImp().timKiem(maHD),
+                new ChiTietPhienBanSanPhamImp().timKiem(maPhienBanSP)));
+        return chiTietHoaDon;
     }
     @Override
     public List<Map<String, Object>> timKiem(Map<String, Object> conditions, boolean isDuplicateResult, String... colNames) throws Exception {

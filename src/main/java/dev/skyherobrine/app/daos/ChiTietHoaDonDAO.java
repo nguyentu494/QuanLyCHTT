@@ -1,6 +1,10 @@
 package dev.skyherobrine.app.daos;
 
+import dev.skyherobrine.app.entities.order.ChiTietHoaDon;
+
 import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,4 +131,8 @@ public interface ChiTietHoaDonDAO<T> extends Remote {
      * @since 1.0
      */
     List<T> timKiem(String...ids) throws Exception;
+
+    List<Map<String, Integer>> timKiem(String cols, String join, String query) throws SQLException, RemoteException;
+    List<Map<String, Object>> timKiemHD(String cols, String join, String query) throws Exception;
+    ChiTietHoaDon timKiem(String maHD, String maPhienBanSP) throws Exception;
 }
