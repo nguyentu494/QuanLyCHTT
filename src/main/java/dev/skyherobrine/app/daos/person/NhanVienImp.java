@@ -96,13 +96,14 @@ public class NhanVienImp extends UnicastRemoteObject implements NhanVienDAO<Nhan
             for (String key : conditions.keySet()) {
                 if(key.contains(".")){
                     String ex = key.substring(key.lastIndexOf(".")+1);
-                    query.set(query + " AND kh."+ key +" LIKE :"+ ex);
+                    query.set(query + " AND CAST ( kh."+ key +" as String) LIKE :"+ ex);
                 }else{
-                    query.set(query + " AND kh."+ key +" LIKE :"+ key);
+                    query.set(query + " AND CAST ( kh."+ key +" as String) LIKE :"+ key);
                 }
             }
         }
 
+        System.out.println(query.get());
         Query q = em.createQuery(query.get(), NhanVien.class);
 
         if (conditions != null && !conditions.isEmpty()) {
