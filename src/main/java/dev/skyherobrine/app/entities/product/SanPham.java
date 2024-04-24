@@ -20,6 +20,7 @@ import java.util.List;
 /**
  * Thực thể "Sản Phẩm", thực thể này dùng để lưu trữ thông tin sản phẩm trong cửa hàng, thông tin sản phẩm
  * sẽ được hiển thị thông tin chi tiết trên ứng dụng để nhân viên bán hàng có thể đọc được và quản lý.
+ *
  * @author Trương Dương Minh Nhật
  * @version 1.1
  */
@@ -32,11 +33,11 @@ import java.util.List;
 public class SanPham implements Serializable {
 
     /**
-	 * 
-	 */
-	@Serial
+     *
+     */
+    @Serial
     private static final long serialVersionUID = 1L;
-	@Id
+    @Id
     @Column(name = "ma_sp", nullable = false)
     private String maSP;
     @Column(name = "ten_sp", nullable = false, columnDefinition = "nvarchar(255)")
@@ -69,7 +70,7 @@ public class SanPham implements Serializable {
     @ToString.Exclude
     private List<ChiTietPhieuNhapHang> chiTietPhieuNhapHangs;
 
-    public SanPham(String maSP, String tenSP, LoaiSanPham loaiSanPham, PhongCachMac phongCachMac, DoTuoi doTuoi, String xuatXu, ThuongHieu thuongHieu, float phanTramLoi, LocalDate ngaySanXuat, Thue thue, TinhTrangSanPham tinhTrang) throws Exception{
+    public SanPham(String maSP, String tenSP, LoaiSanPham loaiSanPham, PhongCachMac phongCachMac, DoTuoi doTuoi, String xuatXu, ThuongHieu thuongHieu, float phanTramLoi, LocalDate ngaySanXuat, Thue thue, TinhTrangSanPham tinhTrang) throws Exception {
         this.setMaSP(maSP);
         this.setTenSP(tenSP);
         this.setLoaiSanPham(loaiSanPham);
@@ -96,10 +97,12 @@ public class SanPham implements Serializable {
      * Nếu tên sản phẩm rỗng thì sẽ xuất ra exception "Tên sản phẩm không được để trống!"
      */
     public void setTenSP(String tenSP) throws Exception {
-        if(!tenSP.equalsIgnoreCase(""))
+        if (!tenSP.equalsIgnoreCase(""))
             this.tenSP = tenSP;
-        else
+        else {
+            JOptionPane.showMessageDialog(null, "Tên sản phẩm không được để trống!");
             throw new Exception("Tên sản phẩm không được để trống!");
+        }
     }
 
     public void setLoaiSanPham(LoaiSanPham loaiSanPham) {
@@ -115,11 +118,12 @@ public class SanPham implements Serializable {
     }
 
     public void setXuatXu(String xuatXu) throws Exception {
-        if(!xuatXu.equalsIgnoreCase(""))
+        if (!xuatXu.equalsIgnoreCase(""))
             this.xuatXu = xuatXu;
-        else
+        else {
             JOptionPane.showMessageDialog(null, "Xuất xứ không được để trống!");
             throw new Exception("Xuất xứ không được để trống!");
+        }
     }
 
     public void setThuongHieu(ThuongHieu thuongHieu) {
@@ -153,11 +157,11 @@ public class SanPham implements Serializable {
     public double giaNhapGanNhat() {
         double giaBan = 0;
         LocalDateTime ngayNhap = null;
-        for(ChiTietPhieuNhapHang chiTietPhieuNhapHang : chiTietPhieuNhapHangs) {
-            if(ngayNhap == null) {
+        for (ChiTietPhieuNhapHang chiTietPhieuNhapHang : chiTietPhieuNhapHangs) {
+            if (ngayNhap == null) {
                 ngayNhap = chiTietPhieuNhapHang.getPhieuNhapHang().getNgayLapPhieu();
                 giaBan = chiTietPhieuNhapHang.getGiaNhap();
-            } else if(ngayNhap.isBefore(chiTietPhieuNhapHang.getPhieuNhapHang().getNgayLapPhieu())) {
+            } else if (ngayNhap.isBefore(chiTietPhieuNhapHang.getPhieuNhapHang().getNgayLapPhieu())) {
                 ngayNhap = chiTietPhieuNhapHang.getPhieuNhapHang().getNgayLapPhieu();
                 giaBan = chiTietPhieuNhapHang.getGiaNhap();
             }
