@@ -9,12 +9,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
+import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -96,12 +98,14 @@ public class PhieuTraKhachHangImp extends UnicastRemoteObject implements PhieuTr
                 }
             }
         }
+        System.out.println(query.get());
 
         Query q = em.createQuery(query.get(), PhieuTraKhachHang.class);
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {
                 if(entry.getKey().contains(".")){
+                    System.out.println(entry.getKey() + " asss" + entry.getValue());
                     String ex = entry.getKey().substring(entry.getKey().indexOf(".") + 1);
                     q.setParameter(ex, entry.getValue());
                 }else{
@@ -213,5 +217,15 @@ public class PhieuTraKhachHangImp extends UnicastRemoteObject implements PhieuTr
             listResult.add(rowDatas);
         }
         return listResult;
+    }
+
+    @Override
+    public JasperPrint xuatHoaDon(Map<String, Object> data) throws JRException, RemoteException, SQLException {
+        JasperDesign jasperDesign = JRXmlLoader.load(new File("src/main/resources/HoaDon/phieutra.jrxml"));
+        JasperReport jreport = JasperCompileManager.compileReport(jasperDesign);
+        Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=QLCHTT1;encrypt=false;trustServerCertificate=true", "sa", "123");
+        JasperPrint jprint = JasperFillManager.fillReport(jreport, data, con);
+        new PhieuTraKhachHangImp();
+        return jprint;
     }
 }

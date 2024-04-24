@@ -2,10 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="297" pageHeight="421" columnWidth="257" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="324000a4-e95f-4d7d-b541-92bd85bb3b6d">
 	<property name="ireport.zoom" value="1.9487171000000014"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
-	<parameter name="MaPhieuTraKH" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
+	<property name="ireport.y" value="48"/>
 	<parameter name="TienHang" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -18,18 +15,21 @@
 	<parameter name="GiaTri" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
+	<parameter name="ma_phieu_tra_khach_hang" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
 	<queryString>
-		<![CDATA[  select ptkh.MaPhieuTraKH, ptkh.NgayLap, TenSP, SoLuongTra, KichThuoc, GiaNhap*(1+phantramloi/100) as GiaBan, GiaNhap*(1+phantramloi/100)*SoLuongTra as ThanhTien, kh.HoTen as TenKH, nv.HoTen from PhieuTraKhachHang ptkh join ChiTietPhieuTraKhachHang ctpt on ptkh.MaPhieuTraKH = ctpt.MaPhieuTraKH join HoaDon hd on ptkh.MaHD = hd.MaHD join PhienBanSanPham pbsp on ctpt.MaPhienBanSP = pbsp.MaPhienBanSP join NhanVien nv on hd.MaNV = nv.MaNV join KhachHang kh on hd.MaKH = kh.MaKH join SanPham sp on sp.MaSP = pbsp.MaSP join ChiTietPhieuNhap ctnp on ctnp.MaSP = sp.MaSP where ptkh.MaPhieuTraKH = $P{MaPhieuTraKH}]]>
+		<![CDATA[select ptkh.ma_phieu_tra_khach_hang, ptkh.ngay_lap, ten_sp, so_luong_tra, kich_thuoc, gia_nhap*(1+phan_tram_loi/100) as GiaBan, gia_nhap*(1+phan_tram_loi/100)*so_luong_tra as ThanhTien, kh.ho_ten as TenKH, nv.ho_ten from PhieuTraKhachHang ptkh join ChiTietPhieuTraKhachHang ctpt on ptkh.ma_phieu_tra_khach_hang = ctpt.ma_phieu_tra_khach_hang join HoaDon hd on ptkh.ma_hd = hd.ma_hd join ChiTietPhienBanSanPham pbsp on ctpt.ma_phien_ban_sp = pbsp.ma_phien_ban_sp join NhanVien nv on hd.ma_nv = nv.ma_nv join KhachHang kh on hd.ma_kh = kh.ma_kh join SanPham sp on sp.ma_sp = pbsp.ma_sp join ChiTietPhieuNhapHang ctnp on ctnp.ma_sp = sp.ma_sp where ptkh.ma_phieu_tra_khach_hang = $P{ma_phieu_tra_khach_hang}]]>
 	</queryString>
-	<field name="MaPhieuTraKH" class="java.lang.String"/>
-	<field name="NgayLap" class="java.sql.Timestamp"/>
-	<field name="TenSP" class="java.lang.String"/>
-	<field name="SoLuongTra" class="java.lang.Integer"/>
-	<field name="KichThuoc" class="java.lang.String"/>
+	<field name="ma_phieu_tra_khach_hang" class="java.lang.String"/>
+	<field name="ngay_lap" class="java.sql.Timestamp"/>
+	<field name="ten_sp" class="java.lang.String"/>
+	<field name="so_luong_tra" class="java.lang.Integer"/>
+	<field name="kich_thuoc" class="java.lang.String"/>
 	<field name="GiaBan" class="java.lang.Double"/>
 	<field name="ThanhTien" class="java.lang.Double"/>
 	<field name="TenKH" class="java.lang.String"/>
-	<field name="HoTen" class="java.lang.String"/>
+	<field name="ho_ten" class="java.lang.String"/>
 	<filterExpression><![CDATA[new Boolean(true)]]></filterExpression>
 	<background>
 		<band splitType="Stretch"/>
@@ -80,7 +80,7 @@
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{MaPhieuTraKH}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ma_phieu_tra_khach_hang}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="132" y="17" width="26" height="12" uuid="5cfab80c-463e-4abf-b3fc-bd20f357c14d"/>
@@ -94,7 +94,7 @@
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{NgayLap}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ngay_lap}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="0" y="33" width="51" height="12" uuid="107f1202-dd6b-46ec-85eb-bf0d1f88da5d"/>
@@ -115,7 +115,7 @@
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{HoTen}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ho_ten}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="0" y="44" width="51" height="12" uuid="00f73395-f8ee-4acb-967f-6c53050c83e1"/>
@@ -178,7 +178,7 @@
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{TenSP}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ten_sp}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="131" y="0" width="49" height="13" uuid="c63fc360-d795-4617-aee2-896cdf43e104"/>
@@ -192,14 +192,14 @@
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{KichThuoc}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{kich_thuoc}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="110" y="0" width="18" height="13" uuid="7c938f8a-ffa5-4c4d-91e3-67bef6fc6286"/>
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{SoLuongTra}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{so_luong_tra}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="185" y="0" width="72" height="13" uuid="62118b06-35bb-4280-bae2-b37809fd3759"/>

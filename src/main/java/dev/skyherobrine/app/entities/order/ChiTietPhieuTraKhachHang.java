@@ -3,9 +3,7 @@ package dev.skyherobrine.app.entities.order;
 import dev.skyherobrine.app.entities.Key.ChiTietPhieuTraKhachHangId;
 import dev.skyherobrine.app.entities.product.ChiTietPhienBanSanPham;
 import dev.skyherobrine.app.entities.product.SanPham;
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +25,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
+@NamedQueries(
+        {
+                @NamedQuery(
+                        name = "ChiTietPhieuTraKhachHang.findAll",
+                        query = "SELECT c FROM ChiTietPhieuTraKhachHang c")
+        }
+)
 public class ChiTietPhieuTraKhachHang implements Serializable {
     /**
      *

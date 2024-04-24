@@ -78,7 +78,6 @@ public class ChiTietHoaDonImp extends UnicastRemoteObject implements ChiTietHoaD
         }
         Query q = em.createQuery(query.get(), ChiTietHoaDon.class);
 
-        System.out.println(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
             for (Map.Entry<String, Object> entry : conditions.entrySet()) {

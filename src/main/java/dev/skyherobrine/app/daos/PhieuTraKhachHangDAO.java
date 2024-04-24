@@ -1,6 +1,11 @@
 package dev.skyherobrine.app.daos;
 
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperPrint;
+
 import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,4 +132,5 @@ public interface PhieuTraKhachHangDAO<T> extends Remote {
      * @since 1.0
      */
     List<T> timKiem(String...ids) throws Exception;
+    JasperPrint xuatHoaDon(Map<String, Object> data) throws JRException, RemoteException, SQLException;
 }

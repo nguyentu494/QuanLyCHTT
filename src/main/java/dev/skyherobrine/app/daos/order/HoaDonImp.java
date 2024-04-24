@@ -37,7 +37,6 @@ public class HoaDonImp extends UnicastRemoteObject implements HoaDonDAO<HoaDon> 
             et.commit();
             return true;
         }catch (Exception e){
-            e.printStackTrace();
             et.rollback();
             return false;
         }
