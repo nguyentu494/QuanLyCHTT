@@ -174,6 +174,9 @@ public class KhachHangImp extends UnicastRemoteObject implements KhachHangDAO<Kh
                 }
             }
         }
+        System.out.println(query.get());
+
+
         Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {

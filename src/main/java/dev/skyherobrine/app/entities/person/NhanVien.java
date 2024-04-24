@@ -6,6 +6,7 @@ import dev.skyherobrine.app.enums.TinhTrangNhanVien;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -99,13 +100,18 @@ public class NhanVien implements Serializable {
      * Nếu họ và tên có ký tự khác chữ cái sẽ xuất ra exception "Họ và tên không được chứa ký tự số và ký tự đặc biệt!"
      */
     public void setHoTen(String hoTen) throws Exception {
-        if(!(hoTen.equalsIgnoreCase("")))
+        System.out.println(hoTen);
+        if(!(hoTen.equalsIgnoreCase(""))){
             if(!(hoTen.matches(".+\\D[ ]{1,}.+\\D$")))
                 throw new Exception("Họ và tên không được chứa ký tự số và ký tự đặc biệt");
             else
                 this.hoTen = hoTen;
-        else
+        }
+
+        else{
+            JOptionPane.showMessageDialog(null, "Họ tên không được rỗng!");
             throw new Exception("Họ tên không được rỗng!");
+        }
     }
 
     /**
@@ -115,9 +121,10 @@ public class NhanVien implements Serializable {
      */
     public void setSoDienThoai(String soDienThoai) throws Exception {
         if(!(soDienThoai.equalsIgnoreCase(""))) {
-            if(!(soDienThoai.matches("(^0\\d{9}|^(\\+84)\\d{9})")))
+            if(!(soDienThoai.matches("(^0\\d{9}|^(\\+84)\\d{9})"))) {
+                JOptionPane.showMessageDialog(null, "Số điện thoại phải bắt đầu bằng (0) hoặc (+84) và kèm theo 9 số!");
                 throw new Exception("Số điện thoại phải bắt đầu bằng (0) hoặc (+84) và kèm theo 9 số!");
-            else
+            }else
                 this.soDienThoai = soDienThoai;
         }
         else
@@ -136,9 +143,12 @@ public class NhanVien implements Serializable {
         try{
             if(Period.between(ngaySinh, LocalDate.now()).getYears()>=18)
                 this.ngaySinh = ngaySinh;
-            else
+            else {
+                JOptionPane.showMessageDialog(null, "Số tuổi của nhân viên phải lớn hơn 18!");
                 throw new Exception("Số tuổi của nhân viên phải lớn hơn 18!");
+            }
         } catch (Exception e){
+            JOptionPane.showMessageDialog(null, "Ngày sinh không được rỗng!");
             throw new Exception("Ngày sinh không được rỗng!");
         }
 
@@ -152,20 +162,25 @@ public class NhanVien implements Serializable {
      */
     public void setEmail(String email) throws Exception {
         if(!(email.equalsIgnoreCase(""))){
-            if(!(email.matches("([\\w{1,}][.][\\w{1,}]|[\\w{1,}])+@gmail\\.com$")))
+            if(!(email.matches("([\\w{1,}][.][\\w{1,}]|[\\w{1,}])+@gmail\\.com$"))){
+                JOptionPane.showMessageDialog(null, "Email phải có định dạng [kí tự]@gmail.com. Ví dụ: 'abc@gmail.com'");
                 throw new Exception("Email phải có định dạng [kí tự]@gmail.com. Ví dụ: 'abc@gmail.com' !");
-            else
+            } else
                 this.email = email;
         }
-        else
+        else{
+            JOptionPane.showMessageDialog(null, "Email không được rỗng!");
             throw new Exception("Email không được rỗng!");
+        }
     }
 
     public void setDiaChi(String diaChi) throws Exception {
         if(!(diaChi.equalsIgnoreCase("")))
             this.diaChi = diaChi;
-        else
+        else{
+            JOptionPane.showMessageDialog(null, "Địa chỉ không được rỗng!");
             throw new Exception("Địa chỉ không được rỗng!");
+        }
     }
 
     public void setChucVu(ChucVu chucVu) {
@@ -187,13 +202,16 @@ public class NhanVien implements Serializable {
      */
     public void setMatKhau(String matKhau) throws Exception {
         if(!(matKhau.equalsIgnoreCase(""))){
-            if(!(matKhau.matches("[\\w]{8,}")))
+            if(!(matKhau.matches("[\\w]{8,}"))) {
+                JOptionPane.showMessageDialog(null, "Mật khẩu phải có từ 8 ký tự trở lên!");
                 throw new Exception("Mật khẩu phải có từ 8 ký tự trở lên!");
-            else
+            }else
                 this.matKhau = matKhau;
         }
-        else
+        else {
+            JOptionPane.showMessageDialog(null, "Mật khẩu không được rỗng!");
             throw new Exception("Mật khẩu không được rỗng!");
+        }
     }
 
     public void setHinhAnh(String hinhAnh) {

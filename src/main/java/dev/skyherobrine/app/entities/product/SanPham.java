@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -117,6 +118,7 @@ public class SanPham implements Serializable {
         if(!xuatXu.equalsIgnoreCase(""))
             this.xuatXu = xuatXu;
         else
+            JOptionPane.showMessageDialog(null, "Xuất xứ không được để trống!");
             throw new Exception("Xuất xứ không được để trống!");
     }
 

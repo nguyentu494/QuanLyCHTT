@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Thực thể "Chi Tiết Hoá Đơn", thực thể này dùng để chứa thông tin chi tiết về sản phẩm mà khách hàng
  * mua và cũng như giá tiền tương ứng.
+ *
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
@@ -33,23 +35,26 @@ import java.util.List;
 )
 public class ChiTietHoaDon implements Serializable {
     /**
-	 * 
-	 */
-	@Serial
+     *
+     */
+    @Serial
     private static final long serialVersionUID = 1L;
-	@EmbeddedId
+    @EmbeddedId
     private ChiTietHoaDonId chiTietHoaDonId;
     @Column(name = "so_luong_mua", nullable = false)
     private int soLuongMua;
+
     /**
      * Set số lượng mua phải lớn hơn 0 <br></br>
      * Nếu số lượng mua bằng 0 thì sẽ xuất ra exception "Số lượng mua lớn hơn 0"
      */
     public void setSoLuongMua(int soLuongMua) throws Exception {
-        if(soLuongMua>0)
+        if (soLuongMua > 0)
             this.soLuongMua = soLuongMua;
-        else
+        else {
+            JOptionPane.showMessageDialog(null, "Số lượng mua phải lớn hơn 0!");
             throw new Exception("Số lượng mua phải lớn hơn 0!");
+        }
     }
 
     public double giaTienSanPham() {

@@ -4,6 +4,7 @@ import dev.skyherobrine.app.entities.product.SanPham;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 /**
  * Thực thể "Chi Tiết Phiếu Nhập", thực thể này dùng để lưu trữ thông tin chi tiết về nhập hàng, sản phẩm
  * nhập với số lượng là bao nhiêu? Số tiền nhập hàng ứng với sản phẩm đó là bao nhiêu?
+ *
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
@@ -24,11 +26,11 @@ import java.util.Set;
 })
 public class ChiTietPhieuNhapHang implements Serializable {
     /**
-	 * 
-	 */
-	@Serial
+     *
+     */
+    @Serial
     private static final long serialVersionUID = 1L;
-	@Id
+    @Id
     @Column(name = "ma_chi_tiet_phieu_nhap", nullable = false)
     private String maChiTietPhieuNhap;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
@@ -44,7 +46,7 @@ public class ChiTietPhieuNhapHang implements Serializable {
     @OneToMany(mappedBy = "chiTietPhieuNhapHangPhienBanSPId.chiTietPhieuNhapHang", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ChiTietPhieuNhapHangPhienBanSP> chiTietPhieuNhapHangPhienBanSPs;
 
-    public ChiTietPhieuNhapHang(String maChiTietPhieuNhap, PhieuNhapHang phieuNhapHang, SanPham sanPham, double giaNhap) throws Exception{
+    public ChiTietPhieuNhapHang(String maChiTietPhieuNhap, PhieuNhapHang phieuNhapHang, SanPham sanPham, double giaNhap) throws Exception {
         this.setMaChiTietPhieuNhap(maChiTietPhieuNhap);
         this.setPhieuNhapHang(phieuNhapHang);
         this.setSanPham(sanPham);
@@ -69,10 +71,12 @@ public class ChiTietPhieuNhapHang implements Serializable {
      * Nếu số giá nhập bằng 0 thì sẽ xuất ra exception "Giá nhập lớn hơn 0"
      */
     public void setGiaNhap(double giaNhap) throws Exception {
-        if(giaNhap>0)
+        if (giaNhap > 0)
             this.giaNhap = giaNhap;
-        else
+        else {
+            JOptionPane.showMessageDialog(null, "Giá nhập phải lớn hơn 0!");
             throw new Exception("Giá nhập phải lớn hơn 0!");
+        }
     }
 
     public void setMaChiTietPhieuNhap(String maChiTietPhieuNhap) {
@@ -81,6 +85,7 @@ public class ChiTietPhieuNhapHang implements Serializable {
 
     /**
      * Tính tiền nhập hàng. Công thức tính: <b>Giá Nhập * Số Lượng Nhập = Giá Tiền Trả</b>
+     *
      * @return {@link double} trả về số thực là số tiền nhập ứng với sản phẩm này.
      */
 

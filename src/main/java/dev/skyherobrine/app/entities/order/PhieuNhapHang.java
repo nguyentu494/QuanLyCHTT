@@ -5,6 +5,7 @@ import dev.skyherobrine.app.enums.TinhTrangNhapHang;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.Set;
 /**
  * Thực thể "Phiếu Nhập Hàng", thực thể này dùng để lưu trữ thông tin phiếu nhập hàng của cửa hàng trong
  * việc nhập các sản phẩm từ nhà cung cấp đến.
+ *
  * @author Trương Dương Minh Nhật
  * @version 1.0
  */
@@ -24,11 +26,11 @@ import java.util.Set;
 })
 public class PhieuNhapHang implements Serializable {
     /**
-	 * 
-	 */
-	@Serial
+     *
+     */
+    @Serial
     private static final long serialVersionUID = 1L;
-	@Id
+    @Id
     @Column(name = "ma_phieu_nhap", nullable = false)
     private String maPhieuNhap;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -78,10 +80,12 @@ public class PhieuNhapHang implements Serializable {
      * Nếu ngày hẹn giao nhỏ hơn ngày lập phiếu thì sẽ xuất ra exception "Ngày hẹn giao không được sớm hơn ngày lập phiếu!"
      */
     public void setNgayHenGiao(LocalDateTime ngayHenGiao) throws Exception {
-        if(!ngayHenGiao.isBefore(this.ngayLapPhieu))
+        if (!ngayHenGiao.isBefore(this.ngayLapPhieu))
             this.ngayHenGiao = ngayHenGiao;
-        else
+        else {
+            JOptionPane.showMessageDialog(null, "Ngày hẹn giao không được sớm hơn ngày lập phiếu!");
             throw new Exception("Ngày hẹn giao không được sớm hơn ngày lập phiếu!");
+        }
     }
 
     public void setGhiChu(String ghiChu) {

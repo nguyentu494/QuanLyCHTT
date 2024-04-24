@@ -185,6 +185,7 @@ public class NhaCungCapImp extends UnicastRemoteObject implements NhaCungCapDAO<
                 }
             }
         }
+
         Query q = em.createQuery(query.get());
 
         if (conditions != null && !conditions.isEmpty()) {
