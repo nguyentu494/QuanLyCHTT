@@ -120,11 +120,11 @@
 				<reportElement x="0" y="75" width="256" height="1" uuid="f25d3a73-209f-403c-b76d-84ba643cf398"/>
 			</line>
 			<textField>
-				<reportElement x="107" y="0" width="57" height="11" uuid="40ba8a95-f10f-4e55-a094-544c74ed7539"/>
+				<reportElement x="107" y="0" width="122" height="12" uuid="f216a58c-1cdd-44dd-8dcc-968277730b82"/>
 				<textElement>
 					<font fontName="Times New Roman"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{ma_hd}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ma_hd}]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>

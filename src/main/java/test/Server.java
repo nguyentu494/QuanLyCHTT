@@ -34,7 +34,7 @@ import java.rmi.registry.LocateRegistry;
  * @version: 1.0
  */
 public class Server {
-    private static final String URL = "rmi://LAPTOP-UA4UAHPE:7878/";
+    private static final String URL = "rmi://192.168.155.143:7878/";
 
     public static void main(String[] args) throws Exception {
         Context context = new InitialContext();
